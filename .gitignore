@@ -1,3 +1,6 @@
+# Exclude contents of target folder
+target/
+
 # Compiled class file
 *.class
 
