@@ -1,5 +1,5 @@
-SpringBoot + REST API + MySQL
-=============================
+BSPQ26-E3 - Plant Hub app
+=========================
 
 This example relies on the SpringBoot to create a REST API and connecting to a MySQL database using JPA, with a sample web application and a command line client.
 
