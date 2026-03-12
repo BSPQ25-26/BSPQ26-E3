@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>PlantHub Management</title>
+    <script>
+        async function fetchPlantHubs() {
+            const response = await fetch('/api/PlantHubs');
+            const PlantHubs = await response.json();
+            let tableContent = PlantHubs.map(PlantHub => 
+                `<tr id="row-${PlantHub.id}">
+                    <td>${PlantHub.id}</td>
+                    <td id="title-cell-${PlantHub.id}">${PlantHub.title}</td>
+                    <td id="author-cell-${PlantHub.id}">${PlantHub.author}</td>
+                    <td id="actions-${PlantHub.id}">
+                        <button onclick="enableEdit(${PlantHub.id}, '${PlantHub.title}', '${PlantHub.author}')">Update</button>
+                        <button onclick="deletePlantHub(${PlantHub.id})">Delete</button>
+                    </td>
+                </tr>`
+            ).join('');
+            document.getElementById('PlantHubTable').innerHTML = tableContent;
+        }
+
+        async function addPlantHub() {
+            const title = document.getElementById('title').value;
+            const author = document.getElementById('author').value;
+
+            await fetch('/api/PlantHubs', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, author })
+            });
+
+            document.getElementById('title').value = "";
+            document.getElementById('author').value = "";
+            fetchPlantHubs();
+        }
+
+        function enableEdit(id, title, author) {
+            document.getElementById(`row-${id}`).innerHTML = `
+                <td>${id}</td>
+                <td><input type="text" id="edit-title-${id}" value="${title}"></td>
+                <td><input type="text" id="edit-author-${id}" value="${author}"></td>
+                <td>
+                    <button onclick="confirmUpdate(${id})">Confirm</button>
+                    <button onclick="fetchPlantHubs()">Cancel</button>
+                </td>
+            `;
+        }
+
+        async function confirmUpdate(id) {
+            const title = document.getElementById(`edit-title-${id}`).value;
+            const author = document.getElementById(`edit-author-${id}`).value;
+
+            await fetch(`/api/PlantHubs/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, author })
+            });
+
+            fetchPlantHubs();
+        }
+
+        async function deletePlantHub(id) {
+            await fetch(`/api/PlantHubs/${id}`, {
+                method: 'DELETE'
+            });
+
+            fetchPlantHubs();
+        }
+
+        window.onload = fetchPlantHubs;
+    </script>
+</head>
+<body>
+    <h2>PlantHub Management</h2>
+
+    <form onsubmit="event.preventDefault(); addPlantHub();">
+        <input type="text" id="title" placeholder="Title" required>
+        <input type="text" id="author" placeholder="Author" required>
+        <button type="submit">Add PlantHub</button>
+    </form>
+
+    <h3>PlantHub List</h3>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="PlantHubTable"></tbody>
+    </table>
+</body>
+</html>
