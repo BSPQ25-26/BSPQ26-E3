@@ -1,93 +1,86 @@
-BSPQ26-E3 - Plant Hub app   PULL REQUEST
-=========================
+BSPQ26-E3 - Supabase user API
+=============================
 
-This example relies on the SpringBoot to create a REST API and connecting to a MySQL database using JPA, with a sample web application and a command line client.
-
-The basic structure of a SpringBoot project can be initialized using *Spring initializr* at https://start.spring.io/.
+This project uses Spring Boot to expose a REST API backed by a Supabase PostgreSQL database through Spring Data JPA.
 
 Launching the application
 -------------------------
 
-First, check all the required dependencies specified by the pom.xml file and the database configuration contained in *src/main/resources/application.properties* file.
+Check the dependencies in `pom.xml` and the database configuration in `src/main/resources/application.properties`.
 
-Now, run the following command to check to download all dependencies and check that everything correctly compiles
+Create a `.env` file in the project root with your Supabase database credentials:
 
-      mvn compile
+```env
+DB_URL=jdbc:postgresql://db.<your-project-ref>.supabase.co:5432/postgres?sslmode=require
+DB_USERNAME=postgres
+DB_PASSWORD=<your-supabase-database-password>
+```
 
-Make sure that the MySQL database was correctly configured before connecting the application to use it. 
-Use the contents of the file *src/main/resources/dbsetup.sql* to create the database, an specific user 'spq' (pass: 'spq') for the application and grant privileges to that user. If you are using the command line client for MySQL you could run the following command
+The application maps the existing Supabase table `"user"` with the columns `id`, `created_at`, `phone`, and `mail`.
 
-      mysql –uroot -p < src/main/resources/dbsetup.sql
+Compile the project:
 
-otherwise you could use the contents of the file in any other MySQL client you are using.
+```bash
+mvn compile
+```
 
-Now, launch the server using the following command
+Run the server:
 
-    mvn spring-boot:run
+```bash
+mvn spring-boot:run
+```
 
-If there are no errors, you should get a running web application serving its contents at http://localhost:8080/. You can press Ctrl+C to stop the running application.
+If the database credentials are correct and the `user` table already exists, the API will be available at `http://localhost:8080/`.
 
 REST API
 --------
 
-The application exposes a REST API, which is used by the web application, which is implemented in the PlantHubController class. To execute these methods, you may install [POSTman app](https://learning.postman.com/docs/getting-started/first-steps/get-postman/) or [CURL command line tool](https://curl.se/). For example, some methods are
+Retrieve all users:
 
-Retrieves all the registered PlantHubs
+```http
+GET http://localhost:8080/api/users
+```
 
-    GET http://localhost:8080/api/PlantHubs
+Create a user:
 
-Adds a new PlantHub to the database
+```http
+POST http://localhost:8080/api/users
+Content-Type: application/json
 
-    POST http://localhost:8080/api/PlantHubs
-    Content-Type: application/json
+{
+  "phone": "+34123456789",
+  "mail": "user@example.com"
+}
+```
 
-    {
-    "title": "Spring Boot in Action",
-    "author": "Craig Walls",
-    "isbn": "9781617292545"
-    }
+Delete a user:
 
-Removes a previously registered PlantHub
+```http
+DELETE http://localhost:8080/api/users/1
+```
 
-    DELETE http://localhost:8080/api/PlantHubs/1
-
-To see the full list of methods from the REST API, you can visit Swagger interface at: http://localhost:8080/swagger-ui.html. Check the annotations in the *PlantHubController* class, the required dependencies in the *pom.xml* file and the *application.properties* file for its configuration
+Swagger is available at `http://localhost:8080/swagger-ui.html`.
 
 Command line client
 -------------------
 
-There is a sample REST API client implementation using the SpringBoot REST client libraries in class *PlantHubManager.java*. You can launch the client using the following Maven command (check)
+There is a sample REST client in `AppUserManager.java`. You can launch it with:
 
-    mvn exec:java
-
-See <build> section in *pom.xml* to see how this command was configured to work.
+```bash
+mvn exec:java
+```
 
 Packaging the application
 -------------------------
 
-Application can be packaged executing the following command
+Package the application with:
 
-    mvn package
+```bash
+mvn package
+```
 
-including all the SpringBoot required libraries inside the *target/rest-api-0.0.1-SNAPSHOT.jar*, which can be distributed.
+Run the packaged server with:
 
-Once packaged, the server can be launched with
-
-    java -jar rest-api-0.0.1-SNAPSHOT.jar
-
-and the sample client by running, as SpringBoot changes the way the default Java loader
-
-    java -cp rest-api-0.0.1-SNAPSHOT.jar -Dloader.main=com.example.restapi.client.PlantHubManager org.springframework.boot.loader.launch.PropertiesLauncher localhost 8080
-
-Therefore, in a real development, it would be advisable to create different Maven projects for server and client applications, easing distribution and manteinance of each application separately.
-
-References
-----------
-
-* Very good explaination of the project: https://medium.com/@pratik.941/building-rest-api-using-spring-boot-a-comprehensive-guide-3e9b6d7a8951 
-* Building REST services with Spring: https://spring.io/guides/tutorials/rest
-* Good example documenting how to generate Swagger APIs in Spring Boot: https://bell-sw.com/blog/documenting-rest-api-with-swagger-in-spring-boot-3/#mcetoc_1heq9ft3o1v 
-* Docker example with Spring: https://medium.com/@yunuseulucay/end-to-end-spring-boot-with-mysql-and-docker-2c42a6e036c0
-
-
-
+```bash
+java -jar target/rest-api-0.0.1-SNAPSHOT.jar
+```
