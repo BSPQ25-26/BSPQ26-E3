@@ -28,7 +28,7 @@
 		<url />
 	</scm>
 	<properties>
-		<java.version>22</java.version> <server.hostname>127.0.0.1</server.hostname>
+		<java.version>21</java.version> <server.hostname>127.0.0.1</server.hostname>
 		<server.port>8080</server.port>
 	</properties>
 
