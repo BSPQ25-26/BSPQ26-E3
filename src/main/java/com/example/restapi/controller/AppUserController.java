@@ -52,7 +52,7 @@ public class AppUserController {
 
     @PostMapping("/login")
     public ResponseEntity<AppUser> login(@RequestBody LoginRequest request) {
-        return appUserService.login(request.getMail(), request.getPhone())
+        return appUserService.login(request.getUsername(), request.getPassword())
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(401).build());
     }

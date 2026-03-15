@@ -71,11 +71,15 @@ public class AppUserManager {
 
             switch (choice) {
                 case 1:
+                    System.out.print("Enter username: ");
+                    String username = scanner.nextLine();
                     System.out.print("Enter phone: ");
                     String phone = scanner.nextLine();
-                    System.out.print("Enter mail: ");
-                    String mail = scanner.nextLine();
-                    appUserManager.registerUser(new AppUser(phone, mail));
+                    System.out.print("Enter email: ");
+                    String email = scanner.nextLine();
+                    System.out.print("Enter password: ");
+                    String password = scanner.nextLine();
+                    appUserManager.registerUser(new AppUser(username, phone, email, password));
                     break;
                 case 2:
                     List<AppUser> users = appUserManager.getAllUsers();
@@ -83,7 +87,8 @@ public class AppUserManager {
                         System.out.println("ID: " + user.getId());
                         System.out.println("Created at: " + user.getCreatedAt());
                         System.out.println("Phone: " + user.getPhone());
-                        System.out.println("Mail: " + user.getMail());
+                        System.out.println("Email: " + user.getEmail());
+                        System.out.println("Username: " + user.getUsername());
                         System.out.println("---------------------------");
                     }
                     break;

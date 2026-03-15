@@ -13,7 +13,7 @@
             <h1>Login and register against the `user` table.</h1>
             <p class="hero-copy">
                 This screen uses your Spring Boot API as the bridge to Supabase. Register creates a row in the database,
-                and login checks whether a `mail` + `phone` combination already exists.
+                and login checks whether a username + password combination already exists.
             </p>
             <div class="status-card">
                 <span class="status-label">API status</span>
@@ -29,22 +29,28 @@
 
             <form id="loginForm" class="auth-form" onsubmit="event.preventDefault(); loginUser();">
                 <h2>Login</h2>
-                <label for="loginMail">Mail</label>
-                <input type="email" id="loginMail" placeholder="user@example.com" required>
+                <label for="loginUsername">Username</label>
+                <input type="text" id="loginUsername" placeholder="username" required>
 
-                <label for="loginPhone">Phone</label>
-                <input type="text" id="loginPhone" placeholder="+34123456789" required>
+                <label for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" placeholder="password" required>
 
                 <button class="primary-button" type="submit">Login</button>
             </form>
 
             <form id="registerForm" class="auth-form hidden" onsubmit="event.preventDefault(); registerUser();">
                 <h2>Register</h2>
-                <label for="registerMail">Mail</label>
-                <input type="email" id="registerMail" placeholder="user@example.com" required>
+                <label for="registerUsername">Username</label>
+                <input type="text" id="registerUsername" placeholder="username" required>
+
+                <label for="registerEmail">Email</label>
+                <input type="email" id="registerEmail" placeholder="user@example.com" required>
 
                 <label for="registerPhone">Phone</label>
                 <input type="text" id="registerPhone" placeholder="+34123456789" required>
+
+                <label for="registerPassword">Password</label>
+                <input type="password" id="registerPassword" placeholder="password" required>
 
                 <button class="primary-button" type="submit">Create user</button>
             </form>
@@ -69,7 +75,7 @@
                         <th>ID</th>
                         <th>Created At</th>
                         <th>Phone</th>
-                        <th>Mail</th>
+                        <th>Email</th>
                     </tr>
                 </thead>
                 <tbody id="usersTableBody">
@@ -127,7 +133,7 @@
                             <td>${user.id ?? ''}</td>
                             <td>${user.createdAt ?? ''}</td>
                             <td>${user.phone ?? ''}</td>
-                            <td>${user.mail ?? ''}</td>
+                            <td>${user.email ?? ''}</td>
                         </tr>
                     `).join('');
                 }
@@ -141,14 +147,16 @@
         }
 
         async function registerUser() {
-            const mail = document.getElementById('registerMail').value.trim();
+            const username = document.getElementById('registerUsername').value.trim();
+            const email = document.getElementById('registerEmail').value.trim();
             const phone = document.getElementById('registerPhone').value.trim();
+            const password = document.getElementById('registerPassword').value.trim();
 
             try {
                 const response = await fetch('/api/users', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ mail, phone })
+                    body: JSON.stringify({ username, email, phone, password })
                 });
 
                 if (!response.ok) {
@@ -160,26 +168,26 @@
                 document.getElementById('registerForm').reset();
                 await loadUsers();
                 showPanel('login');
-                document.getElementById('loginMail').value = user.mail ?? mail;
-                document.getElementById('loginPhone').value = user.phone ?? phone;
+                document.getElementById('loginUsername').value = user.username ?? username;
+                document.getElementById('loginPassword').value = user.password ?? password;
             } catch (error) {
-                renderMessage('Could not register the user. Check DB connection or duplicated mail.', 'error');
+                renderMessage('Could not register the user. Check DB connection or duplicated username/email.', 'error');
             }
         }
 
         async function loginUser() {
-            const mail = document.getElementById('loginMail').value.trim();
-            const phone = document.getElementById('loginPhone').value.trim();
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
 
             try {
                 const response = await fetch('/api/users/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ mail, phone })
+                    body: JSON.stringify({ username, password })
                 });
 
                 if (response.status === 401) {
-                    renderMessage('User not found. Register first or verify mail and phone.', 'error');
+                    renderMessage('User not found. Register first or verify username and password.', 'error');
                     return;
                 }
 
@@ -188,7 +196,7 @@
                 }
 
                 const user = await response.json();
-                renderMessage(`Login successful for ${user.mail}.`, 'success');
+                renderMessage(`Login successful for ${user.username}.`, 'success');
                 await loadUsers();
             } catch (error) {
                 renderMessage('Could not complete login. Check the API and database connection.', 'error');

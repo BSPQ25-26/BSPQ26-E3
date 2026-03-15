@@ -1,6 +1,10 @@
 # Exclude contents of target folder
 target/
 
+#Frontend - React dependencies and build
+/frontend/node_modules/
+/frontend/build/
+
 # Compiled class file
 *.class
 

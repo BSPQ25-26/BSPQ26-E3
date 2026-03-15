@@ -10,7 +10,9 @@ import com.example.restapi.model.AppUser;
 @Repository
 public interface AppUserRepository extends JpaRepository<AppUser, Long> {
 
-    Optional<AppUser> findByMail(String mail);
+    Optional<AppUser> findByEmail(String email);
 
-    Optional<AppUser> findByMailAndPhone(String mail, String phone);
+    Optional<AppUser> findByUsername(String username);
+
+    Optional<AppUser> findByUsernameAndPassword(String username, String password);
 }

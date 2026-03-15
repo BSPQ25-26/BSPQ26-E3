@@ -26,15 +26,19 @@ public class AppUserService {
     }
 
     public AppUser createUser(AppUser user) {
-        appUserRepository.findByMail(user.getMail()).ifPresent(existingUser -> {
+        appUserRepository.findByEmail(user.getEmail()).ifPresent(existingUser -> {
             throw new RuntimeException("A user with this email already exists");
+        });
+
+        appUserRepository.findByUsername(user.getUsername()).ifPresent(existingUser -> {
+            throw new RuntimeException("A user with this username already exists");
         });
 
         return appUserRepository.save(user);
     }
 
-    public Optional<AppUser> login(String mail, String phone) {
-        return appUserRepository.findByMailAndPhone(mail, phone);
+    public Optional<AppUser> login(String username, String password) {
+        return appUserRepository.findByUsernameAndPassword(username, password);
     }
 
     public AppUser updateUser(Long id, AppUser userDetails) {
@@ -42,7 +46,11 @@ public class AppUserService {
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
         user.setPhone(userDetails.getPhone());
-        user.setMail(userDetails.getMail());
+        user.setEmail(userDetails.getEmail());
+        user.setUsername(userDetails.getUsername());
+        if (userDetails.getPassword() != null && !userDetails.getPassword().isEmpty()) {
+            user.setPassword(userDetails.getPassword());
+        }
         return appUserRepository.save(user);
     }
 
