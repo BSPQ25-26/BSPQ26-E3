@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 export default function Login({ onLoginSuccess, showRegister }) {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
@@ -10,7 +10,7 @@ export default function Login({ onLoginSuccess, showRegister }) {
       const res = await fetch("/api/users/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ email, password }),
       });
 
       console.log("Login response status:", res.status);
@@ -44,7 +44,7 @@ export default function Login({ onLoginSuccess, showRegister }) {
       <h2>Login</h2>
       <div>
         <div>
-          <input placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} />
+          <input placeholder="Email" type="email" value={email} onChange={e => setEmail(e.target.value)} />
         </div>
         <div>
           <input placeholder="Password" type="password" value={password} onChange={e => setPassword(e.target.value)} />

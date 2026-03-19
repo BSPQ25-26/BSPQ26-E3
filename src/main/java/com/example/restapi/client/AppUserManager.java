@@ -6,7 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import com.example.restapi.model.AppUser;
+import com.example.restapi.dto.RegisterRequest;
+import com.example.restapi.model.Profile;
 
 public class AppUserManager {
 
@@ -19,8 +20,8 @@ public class AppUserManager {
         this.restTemplate = new RestTemplate();
     }
 
-    public void registerUser(AppUser user) {
-        ResponseEntity<AppUser> response = restTemplate.postForEntity(userControllerUrl, user, AppUser.class);
+    public void registerUser(RegisterRequest req) {
+        ResponseEntity<Profile> response = restTemplate.postForEntity(userControllerUrl, req, Profile.class);
 
         if (response.getStatusCode().is2xxSuccessful()) {
             System.out.println("User registered successfully.");
@@ -29,8 +30,8 @@ public class AppUserManager {
         }
     }
 
-    public List<AppUser> getAllUsers() {
-        ResponseEntity<AppUser[]> response = restTemplate.getForEntity(userControllerUrl, AppUser[].class);
+    public List<Profile> getAllUsers() {
+        ResponseEntity<Profile[]> response = restTemplate.getForEntity(userControllerUrl, Profile[].class);
 
         if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
             return List.of(response.getBody());
@@ -79,16 +80,19 @@ public class AppUserManager {
                     String email = scanner.nextLine();
                     System.out.print("Enter password: ");
                     String password = scanner.nextLine();
-                    appUserManager.registerUser(new AppUser(username, phone, email, password));
+                    RegisterRequest req = new RegisterRequest();
+                    req.setUsername(username);
+                    req.setPhone(phone);
+                    req.setEmail(email);
+                    req.setPassword(password);
+                    appUserManager.registerUser(req);
                     break;
                 case 2:
-                    List<AppUser> users = appUserManager.getAllUsers();
-                    for (AppUser user : users) {
+                    List<Profile> users = appUserManager.getAllUsers();
+                    for (Profile user : users) {
                         System.out.println("ID: " + user.getId());
-                        System.out.println("Created at: " + user.getCreatedAt());
-                        System.out.println("Phone: " + user.getPhone());
-                        System.out.println("Email: " + user.getEmail());
                         System.out.println("Username: " + user.getUsername());
+                        System.out.println("Created at: " + user.getCreatedAt());
                         System.out.println("---------------------------");
                     }
                     break;
