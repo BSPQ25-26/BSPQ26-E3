@@ -26,27 +26,44 @@ export default function Register({ onRegisterSuccess, showLogin }) {
   };
 
   return (
-    <div>
-      <h2>Register</h2>
-      <div>
-        <div>
-          <input placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} />
+    <main className="auth-shell">
+      <section className="auth-card">
+        <span className="auth-kicker">Green Home</span>
+        <h1>Crea tu cuenta</h1>
+        <p className="auth-copy">Registra tus datos y entra a la portada principal en cuanto termines.</p>
+        <div className="auth-fields">
+          <input
+            className="auth-input"
+            placeholder="Username"
+            value={username}
+            onChange={(event) => setUsername(event.target.value)}
+          />
+          <input
+            className="auth-input"
+            placeholder="Email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+          />
+          <input
+            className="auth-input"
+            placeholder="Phone"
+            value={phone}
+            onChange={(event) => setPhone(event.target.value)}
+          />
+          <input
+            className="auth-input"
+            placeholder="Password"
+            type="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+          />
         </div>
-        <div>
-          <input placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
+        <div className="auth-actions">
+          <button className="primary-button" onClick={handleRegister}>Register</button>
+          <button className="secondary-button" onClick={showLogin}>Volver al login</button>
         </div>
-        <div>
-          <input placeholder="Phone" value={phone} onChange={e => setPhone(e.target.value)} />
-        </div>
-        <div>
-          <input placeholder="Password" type="password" value={password} onChange={e => setPassword(e.target.value)} />
-        </div>
-      </div>
-      <div>
-        <button onClick={handleRegister}>Register</button>
-        <button onClick={showLogin}>Already have an account? Login</button>
-      </div>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-    </div>
+        {error && <p className="auth-error">{error}</p>}
+      </section>
+    </main>
   );
 }
