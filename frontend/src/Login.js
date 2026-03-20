@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 export default function Login({ onLoginSuccess, showRegister }) {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
@@ -10,7 +10,7 @@ export default function Login({ onLoginSuccess, showRegister }) {
       const res = await fetch("/api/users/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ email, password }),
       });
 
       console.log("Login response status:", res.status);
@@ -46,12 +46,9 @@ export default function Login({ onLoginSuccess, showRegister }) {
         <h1>Inicia sesion</h1>
         <p className="auth-copy">Accede a tu espacio y entra directamente a la portada principal del proyecto.</p>
         <div className="auth-fields">
-          <input
-            className="auth-input"
-            placeholder="Username"
-            value={username}
-            onChange={(event) => setUsername(event.target.value)}
-          />
+          <input placeholder="Email" 
+            type="email" value={email} 
+            onChange={e => etEmail(e.target.value)} />
           <input
             className="auth-input"
             placeholder="Password"
