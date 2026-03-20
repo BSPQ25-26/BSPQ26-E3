@@ -1,6 +1,7 @@
 package com.example.restapi.controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,16 @@ public class AppUserController {
         this.appUserService = appUserService;
     }
 
+    @PostMapping("/resend-confirmation")
+    public ResponseEntity<?> resendConfirmation(@RequestBody Map<String, String> body) {
+        try {
+            appUserService.resendConfirmation(body.get("email"));
+            return ResponseEntity.ok("Correo de confirmación reenviado.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @GetMapping
     public List<Profile> getAllUsers() {
         return appUserService.getAllUsers();
@@ -45,20 +56,23 @@ public class AppUserController {
     }
 
     @PostMapping
-    public ResponseEntity<Profile> register(@RequestBody RegisterRequest req) {
+    public ResponseEntity<?> register(@RequestBody RegisterRequest req) {
         try {
             return ResponseEntity.ok(appUserService.register(req));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         try {
             return ResponseEntity.ok(appUserService.login(request.getEmail(), request.getPassword()));
         } catch (RuntimeException e) {
-            return ResponseEntity.status(401).build();
+            if ("EMAIL_NOT_CONFIRMED".equals(e.getMessage())) {
+                return ResponseEntity.status(403).body("Email not confirmed.");
+            }
+            return ResponseEntity.status(401).body("Invalid credentials.");
         }
     }
 

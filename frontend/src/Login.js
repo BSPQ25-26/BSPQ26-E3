@@ -1,11 +1,16 @@
 import { useState } from "react";
 
-export default function Login({ onLoginSuccess, showRegister }) {
+export default function Login({ onLoginSuccess, showRegister, successMsg }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [emailNotConfirmed, setEmailNotConfirmed] = useState(false);
+  const [resendStatus, setResendStatus] = useState("");
 
   const handleLogin = async () => {
+    setError("");
+    setEmailNotConfirmed(false);
+    setResendStatus("");
     try {
       const res = await fetch("/api/users/login", {
         method: "POST",
@@ -13,29 +18,46 @@ export default function Login({ onLoginSuccess, showRegister }) {
         body: JSON.stringify({ email, password }),
       });
 
-      console.log("Login response status:", res.status);
-
       if (res.status === 404) {
-        showRegister(); // user not found, shows register page
+        showRegister();
+        return;
+      }
+
+      if (res.status === 403) {
+        setEmailNotConfirmed(true);
         return;
       }
 
       if (!res.ok) {
-        let bodyText = "";
-        try {
-          bodyText = await res.text();
-        } catch (e) {
-        }
-        console.error("Login failed:", res.status, bodyText);
-        setError(`Login failed (${res.status}). ${bodyText || "Try again."}`);
+        const bodyText = await res.text().catch(() => "");
+        setError(bodyText || "Invalid credentials. Please try again.");
         return;
       }
 
       const data = await res.json();
-      onLoginSuccess(data); // login successful, access dashboard
+      onLoginSuccess(data);
     } catch (err) {
       console.error("Login fetch error:", err);
-      setError("Login failed. Try again.");
+      setError("Could not connect. Please try again.");
+    }
+  };
+
+  const handleResend = async () => {
+    setResendStatus("");
+    try {
+      const res = await fetch("/api/users/resend-confirmation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const text = await res.text().catch(() => "");
+      if (res.ok) {
+        setResendStatus("ok");
+      } else {
+        setResendStatus("error:" + (text || "No se pudo reenviar."));
+      }
+    } catch (err) {
+      setResendStatus("error:No se pudo conectar.");
     }
   };
 
@@ -43,24 +65,55 @@ export default function Login({ onLoginSuccess, showRegister }) {
     <main className="auth-shell">
       <section className="auth-card">
         <span className="auth-kicker">Green Home</span>
-        <h1>Inicia sesion</h1>
-        <p className="auth-copy">Accede a tu espacio y entra directamente a la portada principal del proyecto.</p>
+        <h1>Sign in</h1>
+        <p className="auth-copy">Access your space and go directly to the main page of the project.</p>
+
+        {successMsg && (
+          <p className="auth-notice">{successMsg}</p>
+        )}
+
         <div className="auth-fields">
-          <input placeholder="Email" 
-            type="email" value={email} 
-            onChange={e => etEmail(e.target.value)} />
+          <input
+            className="auth-input"
+            placeholder="Email"
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+          />
           <input
             className="auth-input"
             placeholder="Password"
             type="password"
             value={password}
-            onChange={(event) => setPassword(event.target.value)}
+            onChange={e => setPassword(e.target.value)}
           />
         </div>
         <div className="auth-actions">
           <button className="primary-button" onClick={handleLogin}>Login</button>
-          <button className="secondary-button" onClick={showRegister}>Crear cuenta</button>
+          <button className="secondary-button" onClick={showRegister}>Create account</button>
         </div>
+
+        {emailNotConfirmed && (
+          <div className="auth-notice">
+            Please confirm your email before signing in. Check your inbox.
+            {resendStatus === "ok" ? (
+              <><br />Confirmation email sent. Check your inbox.</>
+            ) : (
+              <>
+                <br />
+                <button className="auth-notice-action" onClick={handleResend}>
+                  Resend confirmation email
+                </button>
+                {resendStatus.startsWith("error:") && (
+                  <span style={{ display: "block", marginTop: 6, color: "#9b2d23", fontSize: "0.88rem" }}>
+                    {resendStatus.slice(6)}
+                  </span>
+                )}
+              </>
+            )}
+          </div>
+        )}
+
         {error && <p className="auth-error">{error}</p>}
       </section>
     </main>

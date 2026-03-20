@@ -69,6 +69,10 @@ public class AppUserService {
         log.info("Supabase signup response: {}", response);
         String userId = extractUserId(response);
 
+        if (profileRepository.findByUsername(req.getUsername()).isPresent()) {
+            throw new RuntimeException("Username already taken: " + req.getUsername());
+        }
+
         Profile profile = new Profile(UUID.fromString(userId), req.getUsername(), req.getPhone());
         return profileRepository.save(profile);
     }
@@ -92,7 +96,11 @@ public class AppUserService {
             response = r;
         } catch (HttpClientErrorException e) {
             log.error("Supabase login error {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
-            throw new RuntimeException("Supabase login failed: " + e.getResponseBodyAsString());
+            String errorBody = e.getResponseBodyAsString();
+            if (errorBody.contains("email_not_confirmed")) {
+                throw new RuntimeException("EMAIL_NOT_CONFIRMED");
+            }
+            throw new RuntimeException("Supabase login failed: " + errorBody);
         }
 
         String accessToken = (String) response.get("access_token");
@@ -113,6 +121,24 @@ public class AppUserService {
         authResponse.setExpiresIn(expiresIn);
         authResponse.setProfile(profile);
         return authResponse;
+    }
+
+    public void resendConfirmation(String email) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("apikey", supabaseAnonKey);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        Map<String, String> body = new HashMap<>();
+        body.put("type", "signup");
+        body.put("email", email);
+
+        HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
+        try {
+            restTemplate.postForObject(supabaseUrl + "/auth/v1/resend", request, Map.class);
+        } catch (HttpClientErrorException e) {
+            log.error("Supabase resend error {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
+            throw new RuntimeException("No se pudo reenviar el correo: " + e.getResponseBodyAsString());
+        }
     }
 
     public List<Profile> getAllUsers() {
