@@ -8,6 +8,7 @@ export default function Register({ onRegisterSuccess, showLogin }) {
   const [error, setError] = useState("");
 
   const handleRegister = async () => {
+    setError("");
     try {
       const res = await fetch("/api/users", {
         method: "POST",
@@ -15,13 +16,16 @@ export default function Register({ onRegisterSuccess, showLogin }) {
         body: JSON.stringify({ username, email, phone, password }),
       });
 
-      if (!res.ok) throw new Error("Registration failed");
+      if (!res.ok) {
+        const bodyText = await res.text().catch(() => "");
+        setError(bodyText || "Registration failed. Please try again.");
+        return;
+      }
 
-      const data = await res.json();
-      onRegisterSuccess(data);
+      onRegisterSuccess("Account created. Check your email to confirm your address before signing in.");
     } catch (err) {
       console.error(err);
-      setError("Registration failed. Try again.");
+      setError("Could not connect. Please try again.");
     }
   };
 
@@ -29,38 +33,39 @@ export default function Register({ onRegisterSuccess, showLogin }) {
     <main className="auth-shell">
       <section className="auth-card">
         <span className="auth-kicker">Green Home</span>
-        <h1>Crea tu cuenta</h1>
-        <p className="auth-copy">Registra tus datos y entra a la portada principal en cuanto termines.</p>
+        <h1>Create account</h1>
+        <p className="auth-copy">Register your details and access the main page once you're done.</p>
         <div className="auth-fields">
           <input
             className="auth-input"
             placeholder="Username"
             value={username}
-            onChange={(event) => setUsername(event.target.value)}
+            onChange={e => setUsername(e.target.value)}
           />
           <input
             className="auth-input"
             placeholder="Email"
+            type="email"
             value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            onChange={e => setEmail(e.target.value)}
           />
           <input
             className="auth-input"
             placeholder="Phone"
             value={phone}
-            onChange={(event) => setPhone(event.target.value)}
+            onChange={e => setPhone(e.target.value)}
           />
           <input
             className="auth-input"
             placeholder="Password"
             type="password"
             value={password}
-            onChange={(event) => setPassword(event.target.value)}
+            onChange={e => setPassword(e.target.value)}
           />
         </div>
         <div className="auth-actions">
           <button className="primary-button" onClick={handleRegister}>Register</button>
-          <button className="secondary-button" onClick={showLogin}>Volver al login</button>
+          <button className="secondary-button" onClick={showLogin}>Back to login</button>
         </div>
         {error && <p className="auth-error">{error}</p>}
       </section>
