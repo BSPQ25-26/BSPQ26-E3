@@ -40,21 +40,32 @@ export default function Login({ onLoginSuccess, showRegister }) {
   };
 
   return (
-    <div>
-      <h2>Login</h2>
-      <div>
-        <div>
-          <input placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} />
+    <main className="auth-shell">
+      <section className="auth-card">
+        <span className="auth-kicker">Green Home</span>
+        <h1>Inicia sesion</h1>
+        <p className="auth-copy">Accede a tu espacio y entra directamente a la portada principal del proyecto.</p>
+        <div className="auth-fields">
+          <input
+            className="auth-input"
+            placeholder="Username"
+            value={username}
+            onChange={(event) => setUsername(event.target.value)}
+          />
+          <input
+            className="auth-input"
+            placeholder="Password"
+            type="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+          />
         </div>
-        <div>
-          <input placeholder="Password" type="password" value={password} onChange={e => setPassword(e.target.value)} />
+        <div className="auth-actions">
+          <button className="primary-button" onClick={handleLogin}>Login</button>
+          <button className="secondary-button" onClick={showRegister}>Crear cuenta</button>
         </div>
-      </div>
-      <div>
-        <button onClick={handleLogin}>Login</button>
-        <button onClick={showRegister}>Don't have an account? Register</button>
-      </div>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-    </div>
+        {error && <p className="auth-error">{error}</p>}
+      </section>
+    </main>
   );
 }
