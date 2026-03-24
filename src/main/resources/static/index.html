@@ -2,208 +2,65 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Access</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Admin Login</title>
 </head>
-<body class="auth-body">
-    <main class="auth-shell">
-        <section class="hero-panel">
-            <p class="eyebrow">Supabase connection test</p>
-            <h1>Login and register against the `user` table.</h1>
-            <p class="hero-copy">
-                This screen uses your Spring Boot API as the bridge to Supabase. Register creates a row in the database,
-                and login checks whether a username + password combination already exists.
-            </p>
-            <div class="status-card">
-                <span class="status-label">API status</span>
-                <strong id="apiStatus">Checking connection...</strong>
-            </div>
-        </section>
-
-        <section class="auth-panel">
-            <div class="tabs">
-                <button id="loginTab" class="tab active" type="button" onclick="showPanel('login')">Login</button>
-                <button id="registerTab" class="tab" type="button" onclick="showPanel('register')">Register</button>
-            </div>
-
-            <form id="loginForm" class="auth-form" onsubmit="event.preventDefault(); loginUser();">
-                <h2>Login</h2>
-                <label for="loginUsername">Username</label>
-                <input type="text" id="loginUsername" placeholder="username" required>
-
-                <label for="loginPassword">Password</label>
-                <input type="password" id="loginPassword" placeholder="password" required>
-
-                <button class="primary-button" type="submit">Login</button>
-            </form>
-
-            <form id="registerForm" class="auth-form hidden" onsubmit="event.preventDefault(); registerUser();">
-                <h2>Register</h2>
-                <label for="registerUsername">Username</label>
-                <input type="text" id="registerUsername" placeholder="username" required>
-
-                <label for="registerEmail">Email</label>
-                <input type="email" id="registerEmail" placeholder="user@example.com" required>
-
-                <label for="registerPhone">Phone</label>
-                <input type="text" id="registerPhone" placeholder="+34123456789" required>
-
-                <label for="registerPassword">Password</label>
-                <input type="password" id="registerPassword" placeholder="password" required>
-
-                <button class="primary-button" type="submit">Create user</button>
-            </form>
-
-            <div id="messageBox" class="message-box" aria-live="polite"></div>
-        </section>
-    </main>
-
-    <section class="data-panel">
-        <div class="data-header">
-            <div>
-                <p class="eyebrow">Current records</p>
-                <h2>Users stored in Supabase</h2>
-            </div>
-            <button class="secondary-button" type="button" onclick="loadUsers()">Refresh</button>
-        </div>
-
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Created At</th>
-                        <th>Phone</th>
-                        <th>Email</th>
-                    </tr>
-                </thead>
-                <tbody id="usersTableBody">
-                    <tr>
-                        <td colspan="4">Loading users...</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </section>
+<body>
+    <h1>Admin Panel</h1>
+    <form id="loginForm" onsubmit="event.preventDefault(); loginAdmin();">
+        <p>
+            <label for="loginEmail">Email</label><br>
+            <input type="email" id="loginEmail" placeholder="admin@example.com" required>
+        </p>
+        <p>
+            <label for="loginPassword">Password</label><br>
+            <input type="password" id="loginPassword" placeholder="password" required>
+        </p>
+        <button type="submit">Sign in</button>
+    </form>
+    <p id="msg"></p>
 
     <script>
-        function showPanel(panel) {
-            const isLogin = panel === 'login';
-            document.getElementById('loginForm').classList.toggle('hidden', !isLogin);
-            document.getElementById('registerForm').classList.toggle('hidden', isLogin);
-            document.getElementById('loginTab').classList.toggle('active', isLogin);
-            document.getElementById('registerTab').classList.toggle('active', !isLogin);
-            clearMessage();
+        if (sessionStorage.getItem('adminToken')) {
+            window.location.href = '/admin.html';
         }
 
-        function renderMessage(message, type) {
-            const messageBox = document.getElementById('messageBox');
-            messageBox.textContent = message;
-            messageBox.className = `message-box ${type}`;
-        }
-
-        function clearMessage() {
-            const messageBox = document.getElementById('messageBox');
-            messageBox.textContent = '';
-            messageBox.className = 'message-box';
-        }
-
-        function setApiStatus(text, healthy) {
-            const apiStatus = document.getElementById('apiStatus');
-            apiStatus.textContent = text;
-            apiStatus.className = healthy ? 'status-ok' : 'status-error';
-        }
-
-        async function loadUsers() {
-            try {
-                const response = await fetch('/api/users');
-                if (!response.ok) {
-                    throw new Error('API returned an error while loading users.');
-                }
-
-                const users = await response.json();
-                const body = document.getElementById('usersTableBody');
-
-                if (users.length === 0) {
-                    body.innerHTML = '<tr><td colspan="4">No users found.</td></tr>';
-                } else {
-                    body.innerHTML = users.map((user) => `
-                        <tr>
-                            <td>${user.id ?? ''}</td>
-                            <td>${user.createdAt ?? ''}</td>
-                            <td>${user.phone ?? ''}</td>
-                            <td>${user.email ?? ''}</td>
-                        </tr>
-                    `).join('');
-                }
-
-                setApiStatus('Connected', true);
-            } catch (error) {
-                document.getElementById('usersTableBody').innerHTML =
-                    '<tr><td colspan="4">Could not load users.</td></tr>';
-                setApiStatus('Connection failed', false);
-            }
-        }
-
-        async function registerUser() {
-            const username = document.getElementById('registerUsername').value.trim();
-            const email = document.getElementById('registerEmail').value.trim();
-            const phone = document.getElementById('registerPhone').value.trim();
-            const password = document.getElementById('registerPassword').value.trim();
-
-            try {
-                const response = await fetch('/api/users', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, email, phone, password })
-                });
-
-                if (!response.ok) {
-                    throw new Error('Register failed');
-                }
-
-                const user = await response.json();
-                renderMessage(`User created with id ${user.id}.`, 'success');
-                document.getElementById('registerForm').reset();
-                await loadUsers();
-                showPanel('login');
-                document.getElementById('loginUsername').value = user.username ?? username;
-                document.getElementById('loginPassword').value = user.password ?? password;
-            } catch (error) {
-                renderMessage('Could not register the user. Check DB connection or duplicated username/email.', 'error');
-            }
-        }
-
-        async function loginUser() {
-            const username = document.getElementById('loginUsername').value.trim();
+        async function loginAdmin() {
+            const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value.trim();
+            const msg = document.getElementById('msg');
 
             try {
                 const response = await fetch('/api/users/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
+                    body: JSON.stringify({ email, password })
                 });
 
-                if (response.status === 401) {
-                    renderMessage('User not found. Register first or verify username and password.', 'error');
+                if (response.status === 403) {
+                    msg.textContent = 'Email not confirmed. Check your inbox.';
                     return;
                 }
 
                 if (!response.ok) {
-                    throw new Error('Login failed');
+                    msg.textContent = 'Invalid email or password.';
+                    return;
                 }
 
-                const user = await response.json();
-                renderMessage(`Login successful for ${user.username}.`, 'success');
-                await loadUsers();
+                const data = await response.json();
+
+                if (!data.profile || !data.profile.admin) {
+                    msg.textContent = 'Access denied. You are not an admin.';
+                    return;
+                }
+
+                sessionStorage.setItem('adminToken', data.access_token);
+                sessionStorage.setItem('adminUsername', data.profile.username);
+                window.location.href = '/admin.html';
+
             } catch (error) {
-                renderMessage('Could not complete login. Check the API and database connection.', 'error');
+                msg.textContent = 'Could not connect to the API.';
             }
         }
-
-        window.addEventListener('load', loadUsers);
     </script>
 </body>
 </html>
