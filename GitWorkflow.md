@@ -60,25 +60,24 @@ jd/docs/update-readme
 The flow is **always one direction**:
 
 ```
-<initials>/<type>/<description>  →  dev  →  main
+<initials>/<type>/<description>  →  main
 ```
 
 - **Your branch** is where you do all your work.
-- **`dev`** is the integration branch — all features and fixes are merged here first and tested together.
 - **`main`** is the production branch — only stable, reviewed code reaches here.
 
-> ⚠️ **Direct commits to `dev` and `main` are not allowed.** All changes must go through a Pull Request.
+> ⚠️ **Direct commits to `main` are not allowed.** All changes must go through a Pull Request.
 
 ---
 
 ## Creating a Branch
 
-Always branch off from `dev`, never from `main`.
+Always branch off from `main`.
 
 ```bash
-# 1. Make sure you have the latest dev
-git checkout dev
-git pull origin dev
+# 1. Make sure you have the latest main
+git checkout main
+git pull origin main
 
 # 2. Create your branch
 git checkout -b jd/feat/user-authentication
@@ -150,20 +149,20 @@ update
 
 ### Step 1 — Make sure your branch is up to date
 
-Before opening a PR, sync with `dev` to avoid conflicts:
+Before opening a PR, sync with `main` to avoid conflicts:
 
 ```bash
-git checkout dev
-git pull origin dev
+git checkout main
+git pull origin main
 git checkout jd/feat/user-authentication
-git rebase dev
-# or: git merge dev
+git rebase main
+# or: git merge main
 git push origin jd/feat/user-authentication
 ```
 
 ### Step 2 — Open the PR on GitHub / GitLab
 
-- **Base branch:** `dev` (never `main`)
+- **Base branch:** `main`
 - **Title:** Follow the same format as commits → `feat: add user authentication`
 - **Description:** Fill in the PR template (see below)
 
@@ -189,7 +188,7 @@ Closes #<issue_number>
 - [ ] My code follows the project's coding standards
 - [ ] I have added/updated tests where necessary
 - [ ] I have updated documentation if needed
-- [ ] The branch is rebased / up to date with `dev`
+- [ ] The branch is rebased / up to date with `main`
 ```
 
 ### Step 3 — Request a review
@@ -204,9 +203,7 @@ Closes #<issue_number>
 
 | Target | Allowed? | How |
 |---|---|---|
-| `main` | ✅ Only from `dev` | PR with approval |
-| `dev` | ✅ Only from feature branches | PR with approval |
-| `dev` | ❌ Direct commit | Not allowed (branch protection) |
+| `main` | ✅ Only from feature branches | PR with approval |
 | `main` | ❌ Direct commit | Not allowed (branch protection) |
 
 - Use **Squash and Merge** or **Merge Commit** — follow your team's agreed convention.
@@ -222,7 +219,7 @@ Stale branches create noise and confusion. Clean them up regularly — after a P
 
 ```bash
 # Switch away from the branch first
-git checkout dev
+git checkout main
 
 # Delete a branch that has already been merged
 git branch -d jd/feat/user-authentication
@@ -258,24 +255,24 @@ git config --global fetch.prune true
 ### See all merged branches (before deleting)
 
 ```bash
-# Local branches already merged into dev
-git branch --merged dev
+# Local branches already merged into main
+git branch --merged main
 
-# Remote branches already merged into dev
-git branch -r --merged dev
+# Remote branches already merged into main
+git branch -r --merged main
 ```
 
-### Bulk delete all local branches already merged into dev
+### Bulk delete all local branches already merged into main
 
 ```bash
 # Preview first — make sure the list looks right
-git branch --merged dev | grep -v -E "^\*|main|dev"
+git branch --merged main | grep -v -E "^\*|main"
 
 # Then delete them all
-git branch --merged dev | grep -v -E "^\*|main|dev" | xargs git branch -d
+git branch --merged main | grep -v -E "^\*|main" | xargs git branch -d
 ```
 
-> ⚠️ Always preview the list before running the bulk delete. The `grep -v` excludes `main` and `dev` from deletion.
+> ⚠️ Always preview the list before running the bulk delete. The `grep -v` excludes `main` from deletion.
 
 ---
 
@@ -283,27 +280,27 @@ git branch --merged dev | grep -v -E "^\*|main|dev" | xargs git branch -d
 
 ```bash
 # Start a new task
-git checkout dev && git pull origin dev
+git checkout main && git pull origin main
 git checkout -b <initials>/<type>/<description>
 git push -u origin <initials>/<type>/<description>
 
-# Daily sync with dev
+# Daily sync with main
 git fetch origin
-git rebase origin/dev
+git rebase origin/main
 
 # Commit
 git add -p                          # review changes carefully
 git commit -m "feat: short description"
 
 # Before opening PR — sync one last time
-git rebase origin/dev
+git rebase origin/main
 git push origin <your-branch>
 
-# Open PR on GitHub/GitLab → base: dev
+# Open PR on GitHub/GitLab → base: main
 
 # After PR is merged — clean up
-git checkout dev
-git pull origin dev
+git checkout main
+git pull origin main
 git branch -d <your-branch>                   # delete local branch
 git push origin --delete <your-branch>        # delete remote branch
 git fetch --prune                             # remove stale remote refs
