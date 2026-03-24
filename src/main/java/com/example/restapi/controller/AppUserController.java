@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.restapi.dto.AuthResponse;
 import com.example.restapi.dto.LoginRequest;
 import com.example.restapi.dto.RegisterRequest;
+import com.example.restapi.dto.UserProfileResponse;
 import com.example.restapi.model.Profile;
 import com.example.restapi.service.AppUserService;
 
@@ -38,7 +39,7 @@ public class AppUserController {
     public ResponseEntity<?> resendConfirmation(@RequestBody Map<String, String> body) {
         try {
             appUserService.resendConfirmation(body.get("email"));
-            return ResponseEntity.ok("Correo de confirmación reenviado.");
+            return ResponseEntity.ok("Confirmation email resent.");
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

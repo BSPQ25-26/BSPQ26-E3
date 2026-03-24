@@ -35,7 +35,7 @@ export default function Login({ onLoginSuccess, showRegister, successMsg }) {
       }
 
       const data = await res.json();
-      onLoginSuccess(data);
+      onLoginSuccess({ ...data.profile, email: data.email });
     } catch (err) {
       console.error("Login fetch error:", err);
       setError("Could not connect. Please try again.");
@@ -54,10 +54,10 @@ export default function Login({ onLoginSuccess, showRegister, successMsg }) {
       if (res.ok) {
         setResendStatus("ok");
       } else {
-        setResendStatus("error:" + (text || "No se pudo reenviar."));
+        setResendStatus("error:" + (text || "Could not resend."));
       }
     } catch (err) {
-      setResendStatus("error:No se pudo conectar.");
+      setResendStatus("error:Could not connect.");
     }
   };
 

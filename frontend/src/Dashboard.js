@@ -3,10 +3,10 @@ import heroImage from "./assets/plant-showcase-hero.svg";
 
 function formatCreatedAt(value) {
   if (!value) {
-    return "No disponible";
+    return "Not available";
   }
 
-  return new Date(value).toLocaleString("es-ES");
+  return new Date(value).toLocaleString("en-US");
 }
 
 export default function Dashboard({ user, onLogout }) {
@@ -67,7 +67,7 @@ export default function Dashboard({ user, onLogout }) {
           <button
             className="profile-button"
             type="button"
-            aria-label="Mostrar informacion de usuario"
+            aria-label="Show user information"
             onClick={() => setShowProfile((current) => !current)}
           >
             <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -76,27 +76,27 @@ export default function Dashboard({ user, onLogout }) {
           </button>
           {showProfile && (
             <aside className="profile-card">
-              <p className="profile-card-title">Tu perfil</p>
+              <p className="profile-card-title">Your profile</p>
               <dl className="profile-details">
                 <div>
-                  <dt>Usuario</dt>
-                  <dd>{displayUser.username || "No disponible"}</dd>
+                  <dt>Username</dt>
+                  <dd>{displayUser.username || "Not available"}</dd>
                 </div>
                 <div>
                   <dt>Email</dt>
-                  <dd>{displayUser.email || "No disponible"}</dd>
+                  <dd>{displayUser.email || "Not available"}</dd>
                 </div>
                 <div>
-                  <dt>Telefono</dt>
-                  <dd>{displayUser.phone || "No disponible"}</dd>
+                  <dt>Phone</dt>
+                  <dd>{displayUser.phone || "Not available"}</dd>
                 </div>
                 <div>
-                  <dt>Creado</dt>
+                  <dt>Created</dt>
                   <dd>{formatCreatedAt(displayUser.createdAt)}</dd>
                 </div>
               </dl>
               <button className="secondary-button profile-logout" type="button" onClick={onLogout}>
-                Cerrar sesion
+                Sign out
               </button>
             </aside>
           )}
@@ -105,11 +105,11 @@ export default function Dashboard({ user, onLogout }) {
 
       <section className="hero-panel">
         <div className="hero-copy">
-          <span className="auth-kicker">Portada</span>
-          <h2>Bienvenido, {user.username ?? user.email ?? "usuario"}</h2>
+          <span className="auth-kicker">Home</span>
+          <h2>Welcome, {user.username ?? user.email ?? "user"}</h2>
         </div>
         <div className="hero-image-frame">
-          <img src={heroImage} alt="Portada con plantas decorativas en un espacio luminoso" className="hero-image" />
+          <img src={heroImage} alt="Home with decorative plants in a bright space" className="hero-image" />
         </div>
       </section>
     </main>
