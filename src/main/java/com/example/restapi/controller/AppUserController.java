@@ -10,9 +10,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.restapi.dto.LoginRequest;
+import com.example.restapi.dto.UserProfileResponse;
 import com.example.restapi.model.AppUser;
 import com.example.restapi.service.AppUserService;
 
@@ -37,6 +39,15 @@ public class AppUserController {
     @GetMapping("/{id}")
     public ResponseEntity<AppUser> getUserById(@PathVariable Long id) {
         return appUserService.getUserById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<UserProfileResponse> getDisplayProfile(
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String username) {
+        return appUserService.getDisplayProfile(email, username)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

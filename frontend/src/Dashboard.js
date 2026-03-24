@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import heroImage from "./assets/plant-showcase-hero.svg";
 
 function formatCreatedAt(value) {
@@ -11,6 +11,50 @@ function formatCreatedAt(value) {
 
 export default function Dashboard({ user, onLogout }) {
   const [showProfile, setShowProfile] = useState(false);
+  const [profile, setProfile] = useState(user);
+
+  useEffect(() => {
+    setProfile(user);
+
+    const query = new URLSearchParams();
+    if (user?.email) {
+      query.set("email", user.email);
+    }
+    if (user?.username) {
+      query.set("username", user.username);
+    }
+
+    if (!query.toString()) {
+      return undefined;
+    }
+
+    let ignore = false;
+
+    fetch(`/api/users/profile?${query.toString()}`)
+      .then(async (response) => {
+        if (!response.ok) {
+          return null;
+        }
+
+        return response.json();
+      })
+      .then((data) => {
+        if (!ignore && data) {
+          setProfile((current) => ({
+            ...current,
+            ...data,
+          }));
+        }
+      })
+      .catch(() => {
+      });
+
+    return () => {
+      ignore = true;
+    };
+  }, [user]);
+
+  const displayUser = profile ?? user;
 
   return (
     <main className="dashboard-shell">
@@ -36,19 +80,19 @@ export default function Dashboard({ user, onLogout }) {
               <dl className="profile-details">
                 <div>
                   <dt>Usuario</dt>
-                  <dd>{user.username || "No disponible"}</dd>
+                  <dd>{displayUser.username || "No disponible"}</dd>
                 </div>
                 <div>
                   <dt>Email</dt>
-                  <dd>{user.email || "No disponible"}</dd>
+                  <dd>{displayUser.email || "No disponible"}</dd>
                 </div>
                 <div>
                   <dt>Telefono</dt>
-                  <dd>{user.phone || "No disponible"}</dd>
+                  <dd>{displayUser.phone || "No disponible"}</dd>
                 </div>
                 <div>
                   <dt>Creado</dt>
-                  <dd>{formatCreatedAt(user.createdAt)}</dd>
+                  <dd>{formatCreatedAt(displayUser.createdAt)}</dd>
                 </div>
               </dl>
               <button className="secondary-button profile-logout" type="button" onClick={onLogout}>
