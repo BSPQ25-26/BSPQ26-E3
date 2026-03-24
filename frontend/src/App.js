@@ -7,16 +7,19 @@ import "./App.css";
 function App() {
   const [user, setUser] = useState(null);
   const [showRegisterForm, setShowRegisterForm] = useState(false);
+  const [registerMsg, setRegisterMsg] = useState("");
 
   const handleLoginSuccess = (userData) => {
     setUser(userData);
   };
 
-  const handleRegisterSuccess = (userData) => {
-    setUser(userData);
+  const handleRegisterSuccess = (msg) => {
+    setRegisterMsg(msg);
+    setShowRegisterForm(false);
   };
 
   const showRegister = () => {
+    setRegisterMsg("");
     setShowRegisterForm(true);
   };
 
@@ -27,6 +30,7 @@ function App() {
   const handleLogout = () => {
     setUser(null);
     setShowRegisterForm(false);
+    setRegisterMsg("");
   };
 
   if (user) {
@@ -37,7 +41,7 @@ function App() {
     return <Register onRegisterSuccess={handleRegisterSuccess} showLogin={showLogin} />;
   }
 
-  return <Login onLoginSuccess={handleLoginSuccess} showRegister={showRegister} />;
+  return <Login onLoginSuccess={handleLoginSuccess} showRegister={showRegister} successMsg={registerMsg} />;
 }
 
 export default App;

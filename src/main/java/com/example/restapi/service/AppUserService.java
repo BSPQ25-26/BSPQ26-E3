@@ -1,164 +1,187 @@
 package com.example.restapi.service;
 
-import java.sql.Timestamp;
-import java.time.OffsetDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 
-import com.example.restapi.dto.UserProfileResponse;
-import com.example.restapi.model.AppUser;
-import com.example.restapi.repository.AppUserRepository;
+import com.example.restapi.dto.AuthResponse;
+import com.example.restapi.dto.RegisterRequest;
+import com.example.restapi.model.Profile;
+import com.example.restapi.repository.ProfileRepository;
 
 @Service
 public class AppUserService {
 
-    private static final String DISPLAY_PROFILE_QUERY = """
-            select
-                coalesce(
-                    nullif(au.raw_user_meta_data ->> 'username', ''),
-                    nullif(to_jsonb(p) ->> 'username', ''),
-                    :fallbackUsername
-                ) as username,
-                coalesce(
-                    nullif(au.email, ''),
-                    nullif(to_jsonb(p) ->> 'email', ''),
-                    :fallbackEmail
-                ) as email,
-                coalesce(
-                    nullif(au.phone, ''),
-                    nullif(to_jsonb(p) ->> 'phone', ''),
-                    :fallbackPhone
-                ) as phone,
-                au.created_at as created_at
-            from auth.users au
-            left join public.profiles p on p.id = au.id
-            where lower(au.email) = lower(:email)
-            limit 1
-            """;
+    private static final Logger log = LoggerFactory.getLogger(AppUserService.class);
 
-    private final AppUserRepository appUserRepository;
-    private final NamedParameterJdbcTemplate jdbcTemplate;
+    @Value("${supabase.url}")
+    private String supabaseUrl;
 
-    public AppUserService(AppUserRepository appUserRepository, NamedParameterJdbcTemplate jdbcTemplate) {
-        this.appUserRepository = appUserRepository;
-        this.jdbcTemplate = jdbcTemplate;
+    @Value("${supabase.anon-key}")
+    private String supabaseAnonKey;
+
+    @Value("${supabase.service-role-key}")
+    private String supabaseServiceRoleKey;
+
+    private final ProfileRepository profileRepository;
+    private final RestTemplate restTemplate;
+
+    public AppUserService(ProfileRepository profileRepository) {
+        this.profileRepository = profileRepository;
+        this.restTemplate = new RestTemplate();
     }
 
-    public List<AppUser> getAllUsers() {
-        return appUserRepository.findAll();
+    public Profile register(RegisterRequest req) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("apikey", supabaseAnonKey);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("email", req.getEmail());
+        body.put("password", req.getPassword());
+
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
+
+        Map<String, Object> response;
+        try {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> r = restTemplate.postForObject(
+                    supabaseUrl + "/auth/v1/signup", request, Map.class);
+            response = r;
+        } catch (HttpClientErrorException e) {
+            log.error("Supabase signup error {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
+            throw new RuntimeException("Supabase signup failed: " + e.getResponseBodyAsString());
+        }
+
+        log.info("Supabase signup response: {}", response);
+        String userId = extractUserId(response);
+
+        if (profileRepository.findByUsername(req.getUsername()).isPresent()) {
+            throw new RuntimeException("Username already taken: " + req.getUsername());
+        }
+
+        Profile profile = new Profile(UUID.fromString(userId), req.getUsername(), req.getPhone());
+        return profileRepository.save(profile);
     }
 
-    public Optional<AppUser> getUserById(Long id) {
-        return appUserRepository.findById(id);
-    }
+    public AuthResponse login(String email, String password) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("apikey", supabaseAnonKey);
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
-    public AppUser createUser(AppUser user) {
-        appUserRepository.findByEmail(user.getEmail()).ifPresent(existingUser -> {
-            throw new RuntimeException("A user with this email already exists");
-        });
+        Map<String, String> body = new HashMap<>();
+        body.put("email", email);
+        body.put("password", password);
 
-        appUserRepository.findByUsername(user.getUsername()).ifPresent(existingUser -> {
-            throw new RuntimeException("A user with this username already exists");
-        });
+        HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
 
-        return appUserRepository.save(user);
-    }
-
-    public Optional<AppUser> login(String username, String password) {
-        return appUserRepository.findByUsernameAndPassword(username, password);
-    }
-
-    public Optional<UserProfileResponse> getDisplayProfile(String email, String username) {
-        Optional<AppUser> fallbackUser = findFallbackUser(email, username);
-
-        if (email != null && !email.isBlank()) {
-            try {
-                MapSqlParameterSource parameters = new MapSqlParameterSource()
-                        .addValue("email", email)
-                        .addValue("fallbackUsername", fallbackUser.map(AppUser::getUsername).orElse(username))
-                        .addValue("fallbackEmail", fallbackUser.map(AppUser::getEmail).orElse(email))
-                        .addValue("fallbackPhone", fallbackUser.map(AppUser::getPhone).orElse(null));
-
-                List<UserProfileResponse> results = jdbcTemplate.query(DISPLAY_PROFILE_QUERY, parameters,
-                        (resultSet, rowNum) -> mapUserProfile(resultSet.getString("username"),
-                                resultSet.getString("email"),
-                                resultSet.getString("phone"),
-                                toOffsetDateTime(resultSet.getObject("created_at"))));
-
-                if (!results.isEmpty()) {
-                    return Optional.of(results.get(0));
-                }
-            } catch (DataAccessException exception) {
-                // Fallback to the application user table if auth/profiles cannot be queried.
+        Map<String, Object> response;
+        try {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> r = restTemplate.postForObject(
+                    supabaseUrl + "/auth/v1/token?grant_type=password", request, Map.class);
+            response = r;
+        } catch (HttpClientErrorException e) {
+            log.error("Supabase login error {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
+            String errorBody = e.getResponseBodyAsString();
+            if (errorBody.contains("email_not_confirmed")) {
+                throw new RuntimeException("EMAIL_NOT_CONFIRMED");
             }
+            throw new RuntimeException("Supabase login failed: " + errorBody);
         }
 
-        return fallbackUser.map(this::mapAppUserProfile);
+        String accessToken = (String) response.get("access_token");
+        String tokenType = (String) response.get("token_type");
+        Object expiresInRaw = response.get("expires_in");
+        int expiresIn = expiresInRaw instanceof Number ? ((Number) expiresInRaw).intValue() : 3600;
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> userMap = (Map<String, Object>) response.get("user");
+        UUID userId = UUID.fromString((String) userMap.get("id"));
+
+        Profile profile = profileRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Profile not found for user: " + userId));
+
+        AuthResponse authResponse = new AuthResponse();
+        authResponse.setAccessToken(accessToken);
+        authResponse.setTokenType(tokenType);
+        authResponse.setExpiresIn(expiresIn);
+        authResponse.setProfile(profile);
+        return authResponse;
     }
 
-    public AppUser updateUser(Long id, AppUser userDetails) {
-        AppUser user = appUserRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+    public void resendConfirmation(String email) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("apikey", supabaseAnonKey);
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
-        user.setPhone(userDetails.getPhone());
-        user.setEmail(userDetails.getEmail());
-        user.setUsername(userDetails.getUsername());
-        if (userDetails.getPassword() != null && !userDetails.getPassword().isEmpty()) {
-            user.setPassword(userDetails.getPassword());
+        Map<String, String> body = new HashMap<>();
+        body.put("type", "signup");
+        body.put("email", email);
+
+        HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
+        try {
+            restTemplate.postForObject(supabaseUrl + "/auth/v1/resend", request, Map.class);
+        } catch (HttpClientErrorException e) {
+            log.error("Supabase resend error {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
+            throw new RuntimeException("No se pudo reenviar el correo: " + e.getResponseBodyAsString());
         }
-        return appUserRepository.save(user);
     }
 
-    public void deleteUser(Long id) {
-        if (!appUserRepository.existsById(id)) {
-            throw new RuntimeException("User not found with id: " + id);
-        }
-
-        appUserRepository.deleteById(id);
+    public List<Profile> getAllUsers() {
+        return profileRepository.findAll();
     }
 
-    private Optional<AppUser> findFallbackUser(String email, String username) {
-        if (email != null && !email.isBlank()) {
-            Optional<AppUser> userByEmail = appUserRepository.findByEmail(email);
-            if (userByEmail.isPresent()) {
-                return userByEmail;
-            }
-        }
-
-        if (username != null && !username.isBlank()) {
-            return appUserRepository.findByUsername(username);
-        }
-
-        return Optional.empty();
+    public Optional<Profile> getUserById(UUID id) {
+        return profileRepository.findById(id);
     }
 
-    private UserProfileResponse mapAppUserProfile(AppUser appUser) {
-        return mapUserProfile(appUser.getUsername(), appUser.getEmail(), appUser.getPhone(), appUser.getCreatedAt());
+    public Profile updateUser(UUID id, Profile userDetails) {
+        Profile profile = profileRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Profile not found with id: " + id));
+        profile.setUsername(userDetails.getUsername());
+        return profileRepository.save(profile);
     }
 
-    private UserProfileResponse mapUserProfile(String username, String email, String phone, OffsetDateTime createdAt) {
-        UserProfileResponse response = new UserProfileResponse();
-        response.setUsername(username);
-        response.setEmail(email);
-        response.setPhone(phone);
-        response.setCreatedAt(createdAt);
-        return response;
+    public void deleteUser(UUID id) {
+        if (!profileRepository.existsById(id)) {
+            throw new RuntimeException("Profile not found with id: " + id);
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("apikey", supabaseServiceRoleKey);
+        headers.set("Authorization", "Bearer " + supabaseServiceRoleKey);
+
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+        restTemplate.exchange(
+                supabaseUrl + "/auth/v1/admin/users/" + id,
+                HttpMethod.DELETE,
+                request,
+                Void.class);
+        // The profile is deleted automatically by the ON DELETE CASCADE constraint
     }
 
-    private OffsetDateTime toOffsetDateTime(Object value) {
-        if (value instanceof OffsetDateTime offsetDateTime) {
-            return offsetDateTime;
+    @SuppressWarnings("unchecked")
+    private String extractUserId(Map<String, Object> response) {
+        // When email confirmation is disabled, user data is nested under "user"
+        if (response.containsKey("user") && response.get("user") != null) {
+            Map<String, Object> user = (Map<String, Object>) response.get("user");
+            return (String) user.get("id");
         }
-
-        if (value instanceof Timestamp timestamp) {
-            return timestamp.toInstant().atOffset(OffsetDateTime.now().getOffset());
-        }
-
-        return null;
+        // When email confirmation is enabled, the response IS the user object
+        return (String) response.get("id");
     }
 }
