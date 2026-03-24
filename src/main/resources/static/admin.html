@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background: #eee; }
+        button { cursor: pointer; }
+        #msg { margin-top: 10px; color: green; }
+    </style>
+</head>
+<body>
+    <h1>Admin Panel</h1>
+    <p id="greeting"></p>
+    <button onclick="logout()">Logout</button>
+    <hr>
+    <h2>Users</h2>
+    <button onclick="loadUsers()">Refresh</button>
+    <p id="msg"></p>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Phone</th>
+                <th>Created At</th>
+                <th>Admin</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="usersTableBody">
+            <tr><td colspan="6">Loading...</td></tr>
+        </tbody>
+    </table>
+
+    <script>
+        const token = sessionStorage.getItem('adminToken');
+        const username = sessionStorage.getItem('adminUsername');
+
+        if (!token) window.location.href = '/';
+
+        document.getElementById('greeting').textContent = 'Signed in as: ' + (username || '');
+
+        function logout() {
+            sessionStorage.removeItem('adminToken');
+            sessionStorage.removeItem('adminUsername');
+            window.location.href = '/';
+        }
+
+        function showMsg(text) {
+            document.getElementById('msg').textContent = text;
+            setTimeout(() => { document.getElementById('msg').textContent = ''; }, 3000);
+        }
+
+        async function loadUsers() {
+            const body = document.getElementById('usersTableBody');
+            try {
+                const res = await fetch('/api/users', { headers: { 'Authorization': 'Bearer ' + token } });
+                if (!res.ok) throw new Error();
+                const users = await res.json();
+                if (!users.length) { body.innerHTML = '<tr><td colspan="6">No users.</td></tr>'; return; }
+                body.innerHTML = users.map(u => `
+                    <tr id="row-${u.id}">
+                        <td>${u.id ?? ''}</td>
+                        <td>${u.username ?? ''}</td>
+                        <td>${u.phone ?? ''}</td>
+                        <td>${u.createdAt ? new Date(u.createdAt).toLocaleString() : ''}</td>
+                        <td>${u.admin ? 'Yes' : 'No'}</td>
+                        <td><button onclick="deleteUser('${u.id}', '${u.username}')">Delete</button></td>
+                    </tr>`).join('');
+            } catch {
+                body.innerHTML = '<tr><td colspan="6">Could not load users.</td></tr>';
+            }
+        }
+
+        async function deleteUser(id, name) {
+            if (!confirm('Delete user "' + name + '"?')) return;
+            try {
+                const res = await fetch('/api/users/' + id, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } });
+                if (!res.ok) throw new Error();
+                document.getElementById('row-' + id)?.remove();
+                showMsg('Deleted: ' + name);
+            } catch {
+                showMsg('Could not delete user.');
+            }
+        }
+
+        window.addEventListener('load', loadUsers);
+    </script>
+</body>
+</html>
