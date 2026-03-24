@@ -24,6 +24,9 @@ public class Profile {
     @Column(name = "created_at", insertable = false, updatable = false)
     private OffsetDateTime createdAt;
 
+    @Column(name = "is_admin", nullable = false)
+    private boolean isAdmin;
+
     public Profile() {
     }
 
@@ -63,5 +66,13 @@ public class Profile {
 
     public void setCreatedAt(OffsetDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+
+    public void setAdmin(boolean isAdmin) {
+        this.isAdmin = isAdmin;
     }
 }

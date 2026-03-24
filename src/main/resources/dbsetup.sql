@@ -24,3 +24,7 @@ alter table if exists public.payment
 alter table if exists public.post
     drop column if exists author,
     add column author uuid references public.profiles(id) on delete set null;
+
+-- Add admin flag to profiles
+alter table public.profiles
+    add column if not exists is_admin boolean not null default false;
