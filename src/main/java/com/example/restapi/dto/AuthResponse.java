@@ -16,6 +16,8 @@ public class AuthResponse {
 
     private Profile profile;
 
+    private String email;
+
     public String getAccessToken() {
         return accessToken;
     }
@@ -46,5 +48,13 @@ public class AuthResponse {
 
     public void setProfile(Profile profile) {
         this.profile = profile;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

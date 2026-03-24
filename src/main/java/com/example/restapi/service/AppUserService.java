@@ -19,6 +19,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.example.restapi.dto.AuthResponse;
 import com.example.restapi.dto.RegisterRequest;
+import com.example.restapi.dto.UserProfileResponse;
 import com.example.restapi.model.Profile;
 import com.example.restapi.repository.ProfileRepository;
 
@@ -111,6 +112,7 @@ public class AppUserService {
         @SuppressWarnings("unchecked")
         Map<String, Object> userMap = (Map<String, Object>) response.get("user");
         UUID userId = UUID.fromString((String) userMap.get("id"));
+        String userEmail = (String) userMap.get("email");
 
         Profile profile = profileRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Profile not found for user: " + userId));
@@ -119,6 +121,7 @@ public class AppUserService {
         authResponse.setAccessToken(accessToken);
         authResponse.setTokenType(tokenType);
         authResponse.setExpiresIn(expiresIn);
+        authResponse.setEmail(userEmail);
         authResponse.setProfile(profile);
         return authResponse;
     }
@@ -137,8 +140,24 @@ public class AppUserService {
             restTemplate.postForObject(supabaseUrl + "/auth/v1/resend", request, Map.class);
         } catch (HttpClientErrorException e) {
             log.error("Supabase resend error {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
-            throw new RuntimeException("No se pudo reenviar el correo: " + e.getResponseBodyAsString());
+            throw new RuntimeException("Failed to resend confirmation email: " + e.getResponseBodyAsString());
         }
+    }
+
+    public Optional<UserProfileResponse> getDisplayProfile(String email, String username) {
+        Optional<Profile> profileOpt = Optional.empty();
+
+        if (username != null && !username.isBlank()) {
+            profileOpt = profileRepository.findByUsername(username);
+        }
+
+        return profileOpt.map(profile -> {
+            UserProfileResponse dto = new UserProfileResponse();
+            dto.setUsername(profile.getUsername());
+            dto.setPhone(profile.getPhone());
+            dto.setCreatedAt(profile.getCreatedAt());
+            return dto;
+        });
     }
 
     public List<Profile> getAllUsers() {
