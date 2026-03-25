@@ -50,6 +50,7 @@ public class AppUserController {
         return appUserService.getAllUsers();
     }
 
+
     @GetMapping("/{id}")
     public ResponseEntity<Profile> getUserById(@PathVariable UUID id) {
         return appUserService.getUserById(id)
