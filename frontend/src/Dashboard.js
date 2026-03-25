@@ -1,37 +1,6 @@
 import { useEffect, useState } from "react";
 import heroImage from "./assets/plant-showcase-hero.svg";
 
-const plantsData = [
-  { 
-    id: 1, 
-    name: "Monstera Deliciosa", 
-    type: "Indoor", 
-    price: 25.99, 
-    image: "https://growurban.uk/cdn/shop/articles/care-guide-monstera-deliciosa-668092_680bbf00-9564-4f0c-b9cb-27ededaf19d2.jpg?v=1748436514&width=2048" 
-  },
-  { 
-    id: 2, 
-    name: "Lavender", 
-    type: "Outdoor", 
-    price: 12.50, 
-    image: "https://www.jungepflanzen.de/media/0d/80/b0/1702551643/lavandula_angustifolia_03.jpg?ts=1702551643" 
-  },
-  { 
-    id: 3, 
-    name: "Snake Plant", 
-    type: "Indoor", 
-    price: 18.00, 
-    image: "https://images.squarespace-cdn.com/content/v1/54fbb611e4b0d7c1e151d22a/1610074066643-OP8HDJUWUH8T5MHN879K/Snake+Plant.jpg?format=1000w" 
-  },
-  { 
-    id: 4, 
-    name: "Rosemary", 
-    type: "Outdoor", 
-    price: 10.00, 
-    image: "https://bolschare.com/wp-content/uploads/2024/04/rosemary-1090419_1280.webp" 
-  }
-];
-
 function formatCreatedAt(value) {
   if (!value) {
     return "Not available";
@@ -43,10 +12,14 @@ export default function Dashboard({ user, onLogout }) {
   const [showProfile, setShowProfile] = useState(false);
   const [profile, setProfile] = useState(user);
   
-  // --- NUEVOS ESTADOS: Buscador (Andoni) ---
+  // Estados para el buscador y las plantas
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("All");
+  const [plants, setPlants] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  // Cargar datos del perfil
   useEffect(() => {
     setProfile(user);
     const query = new URLSearchParams();
@@ -83,9 +56,52 @@ export default function Dashboard({ user, onLogout }) {
     };
   }, [user]);
 
+  // Cargar plantas desde la API
+  useEffect(() => {
+    let ignore = false;
+    setLoading(true);
+    setError(null);
+
+    fetch("/api/items")
+      .then(async (response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch items");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (!ignore) {
+          // Transformar los datos del backend al formato esperado
+          const transformedPlants = data.map(item => ({
+            id: item.id,
+            name: item.title,
+            type: item.categoryName,
+            price: item.amount,
+            image: item.image_url || "https://via.placeholder.com/300"
+          }));
+          setPlants(transformedPlants);
+        }
+      })
+      .catch((err) => {
+        if (!ignore) {
+          setError(err.message);
+          console.error("Error loading plants:", err);
+        }
+      })
+      .finally(() => {
+        if (!ignore) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
   const displayUser = profile ?? user;
 
-  const filteredPlants = plantsData.filter(plant => {
+  const filteredPlants = plants.filter(plant => {
     const matchesSearch = plant.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = filterType === "All" || plant.type === filterType;
     return matchesSearch && matchesType;
@@ -172,23 +188,28 @@ export default function Dashboard({ user, onLogout }) {
         </div>
 
         <div className="plants-grid">
-          {filteredPlants.map(plant => (
-            <div key={plant.id} className="auth-card plant-card">
-              <div className="plant-image-container">
-                <img src={plant.image} alt={plant.name} />
+          {loading ? (
+            <p className="auth-error">Cargando plantas...</p>
+          ) : error ? (
+            <p className="auth-error">Error: {error}</p>
+          ) : filteredPlants.length > 0 ? (
+            filteredPlants.map(plant => (
+              <div key={plant.id} className="auth-card plant-card">
+                <div className="plant-image-container">
+                  <img src={plant.image} alt={plant.name} />
+                </div>
+                <div className="plant-content">
+                  <span className="auth-kicker">{plant.type}</span>
+                  <h3>{plant.name}</h3>
+                  <p className="price-tag">${plant.price.toFixed(2)}</p>
+                  <button className="primary-button">View Details</button>
+                </div>
               </div>
-              <div className="plant-content">
-                <span className="auth-kicker">{plant.type}</span>
-                <h3>{plant.name}</h3>
-                <p className="price-tag">${plant.price.toFixed(2)}</p>
-                <button className="primary-button">View Details</button>
-              </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p className="auth-error">No plants match your search criteria.</p>
+          )}
         </div>
-        {filteredPlants.length === 0 && (
-          <p className="auth-error">No plants match your search criteria.</p>
-        )}
       </section>
     </main>
   );
