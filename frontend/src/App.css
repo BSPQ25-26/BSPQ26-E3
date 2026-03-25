@@ -318,3 +318,68 @@
     min-height: 280px;
   }
 }
+
+/* --- ESTILOS DEL CATÁLOGO DE ANDONI --- */
+.andoni-catalogue {
+  max-width: 1220px;
+  margin: 40px auto 0;
+  padding-top: 20px;
+}
+
+.catalogue-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  gap: 20px;
+}
+
+.catalogue-title {
+  font-family: Georgia, serif;
+  font-size: 2.2rem;
+  margin: 0;
+}
+
+.catalogue-filters {
+  display: flex;
+  gap: 12px;
+  flex-grow: 1;
+  justify-content: flex-end;
+}
+
+.search-box { max-width: 300px; }
+.filter-box { max-width: 150px; }
+
+.plants-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 24px;
+}
+
+.plant-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.plant-image-container {
+  height: 200px;
+  background: #e7d7b1;
+}
+
+.plant-image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.plant-content {
+  padding: 20px;
+  text-align: left;
+}
+
+.price-tag {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 10px 0 15px;
+}
