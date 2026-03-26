@@ -32,6 +32,13 @@ jobs:
 
       - name: Run tests
         run: mvn -B test
+        env:
+          DB_URL: jdbc:postgresql://localhost:5432/test
+          DB_USERNAME: test
+          DB_PASSWORD: test
+          SUPABASE_URL: https://placeholder.supabase.co
+          SUPABASE_ANON_KEY: placeholder
+          SUPABASE_SERVICE_ROLE_KEY: placeholder
 
   frontend:
     name: Frontend Build & Lint
