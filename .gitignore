@@ -1,3 +1,6 @@
+# IDE
+.vscode/
+
 # Backend
 target/
 backend/.env
