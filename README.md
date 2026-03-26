@@ -1,42 +1,94 @@
 # BSPQ26-E3
 
-## About the project
+Full-stack web application for user and item management. Built with a **Spring Boot** REST API backend connected to **Supabase PostgreSQL**, and a **React** frontend.
 
-Full-stack application for user management. The backend is built with **Spring Boot** and exposes a REST API connected to a **Supabase PostgreSQL** database via Spring Data JPA. The frontend is built with **React** and allows managing users through a web interface.
+## Features
 
-Main features:
 - User registration, login, and profile management
-- REST API with CRUD operations on users
+- Item listing and management
+- REST API with CRUD operations
 - Swagger UI for API documentation
+
+## Project Structure
+
+```
+BSPQ26-E3/
+├── backend/           # Spring Boot REST API (Java 21)
+├── frontend/          # React SPA
+├── docker-compose.yml # Run the full stack with Docker
+└── .env.example       # Environment variables template
+```
+
+See each folder's README for details on that part of the project.
 
 ---
 
-## How to run
+## Quick Start with Docker
+
+The easiest way to run the entire project is with Docker.
 
 ### Prerequisites
 
-- Java 17+
+- [Docker](https://docs.docker.com/get-docker/) and Docker Compose
+
+### Steps
+
+1. **Configure environment variables:**
+
+   ```bash
+   cp .env.example backend/.env
+   ```
+
+   Edit `backend/.env` with your Supabase credentials.
+
+2. **Build and start all services:**
+
+   ```bash
+   docker compose up --build
+   ```
+
+3. **Access the application:**
+
+   | Service      | URL                                      |
+   |--------------|------------------------------------------|
+   | Frontend     | http://localhost                          |
+   | Backend API  | http://localhost:8080                     |
+   | Swagger UI   | http://localhost:8080/swagger-ui.html     |
+
+4. **Stop the services:**
+
+   ```bash
+   docker compose down
+   ```
+
+---
+
+## Local Development (without Docker)
+
+### Prerequisites
+
+- Java 21
 - Maven
-- Node.js and npm
+- Node.js 20+ and npm
 
 ### 1. Configure environment variables
 
-Create a `.env` file in the project root with your Supabase credentials:
+Create `backend/.env` from the template:
 
-```env
-DB_URL=jdbc:postgresql://db.<your-project-ref>.supabase.co:5432/postgres?sslmode=require
-DB_USERNAME=postgres
-DB_PASSWORD=<your-supabase-database-password>
+```bash
+cp .env.example backend/.env
 ```
+
+Edit it with your Supabase credentials.
 
 ### 2. Run the backend
 
 ```bash
+cd backend
 mvn spring-boot:run
 ```
 
 The API will be available at `http://localhost:8080`.
-Swagger UI: `http://localhost:8080/swagger-ui.html`
 
 ### 3. Run the frontend
 
@@ -47,3 +99,9 @@ npm start
 ```
 
 The frontend will be available at `http://localhost:3000`.
+
+---
+
+## Git Workflow
+
+See [GitWorkflow.md](GitWorkflow.md) for the branching and contribution strategy.

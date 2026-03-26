@@ -1,7 +1,9 @@
-# Exclude contents of target folder
+# Backend
 target/
+backend/.env
+.m2/
 
-#Frontend - React dependencies and build
+# Frontend
 /frontend/node_modules/
 /frontend/build/
 
