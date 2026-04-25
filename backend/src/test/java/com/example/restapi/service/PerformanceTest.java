@@ -4,9 +4,10 @@ import static org.mockito.Mockito.*;
 
 import java.util.List;
 
-import org.databene.contiperf.PerfTest;
-import org.databene.contiperf.Required;
-import org.databene.contiperf.junit.ContiPerfRule;
+import com.github.noconnor.junitperf.JUnitPerfRule;
+import com.github.noconnor.junitperf.JUnitPerfTest;
+import com.github.noconnor.junitperf.JUnitPerfTestRequirement;
+import com.github.noconnor.junitperf.reporting.providers.HtmlReportGenerator;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -21,7 +22,7 @@ import com.example.restapi.repository.ProfileRepository;
 public class PerformanceTest {
 
     @Rule
-    public ContiPerfRule rule = new ContiPerfRule();
+    public JUnitPerfRule perfTestRule = new JUnitPerfRule(new HtmlReportGenerator("perf-reports/report.html"));
 
     @Mock
     private ItemRepository itemRepository;
@@ -54,51 +55,50 @@ public class PerformanceTest {
         appUserService = new AppUserService(profileRepository);
     }
 
-    // SUCCESS: 1000 invocations across 10 threads, max 500ms per call, avg under 100ms
+    // SUCCESS: 10 threads for 3000ms, max 500ms per call, avg under 100ms
     @Test
-    @PerfTest(invocations = 1000, threads = 10)
-    @Required(max = 500, average = 100)
+    @JUnitPerfTest(durationMs = 3000, threads = 10)
+    @JUnitPerfTestRequirement(maxLatency = 500, meanLatency = 100)
     public void testGetAllItems_invocationsAndThreads() {
         itemService.getAllItems();
     }
 
     // SUCCESS: throughput - at least 10 operations per second
     @Test
-    @PerfTest(invocations = 500, threads = 5)
-    @Required(throughput = 10)
+    @JUnitPerfTest(durationMs = 2000, threads = 5)
+    @JUnitPerfTestRequirement(executionsPerSec = 10)
     public void testGetAllItems_throughput() {
         itemService.getAllItems();
     }
 
     // SUCCESS: duration - runs continuously for 2000ms across 3 threads
     @Test
-    @PerfTest(duration = 2000, threads = 3)
-    @Required(max = 500)
+    @JUnitPerfTest(durationMs = 2000, threads = 3)
+    @JUnitPerfTestRequirement(maxLatency = 500)
     public void testGetAllItems_duration() {
         itemService.getAllItems();
     }
 
-    // SUCCESS: invocations + threads + avg + max + throughput on AppUserService
+    // SUCCESS: threads + avg + max + throughput on AppUserService
     @Test
-    @PerfTest(invocations = 500, threads = 5)
-    @Required(max = 500, average = 100, throughput = 10)
+    @JUnitPerfTest(durationMs = 2000, threads = 5)
+    @JUnitPerfTestRequirement(maxLatency = 500, meanLatency = 100, executionsPerSec = 10)
     public void testGetAllUsers_invocationsAndThreads() {
         appUserService.getAllUsers();
     }
 
     // SUCCESS: duration test on AppUserService
     @Test
-    @PerfTest(duration = 2000, threads = 3)
-    @Required(throughput = 10)
+    @JUnitPerfTest(durationMs = 2000, threads = 3)
+    @JUnitPerfTestRequirement(executionsPerSec = 10)
     public void testGetAllUsers_duration() {
         appUserService.getAllUsers();
     }
 
-    // FAIL: requirements set stricter than achievable (max=1ms, but each call sleeps 5ms
-    //       to simulate realistic DB/network latency)
+    // FAIL: max=1ms but each call sleeps 5ms — intentionally fails to demonstrate a failing test
     @Test
-    @PerfTest(invocations = 10, threads = 2)
-    @Required(max = 1)
+    @JUnitPerfTest(durationMs = 500, threads = 2)
+    @JUnitPerfTestRequirement(maxLatency = 1)
     public void testGetAllItems_strictRequirements_fails() throws InterruptedException {
         Thread.sleep(5);
         itemService.getAllItems();
