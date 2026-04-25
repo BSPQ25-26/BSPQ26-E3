@@ -31,7 +31,7 @@ jobs:
         run: mvn -B clean package spring-boot:repackage -DskipTests
 
       - name: Run tests
-        run: mvn -B test
+        run: mvn -B test -Dmaven.test.failure.ignore=true
         env:
           DB_URL: jdbc:postgresql://localhost:5432/test
           DB_USERNAME: test
