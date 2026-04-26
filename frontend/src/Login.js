@@ -6,6 +6,7 @@ export default function Login({ onLoginSuccess, showRegister, successMsg }) {
   const [error, setError] = useState("");
   const [emailNotConfirmed, setEmailNotConfirmed] = useState(false);
   const [resendStatus, setResendStatus] = useState("");
+  const [resetStatus, setResetStatus] = useState("");
 
   const handleLogin = async () => {
     setError("");
@@ -39,6 +40,29 @@ export default function Login({ onLoginSuccess, showRegister, successMsg }) {
     } catch (err) {
       console.error("Login fetch error:", err);
       setError("Could not connect. Please try again.");
+    }
+  };
+
+  const handleResetPassword = async () => {
+    setResetStatus("");
+    if (!email) {
+      setResetStatus("error:Enter your email above first.");
+      return;
+    }
+    try {
+      const res = await fetch("/api/users/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      if (res.ok) {
+        setResetStatus("ok");
+      } else {
+        const text = await res.text().catch(() => "");
+        setResetStatus("error:" + (text || "Could not send reset email."));
+      }
+    } catch {
+      setResetStatus("error:Could not connect. Please try again.");
     }
   };
 
@@ -78,7 +102,7 @@ export default function Login({ onLoginSuccess, showRegister, successMsg }) {
             placeholder="Email"
             type="email"
             value={email}
-            onChange={e => setEmail(e.target.value)}
+            onChange={e => { setEmail(e.target.value); setResetStatus(""); }}
           />
           <input
             className="auth-input"
@@ -87,6 +111,21 @@ export default function Login({ onLoginSuccess, showRegister, successMsg }) {
             value={password}
             onChange={e => setPassword(e.target.value)}
           />
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <button
+              type="button"
+              onClick={handleResetPassword}
+              style={{ background: "none", border: "none", padding: 0, fontSize: "0.82rem", color: "#4a7c59", cursor: "pointer", textDecoration: "underline" }}
+            >
+              Forgot password?
+            </button>
+          </div>
+          {resetStatus === "ok" && (
+            <p className="auth-notice" style={{ margin: 0 }}>Reset email sent. Check your inbox.</p>
+          )}
+          {resetStatus.startsWith("error:") && (
+            <p className="auth-error" style={{ margin: 0 }}>{resetStatus.slice(6)}</p>
+          )}
         </div>
         <div className="auth-actions">
           <button className="primary-button" onClick={handleLogin}>Login</button>
