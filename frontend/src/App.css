@@ -383,3 +383,151 @@
   color: var(--primary);
   margin: 10px 0 15px;
 }
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(45, 35, 20, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(2px);
+  z-index: 1000;
+  padding: 20px;
+}
+
+/* Modal Content */
+.modal-content {
+  position: relative;
+  max-width: 900px;
+  width: 100%;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 28px;
+  box-shadow: var(--shadow);
+  padding: 32px;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Close Button */
+.modal-close-button {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: rgba(47, 106, 59, 0.1);
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 24px;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.18s ease;
+}
+
+.modal-close-button:hover {
+  background: rgba(47, 106, 59, 0.2);
+}
+
+/* Plant Details Grid */
+.plant-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin-top: 20px;
+}
+
+@media (max-width: 768px) {
+  .plant-details-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+/* Plant Details Image */
+.plant-details-image {
+  height: 400px;
+  background: #e7d7b1;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.plant-details-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Plant Details Info */
+.plant-details-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.plant-details-info h2 {
+  font-size: 2rem;
+  color: var(--text-main);
+  margin: 12px 0 0;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.plant-details-price {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 16px 0 24px;
+}
+
+/* Specifications */
+.plant-details-specs {
+  display: grid;
+  gap: 16px;
+  margin: 24px 0;
+  padding: 20px;
+  background: rgba(47, 106, 59, 0.05);
+  border-radius: 16px;
+  border: 1px solid rgba(47, 106, 59, 0.1);
+}
+
+.spec-item {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 12px;
+}
+
+.spec-item dt {
+  font-weight: 700;
+  color: var(--text-main);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.spec-item dd {
+  color: var(--text-soft);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Add to Cart Button */
+.plant-details-info .primary-button {
+  margin-top: auto;
+}
