@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import heroImage from "./assets/plant-showcase-hero.svg";
 import PlantDetailsModal from "./PlantDetailsModal";  // AGREGAR
+import Cart from "./Cart";  // AGREGAR
 
 function formatCreatedAt(value) {
   if (!value) {
@@ -22,6 +23,8 @@ export default function Dashboard({ user, onLogout }) {
   
   // AGREGAR: Estado para el modal
   const [selectedPlantId, setSelectedPlantId] = useState(null);
+  // AGREGAR: Estado del carrito
+  const [showCart, setShowCart] = useState(false);
 
   // Cargar datos del perfil
   useEffect(() => {
@@ -118,43 +121,60 @@ export default function Dashboard({ user, onLogout }) {
           <p className="dashboard-eyebrow">Green Home</p>
           <h1>Plathub</h1>
         </div>
-        <div className="profile-area">
+        <div className="topbar-actions">
           <button
-            className="profile-button"
+            className="cart-button"
             type="button"
-            aria-label="Show user information"
-            onClick={() => setShowProfile((current) => !current)}
+            aria-label="Open shopping cart"
+            onClick={() => setShowCart((current) => !current)}
           >
             <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 12a4.25 4.25 0 1 0-4.25-4.25A4.26 4.26 0 0 0 12 12Zm0 2.25c-3.9 0-7 2.01-7 4.5V20h14v-1.25c0-2.49-3.1-4.5-7-4.5Z" />
+              <path d="M7 4V3c0-.6.4-1 1-1h1c.6 0 1 .4 1 1v1h4V3c0-.6.4-1 1-1h1c.6 0 1 .4 1 1v1h3c1.1 0 2 .9 2 2v16c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2h3zm13 2H4v16h16V6z"/>
             </svg>
           </button>
-          {showProfile && (
-            <aside className="profile-card">
-              <p className="profile-card-title">Your profile</p>
-              <dl className="profile-details">
-                <div>
-                  <dt>Username</dt>
-                  <dd>{displayUser.username || "Not available"}</dd>
-                </div>
-                <div>
-                  <dt>Email</dt>
-                  <dd>{displayUser.email || "Not available"}</dd>
-                </div>
-                <div>
-                  <dt>Phone</dt>
-                  <dd>{displayUser.phone || "Not available"}</dd>
-                </div>
-                <div>
-                  <dt>Created</dt>
-                  <dd>{formatCreatedAt(displayUser.createdAt)}</dd>
-                </div>
-              </dl>
-              <button className="secondary-button profile-logout" type="button" onClick={onLogout}>
-                Sign out
-              </button>
-            </aside>
+
+          {showCart && (
+            <Cart userId={user.id} onClose={() => setShowCart(false)} />
           )}
+
+          <div className="profile-area">
+            <button
+              className="profile-button"
+              type="button"
+              aria-label="Show user information"
+              onClick={() => setShowProfile((current) => !current)}
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 12a4.25 4.25 0 1 0-4.25-4.25A4.26 4.26 0 0 0 12 12Zm0 2.25c-3.9 0-7 2.01-7 4.5V20h14v-1.25c0-2.49-3.1-4.5-7-4.5Z" />
+              </svg>
+            </button>
+            {showProfile && (
+              <aside className="profile-card">
+                <p className="profile-card-title">Your profile</p>
+                <dl className="profile-details">
+                  <div>
+                    <dt>Username</dt>
+                    <dd>{displayUser.username || "Not available"}</dd>
+                  </div>
+                  <div>
+                    <dt>Email</dt>
+                    <dd>{displayUser.email || "Not available"}</dd>
+                  </div>
+                  <div>
+                    <dt>Phone</dt>
+                    <dd>{displayUser.phone || "Not available"}</dd>
+                  </div>
+                  <div>
+                    <dt>Created</dt>
+                    <dd>{formatCreatedAt(displayUser.createdAt)}</dd>
+                  </div>
+                </dl>
+                <button className="secondary-button profile-logout" type="button" onClick={onLogout}>
+                  Sign out
+                </button>
+              </aside>
+            )}
+          </div>
         </div>
       </header>
 
@@ -223,6 +243,7 @@ export default function Dashboard({ user, onLogout }) {
       {selectedPlantId && (
         <PlantDetailsModal 
           plantId={selectedPlantId} 
+          userId={user.id}
           onClose={() => setSelectedPlantId(null)}
         />
       )}
