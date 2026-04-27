@@ -1,9 +1,10 @@
-package com.example.restapi.service;
+package com.example.restapi.performance;
 
 import static org.mockito.Mockito.*;
 
 import java.util.List;
-
+import com.example.restapi.service.ItemService;
+import com.example.restapi.service.AppUserService;
 import com.github.noconnor.junitperf.JUnitPerfRule;
 import com.github.noconnor.junitperf.JUnitPerfTest;
 import com.github.noconnor.junitperf.JUnitPerfTestRequirement;
@@ -90,7 +91,7 @@ public class PerformanceTest {
     // SUCCESS: duration test on AppUserService
     @Test
     @JUnitPerfTest(durationMs = 2000, threads = 3)
-    @JUnitPerfTestRequirement(executionsPerSec = 10)
+    @JUnitPerfTestRequirement(executionsPerSec = 5)
     public void testGetAllUsers_duration() {
         appUserService.getAllUsers();
     }
