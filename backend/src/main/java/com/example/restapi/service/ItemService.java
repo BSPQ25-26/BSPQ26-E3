@@ -28,6 +28,12 @@ public class ItemService {
             .collect(Collectors.toList());
     }
 
+    public ItemResponse getItemById(Long id) {
+        Item item = itemRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Item not found"));
+        return convertToResponse(item);
+    }
+
     private ItemResponse convertToResponse(Item item) {
         return new ItemResponse(
             item.getId(),

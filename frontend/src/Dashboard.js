@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import heroImage from "./assets/plant-showcase-hero.svg";
+import PlantDetailsModal from "./PlantDetailsModal";  // AGREGAR
 
 function formatCreatedAt(value) {
   if (!value) {
@@ -18,6 +19,9 @@ export default function Dashboard({ user, onLogout }) {
   const [plants, setPlants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // AGREGAR: Estado para el modal
+  const [selectedPlantId, setSelectedPlantId] = useState(null);
 
   // Cargar datos del perfil
   useEffect(() => {
@@ -202,7 +206,12 @@ export default function Dashboard({ user, onLogout }) {
                   <span className="auth-kicker">{plant.type}</span>
                   <h3>{plant.name}</h3>
                   <p className="price-tag">${plant.price.toFixed(2)}</p>
-                  <button className="primary-button">View Details</button>
+                  <button 
+                    className="primary-button"
+                    onClick={() => setSelectedPlantId(plant.id)}  // AGREGAR ESTO
+                  >
+                    View Details
+                  </button>
                 </div>
               </div>
             ))
@@ -211,6 +220,12 @@ export default function Dashboard({ user, onLogout }) {
           )}
         </div>
       </section>
+      {selectedPlantId && (
+        <PlantDetailsModal 
+          plantId={selectedPlantId} 
+          onClose={() => setSelectedPlantId(null)}
+        />
+      )}
     </main>
   );
 }
