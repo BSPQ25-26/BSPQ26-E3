@@ -2,6 +2,8 @@ package com.example.restapi.client;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -11,6 +13,7 @@ import com.example.restapi.model.Profile;
 
 public class AppUserManager {
 
+    private static final Logger log = LoggerFactory.getLogger(AppUserManager.class);
     private static final String USER_CONTROLLER_URL_TEMPLATE = "http://%s:%s/api/users";
     private final String userControllerUrl;
     private final RestTemplate restTemplate;
@@ -24,9 +27,9 @@ public class AppUserManager {
         ResponseEntity<Profile> response = restTemplate.postForEntity(userControllerUrl, req, Profile.class);
 
         if (response.getStatusCode().is2xxSuccessful()) {
-            System.out.println("User registered successfully.");
+            log.info("User registered successfully.");
         } else {
-            System.out.println("Failed to register user. Status code: " + response.getStatusCode());
+            log.warn("Failed to register user. Status code: {}", response.getStatusCode());
         }
     }
 
@@ -37,16 +40,16 @@ public class AppUserManager {
             return List.of(response.getBody());
         }
 
-        System.out.println("Failed to retrieve users. Status code: " + response.getStatusCode());
+        log.warn("Failed to retrieve users. Status code: {}", response.getStatusCode());
         return List.of();
     }
 
     public void deleteUser(String userId) {
         try {
             restTemplate.delete(userControllerUrl + "/" + userId);
-            System.out.println("User deleted successfully.");
+            log.info("User deleted successfully.");
         } catch (RestClientException exception) {
-            System.out.println("Failed to delete user. " + exception.getMessage());
+            log.error("Failed to delete user: {}", exception.getMessage());
         }
     }
 
@@ -61,24 +64,25 @@ public class AppUserManager {
         AppUserManager appUserManager = new AppUserManager(hostname, port);
         java.util.Scanner scanner = new java.util.Scanner(System.in);
 
+        Logger cliLog = LoggerFactory.getLogger(AppUserManager.class);
         while (true) {
-            System.out.println("1. Register user");
-            System.out.println("2. List users");
-            System.out.println("3. Delete user");
-            System.out.println("4. Exit");
-            System.out.print("Enter your choice: ");
+            cliLog.info("1. Register user");
+            cliLog.info("2. List users");
+            cliLog.info("3. Delete user");
+            cliLog.info("4. Exit");
+            cliLog.info("Enter your choice: ");
             int choice = scanner.nextInt();
             scanner.nextLine();
 
             switch (choice) {
                 case 1:
-                    System.out.print("Enter username: ");
+                    cliLog.info("Enter username: ");
                     String username = scanner.nextLine();
-                    System.out.print("Enter phone: ");
+                    cliLog.info("Enter phone: ");
                     String phone = scanner.nextLine();
-                    System.out.print("Enter email: ");
+                    cliLog.info("Enter email: ");
                     String email = scanner.nextLine();
-                    System.out.print("Enter password: ");
+                    cliLog.info("Enter password: ");
                     String password = scanner.nextLine();
                     RegisterRequest req = new RegisterRequest();
                     req.setUsername(username);
@@ -90,14 +94,14 @@ public class AppUserManager {
                 case 2:
                     List<Profile> users = appUserManager.getAllUsers();
                     for (Profile user : users) {
-                        System.out.println("ID: " + user.getId());
-                        System.out.println("Username: " + user.getUsername());
-                        System.out.println("Created at: " + user.getCreatedAt());
-                        System.out.println("---------------------------");
+                        cliLog.info("ID: {}", user.getId());
+                        cliLog.info("Username: {}", user.getUsername());
+                        cliLog.info("Created at: {}", user.getCreatedAt());
+                        cliLog.info("---------------------------");
                     }
                     break;
                 case 3:
-                    System.out.print("Enter user ID to delete: ");
+                    cliLog.info("Enter user ID to delete: ");
                     String userId = scanner.nextLine();
                     appUserManager.deleteUser(userId);
                     break;
@@ -105,7 +109,7 @@ public class AppUserManager {
                     scanner.close();
                     System.exit(0);
                 default:
-                    System.out.println("Invalid choice. Please try again.");
+                    cliLog.warn("Invalid choice. Please try again.");
             }
         }
     }
