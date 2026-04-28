@@ -23,5 +23,4 @@ public class PostRequest {
         this.categories = categories;
     }
 
-
 }
