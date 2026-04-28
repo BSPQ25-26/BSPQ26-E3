@@ -44,16 +44,12 @@ describe('Cart', () => {
       .mockResolvedValueOnce({ ok: true, json: async () => ({ ...cartData, items: [cartData.items[1]], total: 5 }) }); // remove item
 
     render(<Cart userId={mockUserId} onClose={mockOnClose} />);
-    await waitFor(() => {
-      expect(screen.getByText('Fern')).toBeInTheDocument();
-      expect(screen.getByText('Cactus')).toBeInTheDocument();
-    });
+    expect(await screen.findByText('Fern')).toBeInTheDocument();
+    expect(screen.getByText('Cactus')).toBeInTheDocument();
 
     fireEvent.click(screen.getAllByLabelText('Remove item')[0]);
-    await waitFor(() => {
-      expect(screen.queryByText('Fern')).not.toBeInTheDocument();
-      expect(screen.getByText('Cactus')).toBeInTheDocument();
-    });
+    expect(screen.queryByText('Fern')).not.toBeInTheDocument();
+    expect(await screen.findByText('Cactus')).toBeInTheDocument();
   });
 
   it('handles checkout', async () => {
@@ -68,13 +64,11 @@ describe('Cart', () => {
       .mockResolvedValueOnce({ ok: true, json: async () => ({ items: [], total: 0 }) }); // checkout
     window.alert = jest.fn();
     render(<Cart userId={mockUserId} onClose={mockOnClose} />);
-    await waitFor(() => {
-      expect(screen.getByText('Fern')).toBeInTheDocument();
-    });
+    expect(await screen.findByText('Fern')).toBeInTheDocument();
     fireEvent.click(screen.getByText(/Proceed to Checkout/i));
     await waitFor(() => {
       expect(window.alert).toHaveBeenCalledWith('Checkout successful!');
-      expect(mockOnClose).toHaveBeenCalled();
     });
+    expect(mockOnClose).toHaveBeenCalled();
   });
 });

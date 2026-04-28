@@ -85,7 +85,7 @@ describe('App routing', () => {
     fireEvent.change(screen.getByPlaceholderText('Password'), { target: { value: 'secret' } });
     fireEvent.click(screen.getByText('Login'));
 
-    await waitFor(() => expect(screen.getByText(/Welcome, alice/)).toBeInTheDocument());
+    expect(await screen.findByText(/Welcome, alice/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByLabelText('Show user information'));
     fireEvent.click(screen.getByText('Sign out'));

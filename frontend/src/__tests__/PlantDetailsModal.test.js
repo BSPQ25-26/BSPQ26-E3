@@ -40,10 +40,8 @@ describe('PlantDetailsModal', () => {
       .mockResolvedValueOnce({ ok: true }); // add to cart
 
     render(<PlantDetailsModal plantId={mockPlantId} userId={mockUserId} onClose={mockOnClose} />);
-    await waitFor(() => {
-      expect(screen.getByText('Fern')).toBeInTheDocument();
-      expect(screen.getByText('$10.00')).toBeInTheDocument();
-    });
+    expect(await screen.findByText('Fern')).toBeInTheDocument();
+    expect(screen.getByText('$10.00')).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText('Quantity:'), { target: { value: '2' } });
     fireEvent.click(screen.getByText('Add to Cart'));
     await waitFor(() => {

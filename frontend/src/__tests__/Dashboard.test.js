@@ -55,10 +55,8 @@ describe('Dashboard', () => {
 
     render(<Dashboard user={mockUser} onLogout={jest.fn()} />);
 
-    await waitFor(() => {
-      expect(screen.getByText('Fern')).toBeInTheDocument();
-      expect(screen.getByText('Cactus')).toBeInTheDocument();
-    });
+    expect(await screen.findByText('Fern')).toBeInTheDocument();
+    expect(screen.getByText('Cactus')).toBeInTheDocument();
   });
 
   it('shows error message when items fetch fails', async () => {
@@ -80,7 +78,7 @@ describe('Dashboard', () => {
 
     render(<Dashboard user={mockUser} onLogout={jest.fn()} />);
 
-    await waitFor(() => expect(screen.getByText('Fern')).toBeInTheDocument());
+    expect(await screen.findByText('Fern')).toBeInTheDocument();
 
     fireEvent.change(screen.getByPlaceholderText('Search by name...'), {
       target: { value: 'fern' },
@@ -97,7 +95,7 @@ describe('Dashboard', () => {
 
     render(<Dashboard user={mockUser} onLogout={jest.fn()} />);
 
-    await waitFor(() => expect(screen.getByText('Fern')).toBeInTheDocument());
+    expect(await screen.findByText('Fern')).toBeInTheDocument();
 
     fireEvent.change(screen.getByRole('combobox'), { target: { value: 'Indoor' } });
 
@@ -112,7 +110,7 @@ describe('Dashboard', () => {
 
     render(<Dashboard user={mockUser} onLogout={jest.fn()} />);
 
-    await waitFor(() => expect(screen.getByText('Fern')).toBeInTheDocument());
+    expect(await screen.findByText('Fern')).toBeInTheDocument();
 
     fireEvent.change(screen.getByPlaceholderText('Search by name...'), {
       target: { value: 'zzzzz' },
