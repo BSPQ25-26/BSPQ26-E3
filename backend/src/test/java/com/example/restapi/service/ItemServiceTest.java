@@ -15,6 +15,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Nested;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +24,8 @@ import java.util.UUID;
 
 @DisplayName("ItemService Tests")
 public class ItemServiceTest {
+
+    private static final Logger log = LoggerFactory.getLogger(ItemServiceTest.class);
 
     @Mock
     private ItemRepository itemRepository;
@@ -61,6 +65,7 @@ public class ItemServiceTest {
             assertEquals(1, result.size());
             assertEquals("Test Item", result.get(0).getTitle());
             verify(itemRepository, times(1)).findAll();
+            log.info("testGetAllItems passed: returned {} item(s)", result.size());
         }
 
         @Test
@@ -90,6 +95,7 @@ public class ItemServiceTest {
             assertEquals(1, result.size());
             assertTrue(result.get(0).getStatus());
             verify(itemRepository).findByStatusTrue();
+            log.info("testGetActiveItems passed: returned {} active item(s)", result.size());
         }
 
         @Test
@@ -118,6 +124,7 @@ public class ItemServiceTest {
             assertEquals(testItem.getId(), result.getId());
             assertEquals("Test Item", result.getName());
             verify(itemRepository).save(testItem);
+            log.info("testCreateItemSuccess passed: created item id={}", result.getId());
         }
 
         @Test
@@ -153,6 +160,7 @@ public class ItemServiceTest {
             assertEquals("Updated Description", result.getDescription());
             verify(itemRepository).findById(1L);
             verify(itemRepository).save(any(Item.class));
+            log.info("testUpdateItemSuccess passed: updated item name={}", result.getName());
         }
 
         @Test

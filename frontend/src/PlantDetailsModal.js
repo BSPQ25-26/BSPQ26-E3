@@ -80,14 +80,14 @@ export default function PlantDetailsModal({ plantId, userId, onClose }) {
             </button>
             <div className="plant-details-grid">
               <div className="plant-details-image">
-                <img 
-                  src={plantDetails.image_url || "https://via.placeholder.com/400"} 
-                  alt={plantDetails.name}
+                <img
+                  src={plantDetails.image_url || "https://via.placeholder.com/400"}
+                  alt={plantDetails.title}
                 />
               </div>
               <div className="plant-details-info">
                 <span className="auth-kicker">{plantDetails.categoryName || "Uncategorized"}</span>
-                <h2>{plantDetails.name}</h2>
+                <h2>{plantDetails.title}</h2>
                 <p className="plant-details-price">${plantDetails.amount.toFixed(2)}</p>
                 
                 <div className="plant-details-specs">
