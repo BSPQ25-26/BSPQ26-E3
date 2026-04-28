@@ -1,6 +1,7 @@
 // Clase Category
 package com.example.restapi.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -13,6 +14,11 @@ public class Category {
     
     @Column(nullable = false, unique = true)
     private String name;
+
+    @ManyToOne
+    @JsonIgnore
+    @JoinColumn(name="post_id")
+    private Post post;
     
     private String description;
     

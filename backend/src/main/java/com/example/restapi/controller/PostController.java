@@ -1,0 +1,48 @@
+package com.example.restapi.controller;
+
+
+import com.example.restapi.dto.PostRequest;
+import com.example.restapi.model.Post;
+import com.example.restapi.service.PostService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/api/posts")
+public class PostController {
+
+    private PostService postService;
+
+    public PostController(PostService postService) {
+        this.postService = postService;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Post>> getAllPosts() {
+        List<Post> posts = postService.getAllPosts();
+        return new ResponseEntity<>(posts, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Post> getPostById(@PathVariable Long id) {
+        Post post = postService.getPostById(id);
+        return new ResponseEntity<>(post, HttpStatus.OK);
+    }
+
+    @PostMapping
+    public ResponseEntity<Post> createPost(@RequestBody Post post) {
+
+        Post createPost = postService.createPost(post);
+        return new ResponseEntity<>(createPost, HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Post> deletePost(@RequestBody Long id) {
+        postService.deletePost(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+}
