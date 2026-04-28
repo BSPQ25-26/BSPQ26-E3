@@ -15,6 +15,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Nested;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -29,6 +31,8 @@ import java.util.UUID;
 
 @DisplayName("AppUserService Tests")
 public class UserServiceTest {
+
+    private static final Logger log = LoggerFactory.getLogger(UserServiceTest.class);
 
     @Mock
     private ProfileRepository profileRepository;
@@ -67,6 +71,7 @@ public class UserServiceTest {
 
             assertEquals(expectedProfiles, result);
             verify(profileRepository, times(1)).findAll();
+            log.info("testGetAllUsers passed: returned {} user(s)", result.size());
         }
 
         @Test
@@ -95,6 +100,7 @@ public class UserServiceTest {
             assertTrue(result.isPresent());
             assertEquals(testProfile, result.get());
             verify(profileRepository).findById(testUserId);
+            log.info("testGetUserById passed: found user '{}'", result.get().getUsername());
         }
 
         @Test
@@ -125,6 +131,7 @@ public class UserServiceTest {
             assertEquals("newusername", result.getUsername());
             verify(profileRepository).findById(testUserId);
             verify(profileRepository).save(any(Profile.class));
+            log.info("testUpdateUserSuccess passed: updated username='{}'", result.getUsername());
         }
 
         @Test
@@ -154,6 +161,7 @@ public class UserServiceTest {
             assertTrue(result.isPresent());
             assertEquals("testuser", result.get().getUsername());
             verify(profileRepository).findByUsername("testuser");
+            log.info("testGetDisplayProfileByUsername passed: found profile '{}'", result.get().getUsername());
         }
 
         @Test
@@ -187,6 +195,7 @@ public class UserServiceTest {
 
             assertDoesNotThrow(() -> userService.deleteUser(testUserId));
             verify(profileRepository).existsById(testUserId);
+            log.info("testDeleteUserSuccess passed: user {} deleted", testUserId);
         }
 
         @Test
