@@ -1,24 +1,24 @@
 package com.example.restapi.performance;
-
-import static org.mockito.Mockito.*;
-
 import java.util.List;
-import com.example.restapi.service.ItemService;
-import com.example.restapi.service.AppUserService;
-import com.github.noconnor.junitperf.JUnitPerfRule;
-import com.github.noconnor.junitperf.JUnitPerfTest;
-import com.github.noconnor.junitperf.JUnitPerfTestRequirement;
-import com.github.noconnor.junitperf.reporting.providers.HtmlReportGenerator;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
 
 import com.example.restapi.model.Item;
 import com.example.restapi.model.Profile;
 import com.example.restapi.repository.ItemRepository;
 import com.example.restapi.repository.ProfileRepository;
+import com.example.restapi.service.AppUserService;
+import com.example.restapi.service.ItemService;
+import com.github.noconnor.junitperf.JUnitPerfRule;
+import com.github.noconnor.junitperf.JUnitPerfTest;
+import com.github.noconnor.junitperf.JUnitPerfTestRequirement;
+import com.github.noconnor.junitperf.reporting.providers.HtmlReportGenerator;
 
 public class PerformanceTest {
 
@@ -72,7 +72,7 @@ public class PerformanceTest {
         itemService.getAllItems();
     }
 
-    // SUCCESS: duration - runs continuously for 2000ms across 3 threads
+    // SUCCESS: duration runs continuously for 2000ms across 3 threads
     @Test
     @JUnitPerfTest(durationMs = 2000, threads = 3)
     @JUnitPerfTestRequirement(maxLatency = 500)
@@ -96,7 +96,7 @@ public class PerformanceTest {
         appUserService.getAllUsers();
     }
 
-    // FAIL: max=1ms but each call sleeps 5ms — intentionally fails to demonstrate a failing test
+    // FAIL: intentionally fails to demonstrate a failing test
     @Test
     @JUnitPerfTest(durationMs = 500, threads = 2)
     @JUnitPerfTestRequirement(maxLatency = 1)
