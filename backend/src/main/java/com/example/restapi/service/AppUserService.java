@@ -168,11 +168,22 @@ public class AppUserService {
         return profileRepository.findById(id);
     }
 
-    public Profile updateUser(UUID id, Profile userDetails) {
+    public Profile updatePartOfUser(UUID id, Map<String, Object> updates) {
         Profile profile = profileRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Profile not found with id: " + id));
-        profile.setUsername(userDetails.getUsername());
+        partialUpdate(profile ,updates);
         return profileRepository.save(profile);
+    }
+
+    private void partialUpdate(Profile userDetails, Map<String, Object> updates){
+        if(updates.containsKey("username")){
+            userDetails.setUsername((String) updates.get("username"));
+        }
+
+        if(updates.containsKey("phone")){
+            userDetails.setPhone((String) updates.get("phone"));
+        }
+        profileRepository.save(userDetails);
     }
 
     public void resetPassword(String email) {
@@ -260,4 +271,6 @@ public class AppUserService {
         // When email confirmation is enabled, the response IS the user object
         return (String) response.get("id");
     }
+
+
 }

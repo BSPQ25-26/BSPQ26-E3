@@ -116,31 +116,37 @@ public class UserServiceTest {
     }
 
     @Nested
-    @DisplayName("updateUser")
+    @DisplayName("updatePartOfUser")
     class UpdateUserTests {
 
         @Test
         @DisplayName("should update user successfully")
         void testUpdateUserSuccess() {
             Profile updatedProfile = new Profile(testUserId, "newusername", "9876543210");
+            Map<String, Object> updates = new HashMap<>();
+            updates.put("username", "newusername");
+            updates.put("phone", "9876543210");
+
             when(profileRepository.findById(testUserId)).thenReturn(Optional.of(testProfile));
             when(profileRepository.save(any(Profile.class))).thenReturn(updatedProfile);
 
-            Profile result = userService.updateUser(testUserId, updatedProfile);
+            Profile result = userService.updatePartOfUser(testUserId, updates);
 
             assertEquals("newusername", result.getUsername());
             verify(profileRepository).findById(testUserId);
-            verify(profileRepository).save(any(Profile.class));
+            verify(profileRepository, atLeastOnce()).save(any(Profile.class));
             log.info("testUpdateUserSuccess passed: updated username='{}'", result.getUsername());
         }
 
         @Test
         @DisplayName("should throw exception when user not found")
         void testUpdateUserNotFound() {
+            Map<String, Object> updates = new HashMap<>();
+            updates.put("username", "newusername");
             when(profileRepository.findById(testUserId)).thenReturn(Optional.empty());
 
-            assertThrows(RuntimeException.class, () -> 
-                userService.updateUser(testUserId, testProfile)
+            assertThrows(RuntimeException.class, () ->
+                userService.updatePartOfUser(testUserId, updates)
             );
             verify(profileRepository).findById(testUserId);
             verify(profileRepository, never()).save(any());
