@@ -24,6 +24,15 @@ public class ItemController {
         return ResponseEntity.ok(itemService.getAllItems());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ItemResponse> getItemById(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(itemService.getItemById(id));
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+}
+
     @GetMapping("/active")
     public ResponseEntity<List<ItemResponse>> getActiveItems() {
         return ResponseEntity.ok(itemService.getActiveItems());

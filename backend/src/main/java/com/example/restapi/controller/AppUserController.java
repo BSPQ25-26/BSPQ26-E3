@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.restapi.dto.AuthResponse;
+import com.example.restapi.dto.ChangePasswordRequest;
 import com.example.restapi.dto.LoginRequest;
 import com.example.restapi.dto.RegisterRequest;
 import com.example.restapi.dto.UserProfileResponse;
@@ -78,6 +79,29 @@ public class AppUserController {
                 return ResponseEntity.status(403).body("Email not confirmed.");
             }
             return ResponseEntity.status(401).body("Invalid credentials.");
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> body) {
+        try {
+            appUserService.resetPassword(body.get("email"));
+            return ResponseEntity.ok("Password reset email sent.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/{id}/change-password")
+    public ResponseEntity<?> changePassword(@PathVariable UUID id, @RequestBody ChangePasswordRequest req) {
+        try {
+            appUserService.changePassword(id, req.getEmail(), req.getCurrentPassword(), req.getNewPassword());
+            return ResponseEntity.ok("Password changed successfully.");
+        } catch (RuntimeException e) {
+            if ("INVALID_CURRENT_PASSWORD".equals(e.getMessage())) {
+                return ResponseEntity.status(401).body("Current password is incorrect.");
+            }
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 

@@ -65,6 +65,12 @@
 			<scope>test</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>test</scope>
+		</dependency>
+
 		<!-- JUnit 4 + vintage engine to run JUnitPerf tests alongside JUnit 5 -->
 		<dependency>
 			<groupId>junit</groupId>
@@ -94,6 +100,12 @@
 	</dependencies>
 
 	<build>
+		<testSourceDirectory>../test/java</testSourceDirectory>
+		<testResources>
+			<testResource>
+				<directory>../test/resources</directory>
+			</testResource>
+		</testResources>
 		<plugins>
 			<!-- Required by Spring Boot-->
 			<plugin>
@@ -106,8 +118,26 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
-					<argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
+					<argLine>@{argLine} --add-opens java.base/java.lang=ALL-UNNAMED</argLine>
 				</configuration>
+			</plugin>
+
+			<!-- JaCoCo code coverage -->
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.11</version>
+				<executions>
+					<execution>
+						<id>prepare-agent</id>
+						<goals><goal>prepare-agent</goal></goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>test</phase>
+						<goals><goal>report</goal></goals>
+					</execution>
+				</executions>
 			</plugin>
 
 			<!-- Configures exec:java command to launch client-->

@@ -186,7 +186,62 @@ public class AppUserService {
         profileRepository.save(userDetails);
     }
 
+    public void resetPassword(String email) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("apikey", supabaseAnonKey);
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
+        Map<String, String> body = new HashMap<>();
+        body.put("email", email);
+
+        HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
+        try {
+            restTemplate.postForObject(supabaseUrl + "/auth/v1/recover", request, Map.class);
+        } catch (HttpClientErrorException e) {
+            log.error("Supabase recover error {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
+            throw new RuntimeException("Failed to send reset email: " + e.getResponseBodyAsString());
+        }
+    }
+
+    public void changePassword(UUID userId, String email, String currentPassword, String newPassword) {
+        // Verify current password
+        HttpHeaders verifyHeaders = new HttpHeaders();
+        verifyHeaders.set("apikey", supabaseAnonKey);
+        verifyHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+        Map<String, String> loginBody = new HashMap<>();
+        loginBody.put("email", email);
+        loginBody.put("password", currentPassword);
+
+        HttpEntity<Map<String, String>> loginRequest = new HttpEntity<>(loginBody, verifyHeaders);
+        try {
+            restTemplate.postForObject(
+                    supabaseUrl + "/auth/v1/token?grant_type=password", loginRequest, Map.class);
+        } catch (HttpClientErrorException e) {
+            throw new RuntimeException("INVALID_CURRENT_PASSWORD");
+        }
+
+        // Update password via admin API
+        HttpHeaders adminHeaders = new HttpHeaders();
+        adminHeaders.set("apikey", supabaseServiceRoleKey);
+        adminHeaders.set("Authorization", "Bearer " + supabaseServiceRoleKey);
+        adminHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+        Map<String, String> updateBody = new HashMap<>();
+        updateBody.put("password", newPassword);
+
+        HttpEntity<Map<String, String>> updateRequest = new HttpEntity<>(updateBody, adminHeaders);
+        try {
+            restTemplate.exchange(
+                    supabaseUrl + "/auth/v1/admin/users/" + userId,
+                    HttpMethod.PUT,
+                    updateRequest,
+                    Map.class);
+        } catch (HttpClientErrorException e) {
+            log.error("Supabase password update error {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
+            throw new RuntimeException("Failed to update password: " + e.getResponseBodyAsString());
+        }
+    }
 
     public void deleteUser(UUID id) {
         if (!profileRepository.existsById(id)) {
