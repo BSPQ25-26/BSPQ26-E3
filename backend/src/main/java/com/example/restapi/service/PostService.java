@@ -64,10 +64,6 @@ public class PostService {
         if(updates.containsKey("isPublic")){
             postDetails.setIsPublic((Boolean) updates.get("isPublic"));
         }
-
-        if(updates.containsKey("categories")){
-            postDetails.setCategories((List<Category>) updates.get("categories"));
-        }
         postRepository.save(postDetails);
     }
 }

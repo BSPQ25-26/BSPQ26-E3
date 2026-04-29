@@ -33,9 +33,6 @@ public class Post {
     @Column(nullable = false)
     private Boolean isPublic;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.DETACH, orphanRemoval = true)
-    private List<Category> categories = new ArrayList<>();
-
     public Long getId() {
         return id;
     }
@@ -78,14 +75,6 @@ public class Post {
 
     public void setIsPublic(Boolean isPublic) {
         this.isPublic = isPublic;
-    }
-
-    public List<Category> getCategories() {
-        return categories;
-    }
-
-    public void setCategories(List<Category> categories) {
-        this.categories = categories;
     }
 
     @JsonSetter(nulls = Nulls.SKIP)
