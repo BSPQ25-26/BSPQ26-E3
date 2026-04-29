@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.UUID;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,21 +15,59 @@ import org.springframework.http.ResponseEntity;
 
 import com.example.restapi.dto.CartRequest;
 import com.example.restapi.dto.CartResponse;
+import com.example.restapi.model.Category;
+import com.example.restapi.model.Item;
+import com.example.restapi.model.Profile;
+import com.example.restapi.repository.CartItemRepository;
+import com.example.restapi.repository.CartRepository;
+import com.example.restapi.repository.CategoryRepository;
+import com.example.restapi.repository.ItemRepository;
+import com.example.restapi.repository.ProfileRepository;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@org.springframework.test.context.ActiveProfiles("test")
 @DisplayName("Cart Integration Tests")
 class CartServiceIntegrationTest {
 
-    @Autowired
-    private TestRestTemplate restTemplate;
+    @Autowired private TestRestTemplate restTemplate;
+    @Autowired private ItemRepository itemRepository;
+    @Autowired private ProfileRepository profileRepository;
+    @Autowired private CartItemRepository cartItemRepository;
+    @Autowired private CartRepository cartRepository;
+    @Autowired private CategoryRepository categoryRepository;
 
     private UUID buyerId;
     private Long itemId;
 
     @BeforeEach
     void setUp() {
+        // Clean up in FK-safe order: cart_items → carts → items → profiles → categories
+        cartItemRepository.deleteAll();
+        cartRepository.deleteAll();
+        itemRepository.deleteAll();
+        profileRepository.deleteAll();
+        categoryRepository.deleteAll();
+
         buyerId = UUID.randomUUID();
-        itemId = 1L;
+
+        Category category = categoryRepository.save(new Category("Plants", "Test category"));
+
+        Profile seller = profileRepository.save(new Profile(UUID.randomUUID(), "seller", "000000000"));
+        // Buyer profile required by CartService.checkout() to verify the buyer exists
+        profileRepository.save(new Profile(buyerId, "buyer", "111111111"));
+
+        Item item = new Item("Test Plant", "A test plant", 9.99, null, 100, category, true);
+        item.setSeller(seller);
+        itemId = itemRepository.save(item).getId();
+    }
+
+    @AfterEach
+    void tearDown() {
+        cartItemRepository.deleteAll();
+        cartRepository.deleteAll();
+        itemRepository.deleteAll();
+        profileRepository.deleteAll();
+        categoryRepository.deleteAll();
     }
 
     @Test
@@ -47,7 +86,6 @@ class CartServiceIntegrationTest {
 
         assertEquals(200, addResponse.getStatusCodeValue());
         assertNotNull(addResponse.getBody());
-        assertNotNull(addResponse.getBody().getItems());
         assertEquals(1, addResponse.getBody().getItems().size());
 
         // Step 2: Verify cart
