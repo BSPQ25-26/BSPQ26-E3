@@ -1,19 +1,28 @@
 package com.example.restapi.service;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import com.example.restapi.dto.ItemResponse;
 import com.example.restapi.model.Item;
+import com.example.restapi.model.Category;
+import com.example.restapi.model.Profile;
 import com.example.restapi.repository.ItemRepository;
+import com.example.restapi.repository.CategoryRepository;
+import com.example.restapi.repository.ProfileRepository;
 
 @Service
 public class ItemService {
 
     private final ItemRepository itemRepository;
+    private final CategoryRepository categoryRepository;
+    private final ProfileRepository profileRepository;
 
-    public ItemService(ItemRepository itemRepository) {
+    public ItemService(ItemRepository itemRepository, CategoryRepository categoryRepository, ProfileRepository profileRepository) {
         this.itemRepository = itemRepository;
+        this.categoryRepository = categoryRepository;
+        this.profileRepository = profileRepository;
     }
 
     public List<ItemResponse> getAllItems() {
@@ -40,7 +49,7 @@ public class ItemService {
             item.getName(),
             item.getDescription(),
             item.getAmount(),
-            item.getImage_URL(),
+            item.getImage_URL(),  // ← Esto existe
             item.getQuantity(),
             item.getStatus(),
             item.getCategory() != null ? item.getCategory().getName() : "Uncategorized",
@@ -48,7 +57,24 @@ public class ItemService {
         );
     }
 
-    public Item createItem(Item item) {
+    public Item createItem(Item item, UUID sellerId) {
+        // Obtener el perfil del vendedor
+        Profile seller = profileRepository.findById(sellerId)
+            .orElseThrow(() -> new RuntimeException("Seller not found"));
+        item.setSeller(seller);
+
+        // Si la categoría solo tiene nombre, buscarla en BD
+        if (item.getCategory() != null && item.getCategory().getId() == null) {
+            String categoryName = item.getCategory().getName();
+            Category category = categoryRepository.findByName(categoryName)
+                .orElseGet(() -> {
+                    // Si no existe, crearla
+                    Category newCategory = new Category(categoryName, "");  // ← ¿Existe este constructor?
+                    return categoryRepository.save(newCategory);
+                });
+            item.setCategory(category);
+        }
+
         return itemRepository.save(item);
     }
 

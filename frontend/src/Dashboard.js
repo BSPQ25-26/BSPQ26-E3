@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import heroImage from "./assets/plant-showcase-hero.svg";
-import PlantDetailsModal from "./PlantDetailsModal";  // AGREGAR
-import Cart from "./Cart";  // AGREGAR
+import PlantDetailsModal from "./PlantDetailsModal";
+import CreatePost from "./CreatePost";
+import Cart from "./Cart";
 
 function formatCreatedAt(value) {
   if (!value) {
@@ -21,10 +22,12 @@ export default function Dashboard({ user, onLogout }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  // AGREGAR: Estado para el modal
+  // Estado para el modal de detalles
   const [selectedPlantId, setSelectedPlantId] = useState(null);
-  // AGREGAR: Estado del carrito
+  // Estado del carrito
   const [showCart, setShowCart] = useState(false);
+  // Estado para el modal de crear post
+  const [showCreatePost, setShowCreatePost] = useState(false);
 
   // Cargar datos del perfil
   useEffect(() => {
@@ -64,7 +67,7 @@ export default function Dashboard({ user, onLogout }) {
   }, [user]);
 
   // Cargar plantas desde la API
-  useEffect(() => {
+  const loadPlants = () => {
     let ignore = false;
     setLoading(true);
     setError(null);
@@ -78,7 +81,6 @@ export default function Dashboard({ user, onLogout }) {
       })
       .then((data) => {
         if (!ignore) {
-          // Transformar los datos del backend al formato esperado
           const transformedPlants = data.map(item => ({
             id: item.id,
             name: item.title,
@@ -104,6 +106,10 @@ export default function Dashboard({ user, onLogout }) {
     return () => {
       ignore = true;
     };
+  };
+
+  useEffect(() => {
+    return loadPlants();
   }, []);
 
   const displayUser = profile ?? user;
@@ -114,6 +120,10 @@ export default function Dashboard({ user, onLogout }) {
     return matchesSearch && matchesType;
   });
 
+  const handlePostCreated = () => {
+    loadPlants();
+  };
+
   return (
     <main className="dashboard-shell">
       <header className="dashboard-topbar">
@@ -122,6 +132,24 @@ export default function Dashboard({ user, onLogout }) {
           <h1>Plathub</h1>
         </div>
         <div className="topbar-actions">
+          <button
+            className="create-post-button"
+            type="button"
+            aria-label="Create new post"
+            title="Create a new plant post"
+            onClick={() => setShowCreatePost(true)}
+          >
+            +
+          </button>
+
+          {showCreatePost && (
+            <CreatePost 
+              userId={user.id}
+              onClose={() => setShowCreatePost(false)}
+              onPostCreated={handlePostCreated}
+            />
+          )}
+
           <button
             className="cart-button"
             type="button"
@@ -207,6 +235,8 @@ export default function Dashboard({ user, onLogout }) {
               <option value="All">All Types</option>
               <option value="Indoor">Indoor</option>
               <option value="Outdoor">Outdoor</option>
+              <option value="Succulent">Succulent</option>
+              <option value="Flowering">Flowering</option>
             </select>
           </div>
         </div>
@@ -228,7 +258,7 @@ export default function Dashboard({ user, onLogout }) {
                   <p className="price-tag">${plant.price.toFixed(2)}</p>
                   <button 
                     className="primary-button"
-                    onClick={() => setSelectedPlantId(plant.id)}  // AGREGAR ESTO
+                    onClick={() => setSelectedPlantId(plant.id)}
                   >
                     View Details
                   </button>

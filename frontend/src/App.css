@@ -398,19 +398,22 @@
   backdrop-filter: blur(2px);
   z-index: 1000;
   padding: 20px;
+  overflow: auto;
 }
 
-/* Modal Content */
+/* Modal Content Base */
 .modal-content {
   position: relative;
-  max-width: 900px;
+  max-width: 600px;
   width: 100%;
+  max-height: 85vh;
   background: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: 28px;
   box-shadow: var(--shadow);
-  padding: 32px;
   animation: slideUp 0.3s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 @keyframes slideUp {
@@ -427,8 +430,8 @@
 /* Close Button */
 .modal-close-button {
   position: absolute;
-  top: 16px;
-  right: 16px;
+  top: 20px;
+  right: 20px;
   width: 40px;
   height: 40px;
   border: none;
@@ -441,13 +444,272 @@
   align-items: center;
   justify-content: center;
   transition: background-color 0.18s ease;
+  z-index: 10;
 }
 
 .modal-close-button:hover {
   background: rgba(47, 106, 59, 0.2);
 }
 
-/* Plant Details Grid */
+/* ============ CREATE POST MODAL ============ */
+
+.create-post-modal {
+  padding: 0;
+}
+
+/* Modal Header - Fixed */
+.modal-header {
+  padding: 24px 24px 0;
+  flex-shrink: 0;
+}
+
+.modal-header h2 {
+  font-size: 1.8rem;
+  color: var(--text-main);
+  margin: 0 0 6px;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.form-subtitle {
+  color: var(--text-soft);
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* Form - Scrollable */
+.create-post-form {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 24px;
+  display: grid;
+  gap: 18px;
+}
+
+.create-post-form::-webkit-scrollbar {
+  width: 6px;
+}
+
+.create-post-form::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.create-post-form::-webkit-scrollbar-thumb {
+  background: rgba(47, 106, 59, 0.2);
+  border-radius: 3px;
+}
+
+.create-post-form::-webkit-scrollbar-thumb:hover {
+  background: rgba(47, 106, 59, 0.4);
+}
+
+/* Form Sections */
+.form-section {
+  display: grid;
+  gap: 12px;
+}
+
+.form-section h3 {
+  margin: 12px 0 0;
+  font-size: 1rem;
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.form-section:first-child h3 {
+  margin-top: 0;
+}
+
+/* Form Groups */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-weight: 700;
+  color: var(--text-main);
+  font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  border-radius: 12px;
+  font-family: inherit;
+  padding: 12px 14px;
+  font-size: 0.9rem;
+  border: 1px solid rgba(88, 73, 42, 0.14);
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: 2px solid rgba(47, 106, 59, 0.18);
+  border-color: rgba(47, 106, 59, 0.42);
+}
+
+.form-textarea {
+  resize: vertical;
+  max-height: 120px;
+  min-height: 100px;
+  line-height: 1.4;
+}
+
+/* Form Row */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 640px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Checkbox Group */
+.checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--primary);
+}
+
+/* Image Upload Area */
+.image-upload-area {
+  min-height: 140px;
+  border: 2px dashed rgba(47, 106, 59, 0.2);
+  border-radius: 16px;
+  background: rgba(47, 106, 59, 0.03);
+  overflow: visible;
+  position: relative;
+}
+
+.image-upload-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 140px;
+  cursor: pointer;
+  transition: background-color 0.18s ease;
+}
+
+.image-upload-label:hover {
+  background: rgba(47, 106, 59, 0.08);
+}
+
+.image-upload-label svg {
+  width: 36px;
+  height: 36px;
+  fill: var(--primary);
+  margin-bottom: 12px;
+  opacity: 0.6;
+}
+
+.image-upload-label p {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.image-upload-label input {
+  display: none;
+}
+
+.image-preview-container {
+  position: relative;
+  height: 140px;
+  overflow: visible;
+}
+
+.image-preview-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 16px;
+}
+
+.change-image-button {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  padding: 8px 14px;
+  background: rgba(255, 252, 244, 0.95);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background-color 0.18s ease;
+  z-index: 5;
+}
+
+.change-image-button:hover {
+  background: rgba(255, 252, 244, 1);
+}
+
+/* Form Actions - Fixed at bottom */
+.form-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 16px 24px 24px;
+  border-top: 1px solid var(--card-border);
+  flex-shrink: 0;
+}
+
+.form-actions .primary-button,
+.form-actions .secondary-button {
+  padding: 12px 16px;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* Create Post Button in Header */
+.create-post-button {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--primary) 0%, #4c8c58 100%);
+  box-shadow: 0 14px 28px rgba(47, 106, 59, 0.24);
+  border: 0;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  color: #fffdf6;
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.create-post-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 36px rgba(47, 106, 59, 0.32);
+}
+
+.create-post-button:active {
+  transform: translateY(0);
+}
+
+/* ============ PLANT DETAILS MODAL ============ */
+
 .plant-details-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -462,7 +724,6 @@
   }
 }
 
-/* Plant Details Image */
 .plant-details-image {
   height: 400px;
   background: #e7d7b1;
@@ -476,7 +737,6 @@
   object-fit: cover;
 }
 
-/* Plant Details Info */
 .plant-details-info {
   display: flex;
   flex-direction: column;
@@ -496,7 +756,6 @@
   margin: 16px 0 24px;
 }
 
-/* Specifications */
 .plant-details-specs {
   display: grid;
   gap: 16px;
@@ -527,7 +786,6 @@
   line-height: 1.5;
 }
 
-/* Add to Cart Button */
 .plant-details-info .primary-button {
   margin-top: auto;
 }
@@ -558,7 +816,8 @@
   cursor: not-allowed;
 }
 
-/* Shopping Cart Sidebar */
+/* ============ SHOPPING CART ============ */
+
 .cart-button {
   display: grid;
   place-items: center;
@@ -592,7 +851,7 @@
   background: var(--card-bg);
   border-left: 1px solid var(--card-border);
   box-shadow: -22px 22px 60px rgba(77, 58, 24, 0.16);
-  z-index: 999;
+  z-index: 998;
   display: flex;
   flex-direction: column;
   animation: slideInRight 0.3s ease;
@@ -670,11 +929,6 @@
   color: var(--primary);
 }
 
-.cart-item-quantity {
-  display: flex;
-  align-items: center;
-}
-
 .quantity-badge {
   background: rgba(47, 106, 59, 0.1);
   color: var(--primary);
@@ -695,11 +949,6 @@
 
 .cart-remove-button:hover {
   opacity: 0.7;
-}
-
-.cart-remove-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
 }
 
 .cart-summary {
@@ -724,11 +973,6 @@
   font-size: 1.1rem;
   font-weight: 700;
   color: var(--text-main);
-}
-
-.cart-checkout-button {
-  margin: 12px 20px 20px;
-  width: auto;
 }
 
 .cart-empty {
@@ -759,9 +1003,10 @@
   line-height: 1.6;
 }
 
-.cart-empty .secondary-button {
-  width: 100%;
-  max-width: 280px;
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 @media (max-width: 640px) {
@@ -774,10 +1019,4 @@
     height: 48px;
     margin-right: 8px;
   }
-}
-
-.topbar-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
 }
