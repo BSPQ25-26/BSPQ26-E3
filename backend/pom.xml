@@ -100,10 +100,10 @@
 	</dependencies>
 
 	<build>
-		<testSourceDirectory>../test/java</testSourceDirectory>
+		<testSourceDirectory>src/test/java</testSourceDirectory>
 		<testResources>
 			<testResource>
-				<directory>../test/resources</directory>
+				<directory>src/test/resources</directory>
 			</testResource>
 		</testResources>
 		<plugins>
