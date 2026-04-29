@@ -9,6 +9,8 @@ import com.example.restapi.model.Category;
 import com.example.restapi.model.Item;
 import com.example.restapi.model.Profile;
 import com.example.restapi.repository.ItemRepository;
+import com.example.restapi.repository.CategoryRepository;
+import com.example.restapi.repository.ProfileRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,6 +32,12 @@ public class ItemServiceTest {
     @Mock
     private ItemRepository itemRepository;
 
+    @Mock
+    private CategoryRepository categoryRepository;
+
+    @Mock
+    private ProfileRepository profileRepository;
+
     private ItemService itemService;
     private Item testItem;
     private Category testCategory;
@@ -38,7 +46,7 @@ public class ItemServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        itemService = new ItemService(itemRepository);
+        itemService = new ItemService(itemRepository, categoryRepository, profileRepository);
 
         testCategory = new Category();
         testCategory.setName("Electronics");
@@ -117,9 +125,13 @@ public class ItemServiceTest {
         @Test
         @DisplayName("should create item successfully")
         void testCreateItemSuccess() {
+            UUID sellerId = testSeller.getId();
+            
+            when(profileRepository.findById(sellerId)).thenReturn(Optional.of(testSeller));
+            when(categoryRepository.findByName("Electronics")).thenReturn(Optional.of(testCategory));
             when(itemRepository.save(any(Item.class))).thenReturn(testItem);
 
-            Item result = itemService.createItem(testItem);
+            Item result = itemService.createItem(testItem, sellerId);
 
             assertEquals(testItem.getId(), result.getId());
             assertEquals("Test Item", result.getName());
@@ -130,9 +142,13 @@ public class ItemServiceTest {
         @Test
         @DisplayName("should save item with all fields")
         void testCreateItemWithAllFields() {
+            UUID sellerId = testSeller.getId();
+            
+            when(profileRepository.findById(sellerId)).thenReturn(Optional.of(testSeller));
+            when(categoryRepository.findByName("Electronics")).thenReturn(Optional.of(testCategory));
             when(itemRepository.save(any(Item.class))).thenReturn(testItem);
 
-            Item result = itemService.createItem(testItem);
+            Item result = itemService.createItem(testItem, sellerId);
 
             assertEquals(99.99, result.getAmount());
             assertEquals(5, result.getQuantity());

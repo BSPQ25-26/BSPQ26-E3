@@ -13,6 +13,7 @@ import com.example.restapi.model.Item;
 import com.example.restapi.model.Profile;
 import com.example.restapi.repository.ItemRepository;
 import com.example.restapi.repository.ProfileRepository;
+import com.example.restapi.repository.CategoryRepository;
 import com.example.restapi.service.AppUserService;
 import com.example.restapi.service.ItemService;
 import com.github.noconnor.junitperf.JUnitPerfRule;
@@ -30,6 +31,9 @@ public class PerformanceTest {
 
     @Mock
     private ProfileRepository profileRepository;
+
+    @Mock
+    private CategoryRepository categoryRepository;
 
     private ItemService itemService;
     private AppUserService appUserService;
@@ -52,7 +56,7 @@ public class PerformanceTest {
         when(mockProfile.getUsername()).thenReturn("testuser");
         when(profileRepository.findAll()).thenReturn(List.of(mockProfile));
 
-        itemService = new ItemService(itemRepository);
+        itemService = new ItemService(itemRepository, categoryRepository, profileRepository);
         appUserService = new AppUserService(profileRepository);
     }
 
