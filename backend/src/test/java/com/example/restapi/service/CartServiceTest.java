@@ -1,18 +1,23 @@
 package com.example.restapi.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,8 +31,6 @@ import com.example.restapi.repository.CartItemRepository;
 import com.example.restapi.repository.CartRepository;
 import com.example.restapi.repository.ItemRepository;
 import com.example.restapi.repository.ProfileRepository;
-
-import java.util.List;
 
 @DisplayName("CartService Tests")
 class CartServiceTest {
@@ -206,7 +209,7 @@ class CartServiceTest {
         @DisplayName("returns existing cart with correct total")
         void getCart_returnsExistingCart() {
             Cart cart = new Cart(ownerId);
-            cart.addItem(new CartItem(testItem, 2)); // 2 × 5.0 = 10.0
+            cart.addItem(new CartItem(testItem, 2)); 
 
             when(cartRepository.findByOwnerId(ownerId)).thenReturn(Optional.of(cart));
 
