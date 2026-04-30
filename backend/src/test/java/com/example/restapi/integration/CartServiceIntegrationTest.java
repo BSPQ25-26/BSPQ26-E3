@@ -25,6 +25,8 @@ import com.example.restapi.repository.ItemRepository;
 import com.example.restapi.repository.ProfileRepository;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+
+//this is to ensure that the test uses the application-test.properties configuration (in our case is a H2 in-memory database)
 @org.springframework.test.context.ActiveProfiles("test")
 @DisplayName("Cart Integration Tests")
 class CartServiceIntegrationTest {
@@ -41,7 +43,7 @@ class CartServiceIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        // Clean up in FK-safe order: cart_items → carts → items → profiles → categories
+        // Clean up in safe order: cart_items → carts → items → profiles → categories
         cartItemRepository.deleteAll();
         cartRepository.deleteAll();
         itemRepository.deleteAll();
