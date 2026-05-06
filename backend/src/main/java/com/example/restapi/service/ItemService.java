@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import com.example.restapi.dto.ItemResponse;
 import com.example.restapi.model.Item;
 import com.example.restapi.model.Category;
@@ -25,18 +26,21 @@ public class ItemService {
         this.profileRepository = profileRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<ItemResponse> getAllItems() {
         return itemRepository.findAll().stream()
             .map(this::convertToResponse)
             .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<ItemResponse> getActiveItems() {
         return itemRepository.findByStatusTrue().stream()
             .map(this::convertToResponse)
             .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public ItemResponse getItemById(Long id) {
         Item item = itemRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Item not found"));

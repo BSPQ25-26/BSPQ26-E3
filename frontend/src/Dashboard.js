@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import heroImage from "./assets/plant-showcase-hero.svg";
+import cartEmptyIcon from "./assets/shopping-cart.png";
+import cartFilledIcon from "./assets/shopping-cart-filled.png";
 import PlantDetailsModal from "./PlantDetailsModal";
 import CreatePost from "./CreatePost";
 import Cart from "./Cart";
@@ -26,6 +28,7 @@ export default function Dashboard({ user, onLogout }) {
   const [selectedPlantId, setSelectedPlantId] = useState(null);
   // Estado del carrito
   const [showCart, setShowCart] = useState(false);
+  const [cartItemCount, setCartItemCount] = useState(0);
   // Estado para el modal de crear post
   const [showCreatePost, setShowCreatePost] = useState(false);
 
@@ -64,6 +67,18 @@ export default function Dashboard({ user, onLogout }) {
     return () => {
       ignore = true;
     };
+  }, [user]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    fetch(`/api/carts/${user.id}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.items) {
+          setCartItemCount(data.items.reduce((sum, item) => sum + item.quantity, 0));
+        }
+      })
+      .catch(() => {});
   }, [user]);
 
   // Cargar plantas desde la API
@@ -129,7 +144,7 @@ export default function Dashboard({ user, onLogout }) {
       <header className="dashboard-topbar">
         <div>
           <p className="dashboard-eyebrow">Green Home</p>
-          <h1>Plathub</h1>
+          <h1>Planthub</h1>
         </div>
         <div className="topbar-actions">
           <button
@@ -156,13 +171,22 @@ export default function Dashboard({ user, onLogout }) {
             aria-label="Open shopping cart"
             onClick={() => setShowCart((current) => !current)}
           >
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M7 4V3c0-.6.4-1 1-1h1c.6 0 1 .4 1 1v1h4V3c0-.6.4-1 1-1h1c.6 0 1 .4 1 1v1h3c1.1 0 2 .9 2 2v16c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2h3zm13 2H4v16h16V6z"/>
-            </svg>
+            <img 
+              src={cartItemCount > 0 ? cartFilledIcon : cartEmptyIcon} 
+              alt="Shopping cart"
+              className="cart-button-icon"
+            />
+            {cartItemCount > 0 && (
+              <span className="cart-badge">{cartItemCount}</span>
+            )}
           </button>
 
           {showCart && (
-            <Cart userId={user.id} onClose={() => setShowCart(false)} />
+            <Cart
+              userId={user.id}
+              onClose={() => setShowCart(false)}
+              onCartLoad={setCartItemCount}
+            />
           )}
 
           <div className="profile-area">
@@ -271,10 +295,11 @@ export default function Dashboard({ user, onLogout }) {
         </div>
       </section>
       {selectedPlantId && (
-        <PlantDetailsModal 
-          plantId={selectedPlantId} 
+        <PlantDetailsModal
+          plantId={selectedPlantId}
           userId={user.id}
           onClose={() => setSelectedPlantId(null)}
+          onItemAdded={(qty) => setCartItemCount((c) => c + qty)}
         />
       )}
     </main>

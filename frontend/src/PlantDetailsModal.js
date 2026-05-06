@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function PlantDetailsModal({ plantId, userId, onClose }) {
+export default function PlantDetailsModal({ plantId, userId, onClose, onItemAdded }) {
   const [plantDetails, setPlantDetails] = React.useState(null);
   const [loading, setLoading] = React.useState(false);
   const [quantity, setQuantity] = React.useState(1);
@@ -49,16 +49,40 @@ export default function PlantDetailsModal({ plantId, userId, onClose }) {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to add item to cart');
+        let errorMessage = 'Error adding to cart';
+        try {
+          const errorData = await response.json();
+          if (errorData.message) {
+            errorMessage = errorData.message;
+          }
+        } catch (e) {
+          // If response isn't JSON, use the status text
+          if (response.statusText) {
+            errorMessage = response.statusText;
+          }
+        }
+        throw new Error(errorMessage);
       }
 
       setMessage({ type: 'success', text: 'Added to cart successfully!' });
+      if (onItemAdded) onItemAdded(quantity);
       setTimeout(() => {
         onClose();
       }, 1500);
     } catch (err) {
       console.error('Error adding to cart:', err);
-      setMessage({ type: 'error', text: 'Error adding to cart' });
+      let displayError = err.message || 'Error adding to cart';
+      
+      // User-friendly error messages
+      if (displayError.includes('Not enough stock')) {
+        displayError = 'Not enough stock available. Please reduce the quantity.';
+      } else if (displayError.includes('not available')) {
+        displayError = 'This item is no longer available for purchase.';
+      } else if (displayError.includes('Quantity must be')) {
+        displayError = 'Please select a valid quantity.';
+      }
+      
+      setMessage({ type: 'error', text: displayError });
     } finally {
       setAddingToCart(false);
     }
