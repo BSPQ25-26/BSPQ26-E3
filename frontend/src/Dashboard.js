@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import heroImage from "./assets/plant-showcase-hero.svg";
+import cartEmptyIcon from "./assets/icons/shopping-cart.png";
+import cartFilledIcon from "./assets/icons/shopping-cart-filled.png";
 import PlantDetailsModal from "./PlantDetailsModal";
 import CreatePost from "./CreatePost";
 import Cart from "./Cart";
@@ -157,9 +159,11 @@ export default function Dashboard({ user, onLogout }) {
             aria-label="Open shopping cart"
             onClick={() => setShowCart((current) => !current)}
           >
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M7 4V3c0-.6.4-1 1-1h1c.6 0 1 .4 1 1v1h4V3c0-.6.4-1 1-1h1c.6 0 1 .4 1 1v1h3c1.1 0 2 .9 2 2v16c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2h3zm13 2H4v16h16V6z"/>
-            </svg>
+            <img 
+              src={cartItemCount > 0 ? cartFilledIcon : cartEmptyIcon} 
+              alt="Shopping cart"
+              className="cart-button-icon"
+            />
             {cartItemCount > 0 && (
               <span className="cart-badge">{cartItemCount}</span>
             )}

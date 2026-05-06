@@ -833,10 +833,10 @@
   position: relative;
 }
 
-.cart-button svg {
-  width: 24px;
-  height: 24px;
-  fill: var(--primary-dark);
+.cart-button-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
 }
 
 .cart-button:hover {
@@ -845,10 +845,6 @@
 
 .cart-button--active {
   background: rgba(45, 35, 20, 0.9);
-}
-
-.cart-button--active svg {
-  fill: #fffdf6;
 }
 
 .cart-badge {
