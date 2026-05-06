@@ -34,7 +34,7 @@ export default function Cart({ userId, onClose, onCartLoad }) {
         setError(err.message);
         setLoading(false);
       });
-  }, [userId]);
+  }, [userId, onCartLoad]);
 
   const handleRemoveItem = async (itemId) => {
     setUpdating(true);
