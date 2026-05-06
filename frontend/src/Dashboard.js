@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import heroImage from "./assets/plant-showcase-hero.svg";
 import cartEmptyIcon from "./assets/shopping-cart.png";
 import cartFilledIcon from "./assets/shopping-cart-filled.png";
@@ -31,6 +31,9 @@ export default function Dashboard({ user, onLogout }) {
   const [cartItemCount, setCartItemCount] = useState(0);
   // Estado para el modal de crear post
   const [showCreatePost, setShowCreatePost] = useState(false);
+  // Carousel state
+  const [activeSlide, setActiveSlide] = useState(0);
+  const slideTimerRef = useRef(null);
 
   // Cargar datos del perfil
   useEffect(() => {
@@ -139,6 +142,24 @@ export default function Dashboard({ user, onLogout }) {
     loadPlants();
   };
 
+  const startSlideTimer = (total) => {
+    clearInterval(slideTimerRef.current);
+    slideTimerRef.current = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % total);
+    }, 3000);
+  };
+
+  useEffect(() => {
+    if (plants.length === 0) return;
+    startSlideTimer(plants.length);
+    return () => clearInterval(slideTimerRef.current);
+  }, [plants.length]);
+
+  const goToSlide = (i) => {
+    setActiveSlide(i);
+    startSlideTimer(plants.length);
+  };
+
   return (
     <main className="dashboard-shell">
       <header className="dashboard-topbar">
@@ -235,8 +256,34 @@ export default function Dashboard({ user, onLogout }) {
           <span className="auth-kicker">Home</span>
           <h2>Welcome, {user.username ?? user.email ?? "user"}</h2>
         </div>
-        <div className="hero-image-frame">
-          <img src={heroImage} alt="Home with decorative plants" className="hero-image" />
+        <div className="hero-image-frame hero-carousel-frame">
+          {plants.length > 0 ? (
+            <>
+              <div
+                className="hero-carousel-track"
+                style={{ transform: `translateX(-${activeSlide * 100}%)` }}
+              >
+                {plants.map((plant) => (
+                  <div key={plant.id} className="hero-carousel-slide">
+                    <img src={plant.image} alt={plant.name} />
+                    <div className="hero-carousel-label">{plant.name}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="hero-carousel-dots">
+                {plants.map((_, i) => (
+                  <button
+                    key={i}
+                    className={`hero-carousel-dot${i === activeSlide ? " active" : ""}`}
+                    onClick={() => goToSlide(i)}
+                    aria-label={`Go to slide ${i + 1}`}
+                  />
+                ))}
+              </div>
+            </>
+          ) : (
+            <img src={heroImage} alt="Home with decorative plants" className="hero-image" />
+          )}
         </div>
       </section>
 

@@ -273,6 +273,7 @@
   border-radius: 24px;
   min-height: 360px;
   background: #e7d7b1;
+  position: relative;
 }
 
 .hero-image {
@@ -280,6 +281,77 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* ============ HERO CAROUSEL ============ */
+
+.hero-carousel-frame {
+  position: relative;
+  display: block;
+}
+
+.hero-carousel-track {
+  display: flex;
+  position: absolute;
+  inset: 0;
+  transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hero-carousel-slide {
+  flex: 0 0 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-carousel-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  position: absolute;
+  inset: 0;
+}
+
+.hero-carousel-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(35, 28, 12, 0.75));
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 48px 16px 16px;
+}
+
+.hero-carousel-dots {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 5;
+}
+
+.hero-carousel-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.hero-carousel-dot.active {
+  background: #fff;
+  transform: scale(1.25);
+}
+
+.hero-carousel-dot:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.5);
 }
 
 @media (max-width: 900px) {
@@ -359,6 +431,8 @@
 .plant-card {
   padding: 0;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .plant-image-container {
@@ -375,6 +449,13 @@
 .plant-content {
   padding: 20px;
   text-align: left;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.plant-content .primary-button {
+  margin-top: auto;
 }
 
 .price-tag {
