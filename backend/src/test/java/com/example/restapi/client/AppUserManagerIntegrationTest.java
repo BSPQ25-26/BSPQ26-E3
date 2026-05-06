@@ -21,11 +21,9 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-/**
- * Integration test: the real AppUserManager client makes HTTP calls to the
- * embedded Spring Boot server started on a random port.  AppUserService is
- * replaced by a Mockito mock so no Supabase connection is needed.
- */
+//Integration test: the real AppUserManager client makes HTTP calls to the Spring Boot server started on a random port.
+// AppUserService is replaced by a Mockito mock so no Supabase connection is needed.
+// more like a client-controller integration test.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @DisplayName("AppUserManager Integration Tests (client → server)")
@@ -36,6 +34,7 @@ class AppUserManagerIntegrationTest {
     @LocalServerPort
     private int port;
 
+    // we mock the AppUserervice so that we dont need Subapase dependecy
     @MockitoBean
     private AppUserService appUserService;
 

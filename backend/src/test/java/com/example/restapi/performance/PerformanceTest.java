@@ -60,7 +60,8 @@ public class PerformanceTest {
         appUserService = new AppUserService(profileRepository);
     }
 
-    // SUCCESS: 10 threads for 3000ms, max 500ms per call, avg under 100ms
+    // SUCCESS: invocations&Threads - how each individual call behaves under high concurrency?
+    // 10 threads hammering the method at the same time, and you check that no single call takes more than 500ms and the average stays under 100ms
     @Test
     @JUnitPerfTest(durationMs = 3000, threads = 10)
     @JUnitPerfTestRequirement(maxLatency = 500, meanLatency = 100)
@@ -68,7 +69,9 @@ public class PerformanceTest {
         itemService.getAllItems();
     }
 
-    // SUCCESS: throughput - at least 10 operations per second
+    // SUCCESS: throughput - how many operations the system can complete per second?
+    // ensures that we execute at least 10 operations per second
+    // taking into acount that we have 5 threads running for 2000ms.
     @Test
     @JUnitPerfTest(durationMs = 2000, threads = 5)
     @JUnitPerfTestRequirement(executionsPerSec = 10)
@@ -76,7 +79,9 @@ public class PerformanceTest {
         itemService.getAllItems();
     }
 
-    // SUCCESS: duration runs continuously for 2000ms across 3 threads
+    // SUCCESS: duration - measure esatability over time
+    // In our case duration runs continuously for 2000ms across 3 threads
+
     @Test
     @JUnitPerfTest(durationMs = 2000, threads = 3)
     @JUnitPerfTestRequirement(maxLatency = 500)
@@ -85,6 +90,7 @@ public class PerformanceTest {
     }
 
     // SUCCESS: threads + avg + max + throughput on AppUserService
+
     @Test
     @JUnitPerfTest(durationMs = 2000, threads = 5)
     @JUnitPerfTestRequirement(maxLatency = 500, meanLatency = 100, executionsPerSec = 10)
@@ -93,6 +99,7 @@ public class PerformanceTest {
     }
 
     // SUCCESS: duration test on AppUserService
+    // In our case duration runs continuously for 2000ms across 3 threads
     @Test
     @JUnitPerfTest(durationMs = 2000, threads = 3)
     @JUnitPerfTestRequirement(executionsPerSec = 5)

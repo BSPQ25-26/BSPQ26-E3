@@ -27,6 +27,7 @@ import com.example.restapi.repository.ProfileRepository;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 
 //this is to ensure that the test uses the application-test.properties configuration (in our case is a H2 in-memory database)
+// we are testing the Controller / Service / Repository / Database
 @org.springframework.test.context.ActiveProfiles("test")
 @DisplayName("Cart Integration Tests")
 class CartServiceIntegrationTest {
@@ -49,7 +50,6 @@ class CartServiceIntegrationTest {
         itemRepository.deleteAll();
         profileRepository.deleteAll();
         categoryRepository.deleteAll();
-
         buyerId = UUID.randomUUID();
 
         Category category = categoryRepository.save(new Category("Plants", "Test category"));
