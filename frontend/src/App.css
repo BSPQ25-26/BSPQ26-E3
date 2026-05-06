@@ -273,6 +273,7 @@
   border-radius: 24px;
   min-height: 360px;
   background: #e7d7b1;
+  position: relative;
 }
 
 .hero-image {
@@ -280,6 +281,77 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* ============ HERO CAROUSEL ============ */
+
+.hero-carousel-frame {
+  position: relative;
+  display: block;
+}
+
+.hero-carousel-track {
+  display: flex;
+  position: absolute;
+  inset: 0;
+  transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hero-carousel-slide {
+  flex: 0 0 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-carousel-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  position: absolute;
+  inset: 0;
+}
+
+.hero-carousel-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(35, 28, 12, 0.75));
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 48px 16px 16px;
+}
+
+.hero-carousel-dots {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 5;
+}
+
+.hero-carousel-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.hero-carousel-dot.active {
+  background: #fff;
+  transform: scale(1.25);
+}
+
+.hero-carousel-dot:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.5);
 }
 
 @media (max-width: 900px) {
@@ -359,6 +431,8 @@
 .plant-card {
   padding: 0;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .plant-image-container {
@@ -375,6 +449,13 @@
 .plant-content {
   padding: 20px;
   text-align: left;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.plant-content .primary-button {
+  margin-top: auto;
 }
 
 .price-tag {
@@ -455,6 +536,13 @@
 
 .create-post-modal {
   padding: 0;
+}
+
+/* ============ PLANT DETAILS MODAL OVERRIDE ============ */
+
+.plant-details-modal {
+  max-width: 860px;
+  overflow-y: auto;
 }
 
 /* Modal Header - Fixed */
@@ -713,8 +801,8 @@
 .plant-details-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 32px;
-  margin-top: 20px;
+  gap: 28px;
+  padding: 28px 32px 36px;
 }
 
 @media (max-width: 768px) {
@@ -725,9 +813,9 @@
 }
 
 .plant-details-image {
-  height: 400px;
+  height: 340px;
   background: #e7d7b1;
-  border-radius: 20px;
+  border-radius: 16px;
   overflow: hidden;
 }
 
@@ -743,33 +831,33 @@
 }
 
 .plant-details-info h2 {
-  font-size: 2rem;
+  font-size: 1.6rem;
   color: var(--text-main);
-  margin: 12px 0 0;
+  margin: 8px 0 0;
   font-family: Georgia, "Times New Roman", serif;
 }
 
 .plant-details-price {
-  font-size: 1.8rem;
+  font-size: 1.4rem;
   font-weight: 700;
   color: var(--primary);
-  margin: 16px 0 24px;
+  margin: 10px 0 16px;
 }
 
 .plant-details-specs {
   display: grid;
-  gap: 16px;
-  margin: 24px 0;
-  padding: 20px;
+  gap: 12px;
+  margin: 16px 0;
+  padding: 14px 16px;
   background: rgba(47, 106, 59, 0.05);
-  border-radius: 16px;
+  border-radius: 12px;
   border: 1px solid rgba(47, 106, 59, 0.1);
 }
 
 .spec-item {
   display: grid;
-  grid-template-columns: 120px 1fr;
-  gap: 12px;
+  grid-template-columns: 100px 1fr;
+  gap: 10px;
 }
 
 .spec-item dt {
@@ -794,7 +882,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin: 20px 0;
+  margin: 14px 0;
 }
 
 .quantity-selector label {
