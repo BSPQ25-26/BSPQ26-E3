@@ -457,6 +457,13 @@
   padding: 0;
 }
 
+/* ============ PLANT DETAILS MODAL OVERRIDE ============ */
+
+.plant-details-modal {
+  max-width: 860px;
+  overflow-y: auto;
+}
+
 /* Modal Header - Fixed */
 .modal-header {
   padding: 24px 24px 0;
@@ -713,8 +720,8 @@
 .plant-details-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 32px;
-  margin-top: 20px;
+  gap: 28px;
+  padding: 28px 32px 36px;
 }
 
 @media (max-width: 768px) {
@@ -725,9 +732,9 @@
 }
 
 .plant-details-image {
-  height: 400px;
+  height: 340px;
   background: #e7d7b1;
-  border-radius: 20px;
+  border-radius: 16px;
   overflow: hidden;
 }
 
@@ -743,33 +750,33 @@
 }
 
 .plant-details-info h2 {
-  font-size: 2rem;
+  font-size: 1.6rem;
   color: var(--text-main);
-  margin: 12px 0 0;
+  margin: 8px 0 0;
   font-family: Georgia, "Times New Roman", serif;
 }
 
 .plant-details-price {
-  font-size: 1.8rem;
+  font-size: 1.4rem;
   font-weight: 700;
   color: var(--primary);
-  margin: 16px 0 24px;
+  margin: 10px 0 16px;
 }
 
 .plant-details-specs {
   display: grid;
-  gap: 16px;
-  margin: 24px 0;
-  padding: 20px;
+  gap: 12px;
+  margin: 16px 0;
+  padding: 14px 16px;
   background: rgba(47, 106, 59, 0.05);
-  border-radius: 16px;
+  border-radius: 12px;
   border: 1px solid rgba(47, 106, 59, 0.1);
 }
 
 .spec-item {
   display: grid;
-  grid-template-columns: 120px 1fr;
-  gap: 12px;
+  grid-template-columns: 100px 1fr;
+  gap: 10px;
 }
 
 .spec-item dt {
@@ -794,7 +801,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin: 20px 0;
+  margin: 14px 0;
 }
 
 .quantity-selector label {
