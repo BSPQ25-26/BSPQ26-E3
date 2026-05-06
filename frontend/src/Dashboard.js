@@ -26,6 +26,7 @@ export default function Dashboard({ user, onLogout }) {
   const [selectedPlantId, setSelectedPlantId] = useState(null);
   // Estado del carrito
   const [showCart, setShowCart] = useState(false);
+  const [cartItemCount, setCartItemCount] = useState(0);
   // Estado para el modal de crear post
   const [showCreatePost, setShowCreatePost] = useState(false);
 
@@ -129,7 +130,7 @@ export default function Dashboard({ user, onLogout }) {
       <header className="dashboard-topbar">
         <div>
           <p className="dashboard-eyebrow">Green Home</p>
-          <h1>Plathub</h1>
+          <h1>Planthub</h1>
         </div>
         <div className="topbar-actions">
           <button
@@ -151,7 +152,7 @@ export default function Dashboard({ user, onLogout }) {
           )}
 
           <button
-            className="cart-button"
+            className={`cart-button ${cartItemCount > 0 ? 'cart-button--active' : ''}`}
             type="button"
             aria-label="Open shopping cart"
             onClick={() => setShowCart((current) => !current)}
@@ -159,10 +160,13 @@ export default function Dashboard({ user, onLogout }) {
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M7 4V3c0-.6.4-1 1-1h1c.6 0 1 .4 1 1v1h4V3c0-.6.4-1 1-1h1c.6 0 1 .4 1 1v1h3c1.1 0 2 .9 2 2v16c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2h3zm13 2H4v16h16V6z"/>
             </svg>
+            {cartItemCount > 0 && (
+              <span className="cart-badge">{cartItemCount}</span>
+            )}
           </button>
 
           {showCart && (
-            <Cart userId={user.id} onClose={() => setShowCart(false)} />
+            <Cart userId={user.id} onClose={() => setShowCart(false)} onCartUpdate={setCartItemCount} />
           )}
 
           <div className="profile-area">

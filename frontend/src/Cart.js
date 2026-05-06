@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export default function Cart({ userId, onClose }) {
+export default function Cart({ userId, onClose, onCartUpdate }) {
   const [cartData, setCartData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -23,6 +23,9 @@ export default function Cart({ userId, onClose }) {
       .then((data) => {
         setCartData(data);
         setLoading(false);
+        if (onCartUpdate && data.items) {
+          onCartUpdate(data.items.reduce((sum, item) => sum + item.quantity, 0));
+        }
       })
       .catch((err) => {
         console.error("Error loading cart:", err);
@@ -44,6 +47,9 @@ export default function Cart({ userId, onClose }) {
 
       const updatedCart = await response.json();
       setCartData(updatedCart);
+      if (onCartUpdate && updatedCart.items) {
+        onCartUpdate(updatedCart.items.reduce((sum, item) => sum + item.quantity, 0));
+      }
     } catch (err) {
       console.error("Error removing item:", err);
       setError("Error removing item from cart");
@@ -65,6 +71,9 @@ export default function Cart({ userId, onClose }) {
 
       const updatedCart = await response.json();
       setCartData(updatedCart);
+      if (onCartUpdate) {
+        onCartUpdate(0);
+      }
       alert("Checkout successful!");
       onClose();
     } catch (err) {
