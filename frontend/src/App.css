@@ -1007,9 +1007,32 @@
   padding: 40px 20px;
 }
 
-.empty-icon {
-  font-size: 48px;
+.cart-state-img {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
   margin-bottom: 16px;
+  opacity: 0.85;
+}
+
+.cart-state-img--small {
+  width: 52px;
+  height: 52px;
+  margin-bottom: 0;
+}
+
+.cart-full-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.cart-full-label {
+  font-size: 0.9rem;
+  color: var(--text-soft);
+  font-weight: 600;
 }
 
 .cart-empty h3 {

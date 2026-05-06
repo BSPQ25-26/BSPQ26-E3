@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import heroImage from "./assets/plant-showcase-hero.svg";
-import cartEmptyIcon from "./assets/icons/shopping-cart.png";
-import cartFilledIcon from "./assets/icons/shopping-cart-filled.png";
+import cartEmptyIcon from "./assets/shopping-cart.png";
+import cartFilledIcon from "./assets/shopping-cart-filled.png";
 import PlantDetailsModal from "./PlantDetailsModal";
 import CreatePost from "./CreatePost";
 import Cart from "./Cart";
@@ -67,6 +67,18 @@ export default function Dashboard({ user, onLogout }) {
     return () => {
       ignore = true;
     };
+  }, [user]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    fetch(`/api/carts/${user.id}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.items) {
+          setCartItemCount(data.items.reduce((sum, item) => sum + item.quantity, 0));
+        }
+      })
+      .catch(() => {});
   }, [user]);
 
   // Cargar plantas desde la API
@@ -154,7 +166,7 @@ export default function Dashboard({ user, onLogout }) {
           )}
 
           <button
-            className={`cart-button ${cartItemCount > 0 ? 'cart-button--active' : ''}`}
+            className="cart-button"
             type="button"
             aria-label="Open shopping cart"
             onClick={() => setShowCart((current) => !current)}
@@ -170,7 +182,11 @@ export default function Dashboard({ user, onLogout }) {
           </button>
 
           {showCart && (
-            <Cart userId={user.id} onClose={() => setShowCart(false)} onCartUpdate={setCartItemCount} />
+            <Cart
+              userId={user.id}
+              onClose={() => setShowCart(false)}
+              onCartLoad={setCartItemCount}
+            />
           )}
 
           <div className="profile-area">
@@ -279,10 +295,11 @@ export default function Dashboard({ user, onLogout }) {
         </div>
       </section>
       {selectedPlantId && (
-        <PlantDetailsModal 
-          plantId={selectedPlantId} 
+        <PlantDetailsModal
+          plantId={selectedPlantId}
           userId={user.id}
           onClose={() => setSelectedPlantId(null)}
+          onItemAdded={(qty) => setCartItemCount((c) => c + qty)}
         />
       )}
     </main>

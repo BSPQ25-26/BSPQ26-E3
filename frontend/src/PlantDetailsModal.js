@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function PlantDetailsModal({ plantId, userId, onClose }) {
+export default function PlantDetailsModal({ plantId, userId, onClose, onItemAdded }) {
   const [plantDetails, setPlantDetails] = React.useState(null);
   const [loading, setLoading] = React.useState(false);
   const [quantity, setQuantity] = React.useState(1);
@@ -65,6 +65,7 @@ export default function PlantDetailsModal({ plantId, userId, onClose }) {
       }
 
       setMessage({ type: 'success', text: 'Added to cart successfully!' });
+      if (onItemAdded) onItemAdded(quantity);
       setTimeout(() => {
         onClose();
       }, 1500);

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import emptyCartImg from "./assets/shopping-cart.png";
+import fullCartImg from "./assets/shopping-cart-filled.png";
 
-export default function Cart({ userId, onClose, onCartUpdate }) {
+export default function Cart({ userId, onClose, onCartLoad }) {
   const [cartData, setCartData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -23,8 +25,8 @@ export default function Cart({ userId, onClose, onCartUpdate }) {
       .then((data) => {
         setCartData(data);
         setLoading(false);
-        if (onCartUpdate && data.items) {
-          onCartUpdate(data.items.reduce((sum, item) => sum + item.quantity, 0));
+        if (onCartLoad && data?.items) {
+          onCartLoad(data.items.reduce((sum, item) => sum + item.quantity, 0));
         }
       })
       .catch((err) => {
@@ -47,8 +49,8 @@ export default function Cart({ userId, onClose, onCartUpdate }) {
 
       const updatedCart = await response.json();
       setCartData(updatedCart);
-      if (onCartUpdate && updatedCart.items) {
-        onCartUpdate(updatedCart.items.reduce((sum, item) => sum + item.quantity, 0));
+      if (onCartLoad && updatedCart?.items) {
+        onCartLoad(updatedCart.items.reduce((sum, item) => sum + item.quantity, 0));
       }
     } catch (err) {
       console.error("Error removing item:", err);
@@ -71,9 +73,7 @@ export default function Cart({ userId, onClose, onCartUpdate }) {
 
       const updatedCart = await response.json();
       setCartData(updatedCart);
-      if (onCartUpdate) {
-        onCartUpdate(0);
-      }
+      if (onCartLoad) onCartLoad(0);
       alert("Checkout successful!");
       onClose();
     } catch (err) {
@@ -84,11 +84,13 @@ export default function Cart({ userId, onClose, onCartUpdate }) {
     }
   };
 
+  const isEmpty = !cartData || !cartData.items || cartData.items.length === 0;
+
   return (
     <aside className="cart-sidebar">
       <div className="cart-header">
         <h2>Shopping Cart</h2>
-        <button 
+        <button
           className="cart-close-button"
           onClick={onClose}
           aria-label="Close cart"
@@ -105,8 +107,24 @@ export default function Cart({ userId, onClose, onCartUpdate }) {
         <div className="cart-content">
           <p className="auth-error">Error: {error}</p>
         </div>
-      ) : cartData && cartData.items && cartData.items.length > 0 ? (
+      ) : isEmpty ? (
+        <div className="cart-empty">
+          <img src={emptyCartImg} alt="Empty cart" className="cart-state-img" />
+          <h3>Your cart is empty</h3>
+          <p>Start shopping to add items to your cart!</p>
+          <button
+            className="secondary-button"
+            onClick={onClose}
+          >
+            Continue Shopping
+          </button>
+        </div>
+      ) : (
         <>
+          <div className="cart-full-header">
+            <img src={fullCartImg} alt="Cart with items" className="cart-state-img cart-state-img--small" />
+            <span className="cart-full-label">{cartData.items.reduce((sum, item) => sum + item.quantity, 0)} item{cartData.items.reduce((sum, item) => sum + item.quantity, 0) !== 1 ? 's' : ''} in your cart</span>
+          </div>
           <div className="cart-items-container">
             {cartData.items.map((item) => (
               <div key={item.itemId} className="cart-item">
@@ -152,18 +170,6 @@ export default function Cart({ userId, onClose, onCartUpdate }) {
             {updating ? 'Processing...' : 'Proceed to Checkout'}
           </button>
         </>
-      ) : (
-        <div className="cart-empty">
-          <div className="empty-icon">🌱</div>
-          <h3>Your cart is empty</h3>
-          <p>Start shopping to add items to your cart!</p>
-          <button 
-            className="secondary-button"
-            onClick={onClose}
-          >
-            Continue Shopping
-          </button>
-        </div>
       )}
     </aside>
   );
