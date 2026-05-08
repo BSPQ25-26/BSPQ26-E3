@@ -127,14 +127,14 @@ export default function CreatePost({ userId, onClose, onPostCreated }) {
       }
 
       const itemData = {
-        name: formData.title, // ← Spring busca setName(), que SÍ existe
-        description: formData.description,
+        title: formData.title, 
+        content: formData.description,
         amount: parseFloat(formData.amount),
         quantity: parseInt(formData.quantity),
         category: {
           name: formData.category,
         },
-        status: formData.status,
+        isPublic: formData.status,
         imagen: imageUrl || "", // Spring busca setImagen()
       };
 
@@ -142,7 +142,7 @@ export default function CreatePost({ userId, onClose, onPostCreated }) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-User-Id": userId, // Agregar el userId
+          "X-User-Id": userId,
         },
         body: JSON.stringify(itemData),
       });

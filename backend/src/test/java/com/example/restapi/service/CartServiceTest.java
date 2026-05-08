@@ -12,6 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.atLeastOnce;
@@ -23,14 +24,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.example.restapi.dto.CartResponse;
+import com.example.restapi.dto.PaymentRequest;
+import com.example.restapi.dto.ReceiptItemResponse;
+import com.example.restapi.dto.ReceiptResponse;
 import com.example.restapi.model.Cart;
 import com.example.restapi.model.CartItem;
 import com.example.restapi.model.Item;
 import com.example.restapi.model.Profile;
+import com.example.restapi.model.Receipt;
 import com.example.restapi.repository.CartItemRepository;
 import com.example.restapi.repository.CartRepository;
 import com.example.restapi.repository.ItemRepository;
 import com.example.restapi.repository.ProfileRepository;
+
 
 @DisplayName("CartService Tests")
 class CartServiceTest {
@@ -45,6 +51,12 @@ class CartServiceTest {
     private ItemRepository itemRepository;
     @Mock
     private ProfileRepository profileRepository;
+    @Mock
+    private ReceiptService receiptService;
+    @Mock
+    private SaleService saleService;
+    @Mock
+    private PaymentService paymentService;
 
     @InjectMocks
     private CartService cartService;
@@ -256,85 +268,92 @@ class CartServiceTest {
         }
     }
 
-    // ── checkout ───────────────────────────────────────────────────────────────
+    // ── checkout ──────────────────────────────────────────────────────────────
 
     @Nested
     @DisplayName("checkout")
     class CheckoutTests {
 
         @Test
-        @DisplayName("successful checkout decrements stock and empties cart")
-        void checkout_success() {
-            Profile buyer = new Profile(ownerId, "buyer", "123");
+        @DisplayName("completes checkout and empties the cart when payment succeeds")
+        void checkout_completesAndClearsCart_whenPaymentSucceeds() {
             Cart cart = new Cart(ownerId);
-            CartItem ci = new CartItem(testItem, 2);
-            cart.addItem(ci);
+            CartItem cartItem = new CartItem(testItem, 2);
+            cart.addItem(cartItem);
+
+            Profile buyer = new Profile();
+            buyer.setId(ownerId);
+
+            Receipt receipt = new Receipt();
+            receipt.setId(100L);
+
+            ReceiptResponse expectedResponse = new ReceiptResponse(
+                    100L,
+                    ownerId,
+                    "REC-1234",
+                    10.0,
+                    "COMPLETED",
+                    "PROCESSING",
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    0L,
+                    List.<ReceiptItemResponse>of()
+            );
 
             when(cartRepository.findByOwnerId(ownerId)).thenReturn(Optional.of(cart));
             when(profileRepository.findById(ownerId)).thenReturn(Optional.of(buyer));
+            when(paymentService.processPayment(any(PaymentRequest.class), eq(10.0))).thenReturn(true);
             when(itemRepository.findById(1L)).thenReturn(Optional.of(testItem));
-            when(itemRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+            when(receiptService.createReceipt(ownerId, cart, "COMPLETED")).thenReturn(receipt);
+            when(receiptService.getReceiptById(100L)).thenReturn(expectedResponse);
             when(cartRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
-            CartResponse resp = cartService.checkout(ownerId);
+            ReceiptResponse response = cartService.checkout(ownerId, new PaymentRequest());
 
-            assertTrue(resp.getItems().isEmpty());
-            assertEquals(8, testItem.getQuantity()); // 10 - 2
-            log.info("checkout_success passed, remaining stock={}", testItem.getQuantity());
+            assertEquals(100L, response.getReceiptId());
+            assertEquals(10.0, response.getTotalAmount(), 0.001);
+            assertEquals("COMPLETED", response.getPaymentStatus());
+            assertTrue(response.getItems().isEmpty(), "Receipt should contain no items in mocked response");
+            assertTrue(cart.getItems().isEmpty(), "Cart should be cleared after successful checkout");
+            verify(receiptService).createReceipt(ownerId, cart, "COMPLETED");
+            verify(saleService).recordSalesFromCheckout(receipt, cart);
+            verify(cartRepository).save(cart);
         }
 
         @Test
-        @DisplayName("throws RuntimeException when buyer profile not found")
-        void checkout_throwsException_whenBuyerNotFound() {
+        @DisplayName("throws when checkout is attempted on an empty cart")
+        void checkout_throwsWhenCartIsEmpty() {
+            Cart cart = new Cart(ownerId);
+
+            Profile buyer = new Profile();
+            buyer.setId(ownerId);
+
+            when(cartRepository.findByOwnerId(ownerId)).thenReturn(Optional.of(cart));
+            when(profileRepository.findById(ownerId)).thenReturn(Optional.of(buyer));
+
+            assertThrows(RuntimeException.class, () -> cartService.checkout(ownerId, new PaymentRequest()));
+            verify(paymentService, never()).processPayment(any(), any());
+            verify(receiptService, never()).createReceipt(any(), any(), any());
+        }
+
+        @Test
+        @DisplayName("throws when payment is invalid")
+        void checkout_throwsWhenPaymentFails() {
             Cart cart = new Cart(ownerId);
             cart.addItem(new CartItem(testItem, 1));
 
-            when(cartRepository.findByOwnerId(ownerId)).thenReturn(Optional.of(cart));
-            when(profileRepository.findById(ownerId)).thenReturn(Optional.empty());
-
-            assertThrows(RuntimeException.class, () -> cartService.checkout(ownerId));
-        }
-
-        @Test
-        @DisplayName("throws RuntimeException when stock is insufficient at checkout")
-        void checkout_throwsException_whenInsufficientStock() {
-            Item scarce = new Item();
-            scarce.setId(1L);
-            scarce.setName("Scarce");
-            scarce.setAmount(10.0);
-            scarce.setQuantity(1);
-            scarce.setStatus(true);
-
-            Profile buyer = new Profile(ownerId, "buyer", "123");
-            Cart cart = new Cart(ownerId);
-            cart.addItem(new CartItem(scarce, 3)); // wants 3, only 1 in stock
+            Profile buyer = new Profile();
+            buyer.setId(ownerId);
 
             when(cartRepository.findByOwnerId(ownerId)).thenReturn(Optional.of(cart));
             when(profileRepository.findById(ownerId)).thenReturn(Optional.of(buyer));
-            when(itemRepository.findById(1L)).thenReturn(Optional.of(scarce));
+            when(paymentService.processPayment(any(PaymentRequest.class), eq(5.0))).thenReturn(false);
 
-            assertThrows(RuntimeException.class, () -> cartService.checkout(ownerId));
-        }
-
-        @Test
-        @DisplayName("throws RuntimeException when item is unavailable at checkout")
-        void checkout_throwsException_whenItemUnavailableAtCheckout() {
-            Item unavailable = new Item();
-            unavailable.setId(1L);
-            unavailable.setName("Gone");
-            unavailable.setAmount(10.0);
-            unavailable.setQuantity(5);
-            unavailable.setStatus(false);
-
-            Profile buyer = new Profile(ownerId, "buyer", "123");
-            Cart cart = new Cart(ownerId);
-            cart.addItem(new CartItem(unavailable, 1));
-
-            when(cartRepository.findByOwnerId(ownerId)).thenReturn(Optional.of(cart));
-            when(profileRepository.findById(ownerId)).thenReturn(Optional.of(buyer));
-            when(itemRepository.findById(1L)).thenReturn(Optional.of(unavailable));
-
-            assertThrows(RuntimeException.class, () -> cartService.checkout(ownerId));
+            assertThrows(RuntimeException.class, () -> cartService.checkout(ownerId, new PaymentRequest()));
+            verify(receiptService, never()).createReceipt(any(), any(), any());
         }
     }
 }

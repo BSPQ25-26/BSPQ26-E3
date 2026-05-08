@@ -1,7 +1,6 @@
 // Clase Category
 package com.example.restapi.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity

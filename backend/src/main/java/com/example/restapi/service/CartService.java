@@ -10,10 +10,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.restapi.dto.CartItemResponse;
 import com.example.restapi.dto.CartResponse;
+import com.example.restapi.dto.PaymentRequest;
+import com.example.restapi.dto.ReceiptResponse;
 import com.example.restapi.model.Cart;
 import com.example.restapi.model.CartItem;
 import com.example.restapi.model.Item;
 import com.example.restapi.model.Profile;
+import com.example.restapi.model.Receipt;
 import com.example.restapi.repository.CartItemRepository;
 import com.example.restapi.repository.CartRepository;
 import com.example.restapi.repository.ItemRepository;
@@ -26,15 +29,24 @@ public class CartService {
     private final CartItemRepository cartItemRepository;
     private final ItemRepository itemRepository;
     private final ProfileRepository profileRepository;
+    private final ReceiptService receiptService;
+    private final SaleService saleService;
+    private final PaymentService paymentService;
 
     public CartService(CartRepository cartRepository,
                        CartItemRepository cartItemRepository,
                        ItemRepository itemRepository,
-                       ProfileRepository profileRepository) {
+                       ProfileRepository profileRepository,
+                       ReceiptService receiptService,
+                       SaleService saleService,
+                       PaymentService paymentService) {
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
         this.itemRepository = itemRepository;
         this.profileRepository = profileRepository;
+        this.receiptService = receiptService;
+        this.saleService = saleService;
+        this.paymentService = paymentService;
     }
 
     public Cart getOrCreateCart(UUID ownerId) {
@@ -98,10 +110,23 @@ public class CartService {
     }
 
     @Transactional
-    public CartResponse checkout(UUID ownerId) {
+    public ReceiptResponse checkout(UUID ownerId, PaymentRequest paymentRequest) {
         Cart cart = getOrCreateCart(ownerId);
         Profile buyer = profileRepository.findById(ownerId).orElseThrow(() -> new RuntimeException("Buyer not found"));
-        // check stock and update
+        
+        if (cart.getItems().isEmpty()) {
+            throw new RuntimeException("Cannot checkout with empty cart");
+        }
+
+        double totalAmount = cart.getItems().stream()
+                .mapToDouble(ci -> ci.getItem().getAmount() * ci.getQuantity())
+                .sum();
+
+        if (!paymentService.processPayment(paymentRequest, totalAmount)) {
+            throw new RuntimeException("Payment failed or invalid payment details");
+        }
+
+        // Check stock and update
         for (CartItem ci : cart.getItems()) {
             Item item = itemRepository.findById(ci.getItem().getId()).orElseThrow(() -> new RuntimeException("Item not found during checkout"));
             if (!item.getStatus() || item.getQuantity() < ci.getQuantity()) {
@@ -110,10 +135,14 @@ public class CartService {
             item.setQuantity(item.getQuantity() - ci.getQuantity());
             itemRepository.save(item);
         }
-        // clearing the cart after checkout
+
+        Receipt receipt = receiptService.createReceipt(ownerId, cart, "COMPLETED");
+        saleService.recordSalesFromCheckout(receipt, cart);
+        
         cart.getItems().clear();
         cartRepository.save(cart);
-        return toResponse(cart);
+        
+        return receiptService.getReceiptById(receipt.getId());
     }
 
     public CartResponse getCart(UUID ownerId) {

@@ -1,28 +1,22 @@
 package com.example.restapi.service;
 
-import com.example.restapi.model.Category;
 import com.example.restapi.model.Post;
-import com.example.restapi.model.Profile;
 import com.example.restapi.repository.PostRepository;
-import com.example.restapi.repository.ProfileRepository;
 import org.springdoc.api.OpenApiResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @Service
 public class PostService {
 
     private PostRepository postRepository;
-    private ProfileRepository profileRepository;
 
     @Autowired
-    public PostService(PostRepository postRepository, ProfileRepository profileRepository) {
+    public PostService(PostRepository postRepository) {
         this.postRepository = postRepository;
-        this.profileRepository = profileRepository;
     }
 
     public Post getPostById(Long id) {
@@ -35,7 +29,6 @@ public class PostService {
     }
 
     public Post createPost(Post post) {
-        Profile profile = post.getAuthor();
         return postRepository.save(post);
     }
 

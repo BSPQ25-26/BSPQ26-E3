@@ -1,6 +1,5 @@
 package com.example.restapi.repository;
 
-import com.example.restapi.dto.PostRequest;
 import com.example.restapi.model.Item;
 import com.example.restapi.model.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
