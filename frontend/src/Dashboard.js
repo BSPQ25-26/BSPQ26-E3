@@ -5,6 +5,8 @@ import cartFilledIcon from "./assets/shopping-cart-filled.png";
 import PlantDetailsModal from "./PlantDetailsModal";
 import CreatePost from "./CreatePost";
 import Cart from "./Cart";
+import PurchaseHistory from "./PurchaseHistory";
+import SalesHistory from "./SalesHistory";
 
 function formatCreatedAt(value) {
   if (!value) {
@@ -34,6 +36,8 @@ export default function Dashboard({ user, onLogout }) {
   // Carousel state
   const [activeSlide, setActiveSlide] = useState(0);
   const slideTimerRef = useRef(null);
+  // Dashboard tab state
+  const [dashboardTab, setDashboardTab] = useState("shop"); // "shop", "purchases", "sales"
 
   // Cargar datos del perfil
   useEffect(() => {
@@ -290,56 +294,89 @@ export default function Dashboard({ user, onLogout }) {
       <section className="andoni-catalogue">
         <div className="catalogue-header">
           <h2 className="catalogue-title">Plant Catalogue</h2>
-          <div className="catalogue-filters">
-            <input 
-              type="text" 
-              className="auth-input search-box" 
-              placeholder="Search by name..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <select 
-              className="auth-input filter-box" 
-              value={filterType} 
-              onChange={(e) => setFilterType(e.target.value)}
+          <div className="dashboard-tabs">
+            <button 
+              className={`tab-button${dashboardTab === "shop" ? " active" : ""}`}
+              onClick={() => setDashboardTab("shop")}
             >
-              <option value="All">All Types</option>
-              <option value="Indoor">Indoor</option>
-              <option value="Outdoor">Outdoor</option>
-              <option value="Succulent">Succulent</option>
-              <option value="Flowering">Flowering</option>
-            </select>
+              Shop
+            </button>
+            <button 
+              className={`tab-button${dashboardTab === "purchases" ? " active" : ""}`}
+              onClick={() => setDashboardTab("purchases")}
+            >
+              My Purchases
+            </button>
+            <button 
+              className={`tab-button${dashboardTab === "sales" ? " active" : ""}`}
+              onClick={() => setDashboardTab("sales")}
+            >
+              My Sales
+            </button>
           </div>
         </div>
 
-        <div className="plants-grid">
-          {loading ? (
-            <p className="auth-error">Cargando plantas...</p>
-          ) : error ? (
-            <p className="auth-error">Error: {error}</p>
-          ) : filteredPlants.length > 0 ? (
-            filteredPlants.map(plant => (
-              <div key={plant.id} className="auth-card plant-card">
-                <div className="plant-image-container">
-                  <img src={plant.image} alt={plant.name} />
-                </div>
-                <div className="plant-content">
-                  <span className="auth-kicker">{plant.type}</span>
-                  <h3>{plant.name}</h3>
-                  <p className="price-tag">${plant.price.toFixed(2)}</p>
-                  <button 
-                    className="primary-button"
-                    onClick={() => setSelectedPlantId(plant.id)}
-                  >
-                    View Details
-                  </button>
-                </div>
-              </div>
-            ))
-          ) : (
-            <p className="auth-error">No plants match your search criteria.</p>
-          )}
-        </div>
+        {dashboardTab === "shop" && (
+          <>
+            <div className="catalogue-filters">
+              <input 
+                type="text" 
+                className="auth-input search-box" 
+                placeholder="Search by name..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <select 
+                className="auth-input filter-box" 
+                value={filterType} 
+                onChange={(e) => setFilterType(e.target.value)}
+              >
+                <option value="All">All Types</option>
+                <option value="Indoor">Indoor</option>
+                <option value="Outdoor">Outdoor</option>
+                <option value="Succulent">Succulent</option>
+                <option value="Flowering">Flowering</option>
+              </select>
+            </div>
+
+            <div className="plants-grid">
+              {loading ? (
+                <p className="auth-error">Cargando plantas...</p>
+              ) : error ? (
+                <p className="auth-error">Error: {error}</p>
+              ) : filteredPlants.length > 0 ? (
+                filteredPlants.map(plant => (
+                  <div key={plant.id} className="auth-card plant-card">
+                    <div className="plant-image-container">
+                      <img src={plant.image} alt={plant.name} />
+                    </div>
+                    <div className="plant-content">
+                      <span className="auth-kicker">{plant.type}</span>
+                      <h3>{plant.name}</h3>
+                      <p className="price-tag">${plant.price.toFixed(2)}</p>
+                      <button 
+                        className="primary-button"
+                        onClick={() => setSelectedPlantId(plant.id)}
+                      >
+                        View Details
+                      </button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="auth-error">No plants match your search criteria.</p>
+              )}
+            </div>
+          </>
+        )}
+
+        {dashboardTab === "purchases" && (
+          <PurchaseHistory userId={user.id} />
+        )}
+
+        {dashboardTab === "sales" && (
+          <SalesHistory userId={user.id} />
+        )}
       </section>
       {selectedPlantId && (
         <PlantDetailsModal

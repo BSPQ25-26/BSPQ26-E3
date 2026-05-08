@@ -86,7 +86,7 @@ class CartServiceIntegrationTest {
             CartResponse.class
         );
 
-        assertEquals(200, addResponse.getStatusCodeValue());
+        assertEquals(200, addResponse.getStatusCode());
         assertNotNull(addResponse.getBody());
         assertEquals(1, addResponse.getBody().getItems().size());
 
@@ -96,7 +96,7 @@ class CartServiceIntegrationTest {
             CartResponse.class
         );
 
-        assertEquals(200, getResponse.getStatusCodeValue());
+        assertEquals(200, getResponse.getStatusCode());
         assertNotNull(getResponse.getBody());
 
         // Step 3: Checkout
@@ -106,7 +106,7 @@ class CartServiceIntegrationTest {
             CartResponse.class
         );
 
-        assertEquals(200, checkoutResponse.getStatusCodeValue());
+        assertEquals(200, checkoutResponse.getStatusCode());
         assertNotNull(checkoutResponse.getBody());
         assertTrue(checkoutResponse.getBody().getItems().isEmpty());
     }
@@ -133,7 +133,7 @@ class CartServiceIntegrationTest {
             CartResponse.class
         );
 
-        assertEquals(200, removeResponse.getStatusCodeValue());
+        assertEquals(200, removeResponse.getStatusCode());
         assertNotNull(removeResponse.getBody());
         assertTrue(removeResponse.getBody().getItems().isEmpty());
         assertEquals(0.0, removeResponse.getBody().getTotal(), 0.01);

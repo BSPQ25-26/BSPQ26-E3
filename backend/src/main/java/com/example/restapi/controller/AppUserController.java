@@ -4,11 +4,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.example.restapi.dto.AuthResponse;
 import com.example.restapi.dto.ChangePasswordRequest;
 import com.example.restapi.dto.LoginRequest;
 import com.example.restapi.dto.RegisterRequest;

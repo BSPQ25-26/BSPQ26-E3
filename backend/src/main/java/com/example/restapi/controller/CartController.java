@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.*;
 
 import com.example.restapi.dto.CartRequest;
 import com.example.restapi.dto.CartResponse;
+import com.example.restapi.dto.PaymentRequest;
+import com.example.restapi.dto.ReceiptResponse;
 import com.example.restapi.service.CartService;
 
 @RestController
@@ -48,9 +50,9 @@ public class CartController {
     }
 
     @PostMapping("/{ownerId}/checkout")
-    public ResponseEntity<CartResponse> checkout(@PathVariable String ownerId) {
+    public ResponseEntity<ReceiptResponse> checkout(@PathVariable String ownerId, @RequestBody PaymentRequest paymentRequest) {
         UUID owner = UUID.fromString(ownerId);
-        CartResponse resp = cartService.checkout(owner);
-        return ResponseEntity.ok(resp);
+        ReceiptResponse receipt = cartService.checkout(owner, paymentRequest);
+        return ResponseEntity.ok(receipt);
     }
 }

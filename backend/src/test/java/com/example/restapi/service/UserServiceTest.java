@@ -4,8 +4,6 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.example.restapi.dto.AuthResponse;
-import com.example.restapi.dto.RegisterRequest;
 import com.example.restapi.dto.UserProfileResponse;
 import com.example.restapi.model.Profile;
 import com.example.restapi.repository.ProfileRepository;
@@ -18,11 +16,8 @@ import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.http.HttpEntity;
 
-import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
