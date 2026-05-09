@@ -16,6 +16,44 @@
   box-sizing: border-box;
 }
 
+.language-switcher {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 2000;
+  display: inline-flex;
+  gap: 6px;
+  padding: 6px;
+  border: 1px solid rgba(114, 88, 52, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 252, 244, 0.9);
+  box-shadow: 0 12px 28px rgba(77, 58, 24, 0.14);
+  backdrop-filter: blur(8px);
+}
+
+.language-switcher-button {
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-soft);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+.language-switcher-button.active {
+  background: linear-gradient(135deg, var(--primary) 0%, #4c8c58 100%);
+  color: #fffdf6;
+}
+
+.language-switcher-button:hover {
+  color: var(--text-main);
+}
+
 .auth-shell,
 .dashboard-shell {
   min-height: 100vh;
@@ -367,6 +405,11 @@
 }
 
 @media (max-width: 640px) {
+  .language-switcher {
+    top: 12px;
+    right: 12px;
+  }
+
   .auth-card {
     padding: 24px;
     border-radius: 24px;

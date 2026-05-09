@@ -1,6 +1,8 @@
 import React from "react";
+import { useI18n } from "./i18n/I18nContext";
 
 export default function PlantDetailsModal({ plantId, userId, onClose, onItemAdded }) {
+  const { t, formatCurrency, translateCategory, translateItemStatus, translateError } = useI18n();
   const [plantDetails, setPlantDetails] = React.useState(null);
   const [loading, setLoading] = React.useState(false);
   const [quantity, setQuantity] = React.useState(1);
@@ -9,11 +11,11 @@ export default function PlantDetailsModal({ plantId, userId, onClose, onItemAdde
 
   React.useEffect(() => {
     setLoading(true);
-    
+
     fetch(`/api/items/${plantId}`)
       .then(async (response) => {
         if (!response.ok) {
-          throw new Error("Failed to fetch plant details");
+          throw new Error(t("errors.failedToFetchPlantDetails"));
         }
         return response.json();
       })
@@ -25,11 +27,11 @@ export default function PlantDetailsModal({ plantId, userId, onClose, onItemAdde
         console.error("Error loading plant details:", err);
         setLoading(false);
       });
-  }, [plantId]);
+  }, [plantId, t]);
 
   const handleAddToCart = async () => {
     if (!userId) {
-      setMessage({ type: 'error', text: 'User ID not found' });
+      setMessage({ type: "error", text: t("plantDetails.userIdNotFound") });
       return;
     }
 
@@ -38,25 +40,24 @@ export default function PlantDetailsModal({ plantId, userId, onClose, onItemAdde
 
     try {
       const response = await fetch(`/api/carts/${userId}/items`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           itemId: plantId,
-          quantity: quantity
-        })
+          quantity,
+        }),
       });
 
       if (!response.ok) {
-        let errorMessage = 'Error adding to cart';
+        let errorMessage = t("errors.errorAddingToCart");
         try {
           const errorData = await response.json();
           if (errorData.message) {
             errorMessage = errorData.message;
           }
-        } catch (e) {
-          // If response isn't JSON, use the status text
+        } catch (error) {
           if (response.statusText) {
             errorMessage = response.statusText;
           }
@@ -64,25 +65,16 @@ export default function PlantDetailsModal({ plantId, userId, onClose, onItemAdde
         throw new Error(errorMessage);
       }
 
-      setMessage({ type: 'success', text: 'Added to cart successfully!' });
-      if (onItemAdded) onItemAdded(quantity);
+      setMessage({ type: "success", text: t("plantDetails.addedToCart") });
+      if (onItemAdded) {
+        onItemAdded(quantity);
+      }
       setTimeout(() => {
         onClose();
       }, 1500);
     } catch (err) {
-      console.error('Error adding to cart:', err);
-      let displayError = err.message || 'Error adding to cart';
-      
-      // User-friendly error messages
-      if (displayError.includes('Not enough stock')) {
-        displayError = 'Not enough stock available. Please reduce the quantity.';
-      } else if (displayError.includes('not available')) {
-        displayError = 'This item is no longer available for purchase.';
-      } else if (displayError.includes('Quantity must be')) {
-        displayError = 'Please select a valid quantity.';
-      }
-      
-      setMessage({ type: 'error', text: displayError });
+      console.error("Error adding to cart:", err);
+      setMessage({ type: "error", text: translateError(err.message, "errors.errorAddingToCart") });
     } finally {
       setAddingToCart(false);
     }
@@ -92,15 +84,15 @@ export default function PlantDetailsModal({ plantId, userId, onClose, onItemAdde
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content plant-details-modal" onClick={(e) => e.stopPropagation()}>
         {loading ? (
-          <p className="auth-error">Cargando detalles...</p>
+          <p className="auth-error">{t("plantDetails.loading")}</p>
         ) : plantDetails ? (
           <>
-            <button 
-              className="modal-close-button" 
+            <button
+              className="modal-close-button"
               onClick={onClose}
-              aria-label="Close details"
+              aria-label={t("plantDetails.closeAria")}
             >
-              ✕
+              X
             </button>
             <div className="plant-details-grid">
               <div className="plant-details-image">
@@ -110,56 +102,58 @@ export default function PlantDetailsModal({ plantId, userId, onClose, onItemAdde
                 />
               </div>
               <div className="plant-details-info">
-                <span className="auth-kicker">{plantDetails.categoryName || "Uncategorized"}</span>
+                <span className="auth-kicker">
+                  {plantDetails.categoryName ? translateCategory(plantDetails.categoryName) : t("common.uncategorized")}
+                </span>
                 <h2>{plantDetails.title}</h2>
-                <p className="plant-details-price">${plantDetails.amount.toFixed(2)}</p>
-                
+                <p className="plant-details-price">{formatCurrency(plantDetails.amount)}</p>
+
                 <div className="plant-details-specs">
                   <div className="spec-item">
-                    <dt>Description</dt>
-                    <dd>{plantDetails.description || "No description available"}</dd>
+                    <dt>{t("common.labels.description")}</dt>
+                    <dd>{plantDetails.description || t("plantDetails.noDescription")}</dd>
                   </div>
                   <div className="spec-item">
-                    <dt>Stock Available</dt>
-                    <dd>{plantDetails.quantity} units</dd>
+                    <dt>{t("plantDetails.stockAvailable")}</dt>
+                    <dd>{t("plantDetails.units", { count: plantDetails.quantity })}</dd>
                   </div>
                   <div className="spec-item">
-                    <dt>Status</dt>
-                    <dd>{plantDetails.status ? "Active" : "Inactive"}</dd>
+                    <dt>{t("common.labels.status")}</dt>
+                    <dd>{translateItemStatus(plantDetails.status)}</dd>
                   </div>
                 </div>
 
                 {message && (
-                  <div className={`auth-${message.type === 'success' ? 'notice' : 'error'}`}>
+                  <div className={`auth-${message.type === "success" ? "notice" : "error"}`}>
                     {message.text}
                   </div>
                 )}
 
                 <div className="quantity-selector">
-                  <label htmlFor="quantity">Quantity:</label>
-                  <input 
+                  <label htmlFor="quantity">{t("plantDetails.quantityLabel")}</label>
+                  <input
                     id="quantity"
-                    type="number" 
-                    min="1" 
+                    type="number"
+                    min="1"
                     max={plantDetails.quantity}
                     value={quantity}
-                    onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                    onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value, 10) || 1))}
                     disabled={addingToCart}
                   />
                 </div>
 
-                <button 
+                <button
                   className="primary-button"
                   onClick={handleAddToCart}
                   disabled={addingToCart}
                 >
-                  {addingToCart ? 'Adding...' : 'Add to Cart'}
+                  {addingToCart ? t("common.actions.adding") : t("common.actions.addToCart")}
                 </button>
               </div>
             </div>
           </>
         ) : (
-          <p className="auth-error">Error loading plant details</p>
+          <p className="auth-error">{t("plantDetails.error")}</p>
         )}
       </div>
     </div>
