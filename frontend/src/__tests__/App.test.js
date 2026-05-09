@@ -55,6 +55,7 @@ describe('App routing', () => {
         }),
       })
       .mockResolvedValueOnce({ ok: false })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ items: [], total: 0 }) })
       .mockResolvedValueOnce({ ok: true, json: async () => [] });
 
     render(<App />);
@@ -78,6 +79,7 @@ describe('App routing', () => {
         }),
       })
       .mockResolvedValueOnce({ ok: false })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ items: [], total: 0 }) })
       .mockResolvedValueOnce({ ok: true, json: async () => [] });
 
     render(<App />);

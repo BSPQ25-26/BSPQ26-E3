@@ -7,15 +7,10 @@ import CreatePost from "./CreatePost";
 import Cart from "./Cart";
 import PurchaseHistory from "./PurchaseHistory";
 import SalesHistory from "./SalesHistory";
-
-function formatCreatedAt(value) {
-  if (!value) {
-    return "Not available";
-  }
-  return new Date(value).toLocaleString("en-US");
-}
+import { useI18n } from "./i18n/I18nContext";
 
 export default function Dashboard({ user, onLogout }) {
+  const { t, formatDate, formatCurrency, translateCategory, translateError } = useI18n();
   const [showProfile, setShowProfile] = useState(false);
   const [profile, setProfile] = useState(user);
   
@@ -97,7 +92,7 @@ export default function Dashboard({ user, onLogout }) {
     fetch("/api/items")
       .then(async (response) => {
         if (!response.ok) {
-          throw new Error("Failed to fetch items");
+          throw new Error(t("errors.failedToFetchItems"));
         }
         return response.json();
       })
@@ -168,15 +163,15 @@ export default function Dashboard({ user, onLogout }) {
     <main className="dashboard-shell">
       <header className="dashboard-topbar">
         <div>
-          <p className="dashboard-eyebrow">Green Home</p>
-          <h1>Planthub</h1>
+          <p className="dashboard-eyebrow">{t("common.brand")}</p>
+          <h1>{t("common.appName")}</h1>
         </div>
         <div className="topbar-actions">
           <button
             className="create-post-button"
             type="button"
-            aria-label="Create new post"
-            title="Create a new plant post"
+            aria-label={t("dashboard.createPostAria")}
+            title={t("dashboard.createPostTitle")}
             onClick={() => setShowCreatePost(true)}
           >
             +
@@ -193,12 +188,12 @@ export default function Dashboard({ user, onLogout }) {
           <button
             className="cart-button"
             type="button"
-            aria-label="Open shopping cart"
+            aria-label={t("dashboard.openCartAria")}
             onClick={() => setShowCart((current) => !current)}
           >
             <img 
               src={cartItemCount > 0 ? cartFilledIcon : cartEmptyIcon} 
-              alt="Shopping cart"
+              alt={t("dashboard.cartAlt")}
               className="cart-button-icon"
             />
             {cartItemCount > 0 && (
@@ -218,7 +213,7 @@ export default function Dashboard({ user, onLogout }) {
             <button
               className="profile-button"
               type="button"
-              aria-label="Show user information"
+              aria-label={t("dashboard.profileAria")}
               onClick={() => setShowProfile((current) => !current)}
             >
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -227,27 +222,33 @@ export default function Dashboard({ user, onLogout }) {
             </button>
             {showProfile && (
               <aside className="profile-card">
-                <p className="profile-card-title">Your profile</p>
+                <p className="profile-card-title">{t("dashboard.profileTitle")}</p>
                 <dl className="profile-details">
                   <div>
-                    <dt>Username</dt>
-                    <dd>{displayUser.username || "Not available"}</dd>
+                    <dt>{t("common.labels.username")}</dt>
+                    <dd>{displayUser.username || t("common.notAvailable")}</dd>
                   </div>
                   <div>
-                    <dt>Email</dt>
-                    <dd>{displayUser.email || "Not available"}</dd>
+                    <dt>{t("common.labels.email")}</dt>
+                    <dd>{displayUser.email || t("common.notAvailable")}</dd>
                   </div>
                   <div>
-                    <dt>Phone</dt>
-                    <dd>{displayUser.phone || "Not available"}</dd>
+                    <dt>{t("common.labels.phone")}</dt>
+                    <dd>{displayUser.phone || t("common.notAvailable")}</dd>
                   </div>
                   <div>
-                    <dt>Created</dt>
-                    <dd>{formatCreatedAt(displayUser.createdAt)}</dd>
+                    <dt>{t("common.labels.created")}</dt>
+                    <dd>{formatDate(displayUser.createdAt, {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}</dd>
                   </div>
                 </dl>
                 <button className="secondary-button profile-logout" type="button" onClick={onLogout}>
-                  Sign out
+                  {t("common.actions.signOut")}
                 </button>
               </aside>
             )}
@@ -257,8 +258,8 @@ export default function Dashboard({ user, onLogout }) {
 
       <section className="hero-panel">
         <div className="hero-copy">
-          <span className="auth-kicker">Home</span>
-          <h2>Welcome, {user.username ?? user.email ?? "user"}</h2>
+          <span className="auth-kicker">{t("common.home")}</span>
+          <h2>{t("dashboard.welcome", { name: user.username ?? user.email ?? t("common.userFallback") })}</h2>
         </div>
         <div className="hero-image-frame hero-carousel-frame">
           {plants.length > 0 ? (
@@ -280,38 +281,38 @@ export default function Dashboard({ user, onLogout }) {
                     key={i}
                     className={`hero-carousel-dot${i === activeSlide ? " active" : ""}`}
                     onClick={() => goToSlide(i)}
-                    aria-label={`Go to slide ${i + 1}`}
+                    aria-label={t("dashboard.carouselAria", { index: i + 1 })}
                   />
                 ))}
               </div>
             </>
           ) : (
-            <img src={heroImage} alt="Home with decorative plants" className="hero-image" />
+            <img src={heroImage} alt={t("dashboard.heroImageAlt")} className="hero-image" />
           )}
         </div>
       </section>
 
       <section className="andoni-catalogue">
         <div className="catalogue-header">
-          <h2 className="catalogue-title">Plant Catalogue</h2>
+          <h2 className="catalogue-title">{t("dashboard.catalogueTitle")}</h2>
           <div className="dashboard-tabs">
             <button 
               className={`tab-button${dashboardTab === "shop" ? " active" : ""}`}
               onClick={() => setDashboardTab("shop")}
             >
-              Shop
+              {t("dashboard.shoppingTab")}
             </button>
             <button 
               className={`tab-button${dashboardTab === "purchases" ? " active" : ""}`}
               onClick={() => setDashboardTab("purchases")}
             >
-              My Purchases
+              {t("dashboard.purchasesTab")}
             </button>
             <button 
               className={`tab-button${dashboardTab === "sales" ? " active" : ""}`}
               onClick={() => setDashboardTab("sales")}
             >
-              My Sales
+              {t("dashboard.salesTab")}
             </button>
           </div>
         </div>
@@ -322,7 +323,7 @@ export default function Dashboard({ user, onLogout }) {
               <input 
                 type="text" 
                 className="auth-input search-box" 
-                placeholder="Search by name..." 
+                placeholder={t("dashboard.searchPlaceholder")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -331,19 +332,19 @@ export default function Dashboard({ user, onLogout }) {
                 value={filterType} 
                 onChange={(e) => setFilterType(e.target.value)}
               >
-                <option value="All">All Types</option>
-                <option value="Indoor">Indoor</option>
-                <option value="Outdoor">Outdoor</option>
-                <option value="Succulent">Succulent</option>
-                <option value="Flowering">Flowering</option>
+                <option value="All">{t("common.categories.allTypes")}</option>
+                <option value="Indoor">{t("common.categories.indoor")}</option>
+                <option value="Outdoor">{t("common.categories.outdoor")}</option>
+                <option value="Succulent">{t("common.categories.succulent")}</option>
+                <option value="Flowering">{t("common.categories.flowering")}</option>
               </select>
             </div>
 
             <div className="plants-grid">
               {loading ? (
-                <p className="auth-error">Cargando plantas...</p>
+                <p className="auth-error">{t("dashboard.loadingPlants")}</p>
               ) : error ? (
-                <p className="auth-error">Error: {error}</p>
+                <p className="auth-error">Error: {translateError(error)}</p>
               ) : filteredPlants.length > 0 ? (
                 filteredPlants.map(plant => (
                   <div key={plant.id} className="auth-card plant-card">
@@ -351,20 +352,20 @@ export default function Dashboard({ user, onLogout }) {
                       <img src={plant.image} alt={plant.name} />
                     </div>
                     <div className="plant-content">
-                      <span className="auth-kicker">{plant.type}</span>
+                      <span className="auth-kicker">{translateCategory(plant.type)}</span>
                       <h3>{plant.name}</h3>
-                      <p className="price-tag">${plant.price.toFixed(2)}</p>
+                      <p className="price-tag">{formatCurrency(plant.price)}</p>
                       <button 
                         className="primary-button"
                         onClick={() => setSelectedPlantId(plant.id)}
                       >
-                        View Details
+                        {t("common.actions.viewDetails")}
                       </button>
                     </div>
                   </div>
                 ))
               ) : (
-                <p className="auth-error">No plants match your search criteria.</p>
+                <p className="auth-error">{t("dashboard.noPlantsMatch")}</p>
               )}
             </div>
           </>

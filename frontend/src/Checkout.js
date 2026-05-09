@@ -1,7 +1,9 @@
 import { useState } from "react";
 import "./Checkout.css";
+import { useI18n } from "./i18n/I18nContext";
 
 export default function Checkout({ userId, cartTotal, onCheckoutSuccess, onCancel }) {
+  const { t, formatCurrency, translateError } = useI18n();
   const [formData, setFormData] = useState({
     cardNumber: "",
     cardHolder: "",
@@ -11,13 +13,11 @@ export default function Checkout({ userId, cartTotal, onCheckoutSuccess, onCance
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [showConfirmation, setShowConfirmation] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     let formattedValue = value;
 
-    // Format card number (add spaces every 4 digits)
     if (name === "cardNumber") {
       formattedValue = value
         .replace(/\s/g, "")
@@ -25,7 +25,6 @@ export default function Checkout({ userId, cartTotal, onCheckoutSuccess, onCance
         .trim();
     }
 
-    // Format expiry date (MM/YY)
     if (name === "expiryDate") {
       formattedValue = value.replace(/\D/g, "");
       if (formattedValue.length >= 2) {
@@ -33,7 +32,6 @@ export default function Checkout({ userId, cartTotal, onCheckoutSuccess, onCance
       }
     }
 
-    // Limit CVV to 4 digits
     if (name === "cvv") {
       formattedValue = value.replace(/\D/g, "").slice(0, 4);
     }
@@ -46,19 +44,19 @@ export default function Checkout({ userId, cartTotal, onCheckoutSuccess, onCance
 
   const validateForm = () => {
     if (!formData.cardNumber.replace(/\s/g, "") || formData.cardNumber.replace(/\s/g, "").length < 13) {
-      setError("Card number must be at least 13 digits");
+      setError(t("errors.cardNumberInvalid"));
       return false;
     }
     if (!formData.cardHolder.trim()) {
-      setError("Card holder name is required");
+      setError(t("errors.cardHolderRequired"));
       return false;
     }
     if (!formData.expiryDate || formData.expiryDate.length !== 5) {
-      setError("Expiry date must be in MM/YY format");
+      setError(t("errors.expiryInvalid"));
       return false;
     }
     if (!formData.cvv || formData.cvv.length < 3) {
-      setError("CVV must be 3-4 digits");
+      setError(t("errors.cvvInvalid"));
       return false;
     }
     return true;
@@ -75,7 +73,7 @@ export default function Checkout({ userId, cartTotal, onCheckoutSuccess, onCance
     setLoading(true);
 
     try {
-      const response = await fetch("/api/carts/" + userId + "/checkout", {
+      const response = await fetch(`/api/carts/${userId}/checkout`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -84,15 +82,15 @@ export default function Checkout({ userId, cartTotal, onCheckoutSuccess, onCance
       });
 
       if (!response.ok) {
-        const errBody = await response.json();
-        throw new Error(errBody.message || "Checkout failed");
+        const errBody = await response.json().catch(() => ({}));
+        throw new Error(errBody.message || t("errors.checkoutFailed"));
       }
 
       const receipt = await response.json();
       onCheckoutSuccess(receipt);
     } catch (err) {
       console.error("Error during checkout:", err);
-      setError("Error processing checkout: " + err.message);
+      setError(t("errors.checkoutProcessing", { message: translateError(err.message, "errors.checkoutFailed") }));
     } finally {
       setLoading(false);
     }
@@ -102,26 +100,26 @@ export default function Checkout({ userId, cartTotal, onCheckoutSuccess, onCance
     <div className="checkout-overlay">
       <div className="checkout-modal">
         <div className="checkout-header">
-          <h2>Payment Information</h2>
+          <h2>{t("checkout.title")}</h2>
           <button
             className="checkout-close"
             onClick={onCancel}
-            aria-label="Close checkout"
+            aria-label={t("checkout.closeAria")}
           >
-            ✕
+            X
           </button>
         </div>
 
         <form className="checkout-form" onSubmit={handleSubmit}>
           <div className="checkout-amount">
-            <p className="amount-label">Total Amount to Pay:</p>
-            <p className="amount-value">${cartTotal.toFixed(2)}</p>
+            <p className="amount-label">{t("checkout.totalAmountToPay")}</p>
+            <p className="amount-value">{formatCurrency(cartTotal)}</p>
           </div>
 
           {error && <div className="checkout-error">{error}</div>}
 
           <div className="form-group full-width">
-            <label htmlFor="cardNumber">Card Number</label>
+            <label htmlFor="cardNumber">{t("common.labels.cardNumber")}</label>
             <input
               type="text"
               id="cardNumber"
@@ -136,7 +134,7 @@ export default function Checkout({ userId, cartTotal, onCheckoutSuccess, onCance
           </div>
 
           <div className="form-group full-width">
-            <label htmlFor="cardHolder">Cardholder Name</label>
+            <label htmlFor="cardHolder">{t("common.labels.cardholderName")}</label>
             <input
               type="text"
               id="cardHolder"
@@ -151,7 +149,7 @@ export default function Checkout({ userId, cartTotal, onCheckoutSuccess, onCance
 
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="expiryDate">Expiry Date</label>
+              <label htmlFor="expiryDate">{t("common.labels.expiryDate")}</label>
               <input
                 type="text"
                 id="expiryDate"
@@ -166,7 +164,7 @@ export default function Checkout({ userId, cartTotal, onCheckoutSuccess, onCance
             </div>
 
             <div className="form-group">
-              <label htmlFor="cvv">CVV</label>
+              <label htmlFor="cvv">{t("common.labels.cvv")}</label>
               <input
                 type="text"
                 id="cvv"
@@ -182,7 +180,7 @@ export default function Checkout({ userId, cartTotal, onCheckoutSuccess, onCance
           </div>
 
           <div className="checkout-notice">
-            <p> This is a simulated payment system. No real charges will be made.</p>
+            <p>{t("checkout.simulatedNotice")}</p>
           </div>
 
           <div className="checkout-actions">
@@ -192,14 +190,14 @@ export default function Checkout({ userId, cartTotal, onCheckoutSuccess, onCance
               onClick={onCancel}
               disabled={loading}
             >
-              Cancel
+              {t("common.actions.cancel")}
             </button>
             <button
               type="submit"
               className="primary-button"
               disabled={loading}
             >
-              {loading ? "Processing..." : "Complete Payment"}
+              {loading ? t("common.actions.processing") : t("common.actions.completePayment")}
             </button>
           </div>
         </form>

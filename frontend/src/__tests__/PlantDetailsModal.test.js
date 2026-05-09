@@ -12,8 +12,9 @@ describe('PlantDetailsModal', () => {
   });
 
   it('shows loading state initially', () => {
+    global.fetch.mockReturnValue(new Promise(() => {}));
     render(<PlantDetailsModal plantId={mockPlantId} userId={mockUserId} onClose={mockOnClose} />);
-    expect(screen.getByText(/Cargando detalles/i)).toBeInTheDocument();
+    expect(screen.getByText(/Loading details/i)).toBeInTheDocument();
   });
 
   it('shows error if fetch fails', async () => {

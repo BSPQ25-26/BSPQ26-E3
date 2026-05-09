@@ -1,21 +1,25 @@
 import { useEffect, useState } from "react";
 import "./History.css";
+import { useI18n } from "./i18n/I18nContext";
 
 export default function SalesHistory({ userId }) {
+  const { t, formatCurrency, formatDate, translateError } = useI18n();
   const [sales, setSales] = useState([]);
   const [totalSales, setTotalSales] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId) {
+      return;
+    }
 
     const fetchSales = async () => {
       try {
         setLoading(true);
         const response = await fetch(`/api/sales/seller/${userId}/total`);
         if (!response.ok) {
-          throw new Error("Failed to fetch sales history");
+          throw new Error(t("errors.failedToFetchSalesHistory"));
         }
         const data = await response.json();
         setSales(data.sales || []);
@@ -23,7 +27,7 @@ export default function SalesHistory({ userId }) {
         setError(null);
       } catch (err) {
         console.error("Error loading sales:", err);
-        setError(err.message);
+        setError(translateError(err.message, "errors.failedToFetchSalesHistory"));
         setSales([]);
         setTotalSales(0);
       } finally {
@@ -32,17 +36,7 @@ export default function SalesHistory({ userId }) {
     };
 
     fetchSales();
-  }, [userId]);
-
-  const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
+  }, [t, translateError, userId]);
 
   const calculateMonthlyData = () => {
     const monthlyTotals = {};
@@ -77,108 +71,100 @@ export default function SalesHistory({ userId }) {
   if (loading) {
     return (
       <div className="history-container">
-        <div className="history-loading">Loading sales history...</div>
+        <div className="history-loading">{t("salesHistory.loading")}</div>
       </div>
     );
   }
 
   return (
     <div className="history-container">
-      <h2>Your Sales History</h2>
+      <h2>{t("salesHistory.title")}</h2>
 
       {error && <div className="history-error">{error}</div>}
 
       {sales.length === 0 ? (
         <div className="history-empty">
-          <p>No sales yet. Start selling to see your sales history here!</p>
+          <p>{t("salesHistory.empty")}</p>
         </div>
       ) : (
         <>
-          {/* Sales Summary Stats */}
           <div className="history-summary">
             <div className="summary-stat">
-              <p className="stat-label">Total Revenue</p>
-              <p className="stat-value">${totalSales.toFixed(2)}</p>
+              <p className="stat-label">{t("salesHistory.totalRevenue")}</p>
+              <p className="stat-value">{formatCurrency(totalSales)}</p>
             </div>
             <div className="summary-stat">
-              <p className="stat-label">Total Transactions</p>
+              <p className="stat-label">{t("salesHistory.totalTransactions")}</p>
               <p className="stat-value">{sales.length}</p>
             </div>
             <div className="summary-stat">
-              <p className="stat-label">Average Sale</p>
-              <p className="stat-value">
-                ${(totalSales / sales.length).toFixed(2)}
-              </p>
+              <p className="stat-label">{t("salesHistory.averageSale")}</p>
+              <p className="stat-value">{formatCurrency(totalSales / sales.length)}</p>
             </div>
             <div className="summary-stat">
-              <p className="stat-label">Items Sold</p>
-              <p className="stat-value">
-                {sales.reduce((sum, s) => sum + s.quantity, 0)}
-              </p>
+              <p className="stat-label">{t("salesHistory.itemsSold")}</p>
+              <p className="stat-value">{sales.reduce((sum, sale) => sum + sale.quantity, 0)}</p>
             </div>
           </div>
 
-          {/* Monthly Chart */}
           <div className="history-chart">
-            <h3>Monthly Revenue</h3>
+            <h3>{t("salesHistory.monthlyRevenue")}</h3>
             <div className="chart-bars">
               {Object.entries(monthlyData).map(([month, amount]) => (
                 <div key={month} className="chart-bar-group">
                   <div className="chart-bar-container">
                     <div
                       className="chart-bar"
-                      style={{
-                        height: `${(amount / maxAmount) * 200}px`,
-                      }}
-                      title={`$${amount.toFixed(2)}`}
+                      style={{ height: `${(amount / maxAmount) * 200}px` }}
+                      title={formatCurrency(amount)}
                     ></div>
                   </div>
                   <span className="chart-label">{month}</span>
-                  <span className="chart-value">${amount.toFixed(2)}</span>
+                  <span className="chart-value">{formatCurrency(amount)}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Top Items */}
           <div className="top-items">
-            <h3>Top Selling Items</h3>
+            <h3>{t("salesHistory.topSellingItems")}</h3>
             <div className="items-grid">
               {itemStats.map((item) => (
                 <div key={item.name} className="item-stat-card">
                   <p className="item-name">{item.name}</p>
                   <p className="item-stat">
-                    <span className="stat-label">Sold:</span>
+                    <span className="stat-label">{t("salesHistory.sold")}</span>
                     <span className="stat-value">{item.quantity}</span>
                   </p>
                   <p className="item-stat">
-                    <span className="stat-label">Revenue:</span>
-                    <span className="stat-value">${item.revenue.toFixed(2)}</span>
+                    <span className="stat-label">{t("salesHistory.revenue")}</span>
+                    <span className="stat-value">{formatCurrency(item.revenue)}</span>
                   </p>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Sales List */}
           <div className="sales-list">
-            <h3>Recent Sales</h3>
+            <h3>{t("salesHistory.recentSales")}</h3>
             {sales.map((sale, index) => (
               <div key={index} className="sale-card">
                 <div className="sale-card-header">
                   <div className="sale-info">
                     <p className="sale-item">{sale.itemName}</p>
-                    <p className="sale-date">{formatDate(sale.createdAt)}</p>
+                    <p className="sale-date">{formatDate(sale.createdAt, {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })}</p>
                   </div>
                   <div className="sale-amount">
                     <p className="sale-quantity">x{sale.quantity}</p>
-                    <p className="sale-total">${sale.totalPrice.toFixed(2)}</p>
+                    <p className="sale-total">{formatCurrency(sale.totalPrice)}</p>
                   </div>
                 </div>
                 <div className="sale-card-footer">
-                  <span className="unit-price">
-                    Unit Price: ${sale.unitPrice.toFixed(2)}
-                  </span>
+                  <span className="unit-price">{t("salesHistory.unitPrice")} {formatCurrency(sale.unitPrice)}</span>
                 </div>
               </div>
             ))}

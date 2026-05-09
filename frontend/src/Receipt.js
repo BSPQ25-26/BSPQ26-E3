@@ -1,96 +1,92 @@
 import "./Checkout.css";
+import { useI18n } from "./i18n/I18nContext";
 
 export default function Receipt({ receipt, onClose }) {
-  const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
-    const date = new Date(dateString);
-    return date.toLocaleString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
+  const { t, formatCurrency, formatDate } = useI18n();
 
   return (
     <div className="receipt-overlay">
       <div className="receipt-modal">
         <div className="receipt-header">
-          <h2>✓ Payment Successful</h2>
+          <h2>{t("receipt.successTitle")}</h2>
           <button
             className="receipt-close"
             onClick={onClose}
-            aria-label="Close receipt"
+            aria-label={t("receipt.closeAria")}
           >
-            ✕
+            X
           </button>
         </div>
 
         <div className="receipt-content">
           <div className="receipt-number">
-            <p className="label">Receipt Number:</p>
+            <p className="label">{t("common.labels.receiptNumber")}:</p>
             <p className="value">{receipt.receiptNumber}</p>
           </div>
 
           <div className="receipt-date">
-            <p className="label">Date & Time:</p>
-            <p className="value">{formatDate(receipt.createdAt)}</p>
+            <p className="label">{t("common.labels.dateTime")}:</p>
+            <p className="value">{formatDate(receipt.createdAt, {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+            })}</p>
           </div>
 
           <div className="receipt-items">
-            <h3>Order Items</h3>
+            <h3>{t("receipt.orderItems")}</h3>
             <table className="receipt-table">
               <thead>
                 <tr>
-                  <th>Item</th>
-                  <th>Qty</th>
-                  <th>Unit Price</th>
-                  <th>Subtotal</th>
+                  <th>{t("common.labels.item")}</th>
+                  <th>{t("common.labels.qty")}</th>
+                  <th>{t("common.labels.unitPrice")}</th>
+                  <th>{t("common.labels.subtotal")}</th>
                 </tr>
               </thead>
               <tbody>
-                {receipt.items &&
-                  receipt.items.map((item) => (
-                    <tr key={item.itemId}>
-                      <td>{item.itemName}</td>
-                      <td className="qty-col">{item.quantity}</td>
-                      <td className="price-col">${item.unitPrice.toFixed(2)}</td>
-                      <td className="price-col">${item.subtotal.toFixed(2)}</td>
-                    </tr>
-                  ))}
+                {receipt.items?.map((item) => (
+                  <tr key={item.itemId}>
+                    <td>{item.itemName}</td>
+                    <td className="qty-col">{item.quantity}</td>
+                    <td className="price-col">{formatCurrency(item.unitPrice)}</td>
+                    <td className="price-col">{formatCurrency(item.subtotal)}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
 
           <div className="receipt-summary">
             <div className="summary-row">
-              <span className="label">Subtotal:</span>
-              <span className="value">${receipt.totalAmount.toFixed(2)}</span>
+              <span className="label">{t("common.labels.subtotal")}:</span>
+              <span className="value">{formatCurrency(receipt.totalAmount)}</span>
             </div>
             <div className="summary-row">
-              <span className="label">Tax (0%):</span>
-              <span className="value">$0.00</span>
+              <span className="label">{t("receipt.tax")}:</span>
+              <span className="value">{formatCurrency(0)}</span>
             </div>
             <div className="summary-row total">
-              <span className="label">Total:</span>
-              <span className="value">${receipt.totalAmount.toFixed(2)}</span>
+              <span className="label">{t("common.labels.total")}:</span>
+              <span className="value">{formatCurrency(receipt.totalAmount)}</span>
             </div>
           </div>
 
           <div className="receipt-status">
-            <p>Status: <strong className="status-badge">{receipt.paymentStatus}</strong></p>
+            <p>{t("receipt.status")}: <strong className="status-badge">{receipt.paymentStatus}</strong></p>
           </div>
 
           <div className="receipt-notice">
-            <p>Thank you for your purchase! Your order has been saved to your purchase history.</p>
+            <p>{t("receipt.notice")}</p>
           </div>
 
           <button
             className="primary-button receipt-button"
             onClick={onClose}
           >
-            Continue Shopping
+            {t("common.actions.continueShopping")}
           </button>
         </div>
       </div>
