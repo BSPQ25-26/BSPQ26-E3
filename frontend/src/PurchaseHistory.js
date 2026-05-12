@@ -87,7 +87,7 @@ export default function PurchaseHistory({ userId }) {
     return () => {
       Object.values(pollingIntervals).forEach((interval) => clearInterval(interval));
     };
-  }, []);
+  }, [pollingIntervals]);
 
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
