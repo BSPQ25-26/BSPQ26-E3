@@ -11,7 +11,6 @@ export default function Checkout({ userId, cartTotal, onCheckoutSuccess, onCance
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [showConfirmation, setShowConfirmation] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
