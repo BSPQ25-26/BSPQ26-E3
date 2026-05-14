@@ -1,14 +1,16 @@
 package com.example.restapi.model;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "items")
 public class Item {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
+    @JsonProperty("title")
     @Column(nullable = false)
     private String title;
 

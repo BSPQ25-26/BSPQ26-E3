@@ -127,14 +127,14 @@ export default function CreatePost({ userId, onClose, onPostCreated }) {
       }
 
       const itemData = {
-        title: formData.title, 
-        content: formData.description,
+        title: formData.title,
+        description: formData.description,
         amount: parseFloat(formData.amount),
         quantity: parseInt(formData.quantity),
         category: {
           name: formData.category,
         },
-        isPublic: formData.status,
+        status: formData.status,
         imagen: imageUrl || "", // Spring busca setImagen()
       };
 
