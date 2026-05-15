@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import heroImage from "./assets/plant-showcase-hero.svg";
 import cartEmptyIcon from "./assets/shopping-cart.png";
 import cartFilledIcon from "./assets/shopping-cart-filled.png";
@@ -84,7 +84,7 @@ export default function Dashboard({ user, onLogout }) {
   }, [user]);
 
   // Cargar plantas desde la API
-  const loadPlants = () => {
+  const loadPlants = useCallback(() => {
     let ignore = false;
     setLoading(true);
     setError(null);
@@ -123,11 +123,9 @@ export default function Dashboard({ user, onLogout }) {
     return () => {
       ignore = true;
     };
-  };
+  }, [t]);
 
-  useEffect(() => {
-    return loadPlants();
-  }, []);
+  useEffect(() => loadPlants(), [loadPlants]);
 
   const displayUser = profile ?? user;
 
