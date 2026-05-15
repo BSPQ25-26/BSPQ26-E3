@@ -75,7 +75,7 @@ describe('Login', () => {
     fireEvent.click(screen.getByText('Login'));
 
     await waitFor(() => {
-      expect(screen.getByText('Invalid credentials')).toBeInTheDocument();
+      expect(screen.getByText('Invalid credentials. Please try again.')).toBeInTheDocument();
     });
   });
 

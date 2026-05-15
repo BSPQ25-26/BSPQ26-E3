@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useI18n } from "./i18n/I18nContext";
 
 export default function Register({ onRegisterSuccess, showLogin }) {
+  const { t, translateError } = useI18n();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -18,54 +20,54 @@ export default function Register({ onRegisterSuccess, showLogin }) {
 
       if (!res.ok) {
         const bodyText = await res.text().catch(() => "");
-        setError(bodyText || "Registration failed. Please try again.");
+        setError(translateError(bodyText, "errors.registrationFailed"));
         return;
       }
 
-      onRegisterSuccess("Account created. Check your email to confirm your address before signing in.");
+      onRegisterSuccess(t("auth.accountCreated"));
     } catch (err) {
       console.error(err);
-      setError("Could not connect. Please try again.");
+      setError(t("errors.connection"));
     }
   };
 
   return (
     <main className="auth-shell">
       <section className="auth-card">
-        <span className="auth-kicker">Green Home</span>
-        <h1>Create account</h1>
-        <p className="auth-copy">Register your details and access the main page once you're done.</p>
+        <span className="auth-kicker">{t("common.brand")}</span>
+        <h1>{t("auth.createAccountTitle")}</h1>
+        <p className="auth-copy">{t("auth.createAccountCopy")}</p>
         <div className="auth-fields">
           <input
             className="auth-input"
-            placeholder="Username"
+            placeholder={t("common.labels.username")}
             value={username}
             onChange={e => setUsername(e.target.value)}
           />
           <input
             className="auth-input"
-            placeholder="Email"
+            placeholder={t("common.labels.email")}
             type="email"
             value={email}
             onChange={e => setEmail(e.target.value)}
           />
           <input
             className="auth-input"
-            placeholder="Phone"
+            placeholder={t("common.labels.phone")}
             value={phone}
             onChange={e => setPhone(e.target.value)}
           />
           <input
             className="auth-input"
-            placeholder="Password"
+            placeholder={t("common.labels.password")}
             type="password"
             value={password}
             onChange={e => setPassword(e.target.value)}
           />
         </div>
         <div className="auth-actions">
-          <button className="primary-button" onClick={handleRegister}>Register</button>
-          <button className="secondary-button" onClick={showLogin}>Back to login</button>
+          <button className="primary-button" onClick={handleRegister}>{t("common.actions.register")}</button>
+          <button className="secondary-button" onClick={showLogin}>{t("common.actions.backToLogin")}</button>
         </div>
         {error && <p className="auth-error">{error}</p>}
       </section>
