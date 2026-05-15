@@ -86,7 +86,6 @@ export default function PurchaseHistory({ userId }) {
       Object.values(pollingIntervals).forEach((interval) => clearInterval(interval));
     };
   }, [pollingIntervals]);
-
   const getStatusColor = (status) => {
     switch (status) {
       case "PROCESSING":

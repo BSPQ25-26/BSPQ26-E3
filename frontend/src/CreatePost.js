@@ -127,13 +127,13 @@ export default function CreatePost({ userId, onClose, onPostCreated }) {
 
       const itemData = {
         title: formData.title,
-        content: formData.description,
+        description: formData.description,
         amount: parseFloat(formData.amount),
         quantity: parseInt(formData.quantity, 10),
         category: {
           name: formData.category,
         },
-        isPublic: formData.status,
+        status: formData.status,
         imagen: imageUrl || "",
       };
 
