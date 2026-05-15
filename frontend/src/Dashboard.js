@@ -340,7 +340,7 @@ export default function Dashboard({ user, onLogout }) {
               </select>
             </div>
 
-            <div className="plants-grid">
+            <div className="plants-grid" data-testid="plants-grid">
               {loading ? (
                 <p className="auth-error">{t("dashboard.loadingPlants")}</p>
               ) : error ? (
