@@ -59,7 +59,7 @@ describe('Dashboard', () => {
     render(<Dashboard user={mockUser} onLogout={jest.fn()} />);
 
     await screen.findAllByText('Fern');
-    const grid = document.querySelector('.plants-grid');
+    const grid = screen.getByTestId('plants-grid');
     expect(within(grid).getByText('Fern')).toBeInTheDocument();
     expect(within(grid).getByText('Cactus')).toBeInTheDocument();
   });
@@ -91,7 +91,7 @@ describe('Dashboard', () => {
       target: { value: 'fern' },
     });
 
-    const grid = document.querySelector('.plants-grid');
+    const grid = screen.getByTestId('plants-grid');
     expect(within(grid).getByText('Fern')).toBeInTheDocument();
     expect(within(grid).queryByText('Cactus')).not.toBeInTheDocument();
   });
@@ -108,7 +108,7 @@ describe('Dashboard', () => {
 
     fireEvent.change(screen.getByRole('combobox'), { target: { value: 'Indoor' } });
 
-    const grid = document.querySelector('.plants-grid');
+    const grid = screen.getByTestId('plants-grid');
     expect(within(grid).getByText('Fern')).toBeInTheDocument();
     expect(within(grid).queryByText('Cactus')).not.toBeInTheDocument();
   });
@@ -127,7 +127,7 @@ describe('Dashboard', () => {
       target: { value: 'zzzzz' },
     });
 
-    const grid = document.querySelector('.plants-grid');
+    const grid = screen.getByTestId('plants-grid');
     expect(within(grid).getByText(/No plants match/)).toBeInTheDocument();
   });
 
