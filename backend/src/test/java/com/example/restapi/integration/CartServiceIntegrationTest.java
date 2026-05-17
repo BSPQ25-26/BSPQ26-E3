@@ -47,6 +47,8 @@ class CartServiceIntegrationTest {
     @Autowired private ReceiptRepository receiptRepository;
     @Autowired private SaleRepository saleRepository;
 
+    private static final Logger log = LoggerFactory.getLogger(CartServiceIntegrationTest.class);
+
     private UUID buyerId;
     private Long itemId;
 
