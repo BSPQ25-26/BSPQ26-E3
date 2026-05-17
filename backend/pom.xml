@@ -30,6 +30,9 @@
 	<properties>
 		<java.version>21</java.version> <server.hostname>127.0.0.1</server.hostname>
 		<server.port>8080</server.port>
+		<selenium.version>4.29.0</selenium.version>
+		<webdrivermanager.version>5.9.2</webdrivermanager.version>
+		<acceptance.baseUrl>http://localhost</acceptance.baseUrl>
 	</properties>
 
 	<dependencies>
@@ -40,6 +43,11 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 
 		<dependency>
@@ -92,6 +100,20 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- Selenium for acceptance tests (activated via -Pacceptance) -->
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-java</artifactId>
+			<version>${selenium.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.github.bonigarcia</groupId>
+			<artifactId>webdrivermanager</artifactId>
+			<version>${webdrivermanager.version}</version>
+			<scope>test</scope>
+		</dependency>
+
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
@@ -113,12 +135,18 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 
-			<!-- Allows jtwig/parboiled reflection needed by JUnitPerf HTML reports on Java 21 -->
+			<!-- Allows jtwig/parboiled reflection needed by JUnitPerf HTML reports on Java 21+.
+			     -Dnet.bytebuddy.experimental=true lets Mockito spy classes on JDKs that ship
+			     ahead of Byte Buddy's officially supported list (e.g. Java 24/25).
+			     Acceptance tests (*AcceptanceTest.java) are excluded by default; run them with -Pacceptance. -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
-					<argLine>@{argLine} --add-opens java.base/java.lang=ALL-UNNAMED</argLine>
+					<argLine>@{argLine} --add-opens java.base/java.lang=ALL-UNNAMED -Dnet.bytebuddy.experimental=true</argLine>
+					<excludes>
+						<exclude>**/*AcceptanceTest.java</exclude>
+					</excludes>
 				</configuration>
 			</plugin>
 
@@ -126,7 +154,7 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.11</version>
+				<version>0.8.13</version>
 				<executions>
 					<execution>
 						<id>prepare-agent</id>
@@ -190,7 +218,7 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.11</version>
+				<version>0.8.13</version>
 				<reportSets>
 					<reportSet>
 						<reports>
@@ -226,4 +254,29 @@
 			</plugin>
 		</plugins>
 	</reporting>
+
+	<profiles>
+		<!-- Selenium acceptance tests. Requires the full stack running (docker compose up -d). -->
+		<profile>
+			<id>acceptance</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<configuration>
+							<argLine>@{argLine} --add-opens java.base/java.lang=ALL-UNNAMED</argLine>
+							<excludes combine.self="override" />
+							<includes>
+								<include>**/*AcceptanceTest.java</include>
+							</includes>
+							<systemPropertyVariables>
+								<acceptance.baseUrl>${acceptance.baseUrl}</acceptance.baseUrl>
+							</systemPropertyVariables>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>

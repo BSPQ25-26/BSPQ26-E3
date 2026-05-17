@@ -82,7 +82,7 @@ export default function PlantDetailsModal({ plantId, userId, onClose, onItemAdde
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content plant-details-modal" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-content plant-details-modal" data-testid="plant-details-modal" onClick={(e) => e.stopPropagation()}>
         {loading ? (
           <p className="auth-error">{t("plantDetails.loading")}</p>
         ) : plantDetails ? (
@@ -133,6 +133,7 @@ export default function PlantDetailsModal({ plantId, userId, onClose, onItemAdde
                   <label htmlFor="quantity">{t("plantDetails.quantityLabel")}</label>
                   <input
                     id="quantity"
+                    data-testid="plant-quantity"
                     type="number"
                     min="1"
                     max={plantDetails.quantity}
@@ -144,6 +145,7 @@ export default function PlantDetailsModal({ plantId, userId, onClose, onItemAdde
 
                 <button
                   className="primary-button"
+                  data-testid="plant-add-to-cart"
                   onClick={handleAddToCart}
                   disabled={addingToCart}
                 >

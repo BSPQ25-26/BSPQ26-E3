@@ -158,13 +158,13 @@ export default function PurchaseHistory({ userId }) {
   }
 
   return (
-    <div className="history-container">
+    <div className="history-container" data-testid="purchase-history">
       <h2>{t("purchaseHistory.title")}</h2>
 
       {error && <div className="history-error">{error}</div>}
 
       {purchases.length === 0 ? (
-        <div className="history-empty">
+        <div className="history-empty" data-testid="purchase-history-empty">
           <p>{t("purchaseHistory.empty")}</p>
         </div>
       ) : (
@@ -206,7 +206,7 @@ export default function PurchaseHistory({ userId }) {
           <div className="receipts-list">
             <h3>{t("purchaseHistory.recentOrders")}</h3>
             {purchases.map((purchase) => (
-              <div key={purchase.receiptId} className="receipt-card">
+              <div key={purchase.receiptId} className="receipt-card" data-testid="purchase-card">
                 <div className="receipt-card-header">
                   <div className="receipt-info">
                     <p className="receipt-number">{purchase.receiptNumber}</p>

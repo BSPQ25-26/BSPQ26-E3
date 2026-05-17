@@ -63,7 +63,8 @@ public class ReceiptService {
         return receipts.stream()
                 .peek(receipt -> {
                     orderStateService.updateOrderStatus(receipt.getId());
-                    // Force load items within transaction
+                    // updateOrderStatus runs in its own transaction; refresh to see the new state.
+                    entityManager.refresh(receipt);
                     receipt.getItems().size();
                 })
                 .map(this::toResponse)
@@ -74,9 +75,9 @@ public class ReceiptService {
     public ReceiptResponse getReceiptById(Long receiptId) {
         Receipt receipt = receiptRepository.findById(receiptId)
                 .orElseThrow(() -> new RuntimeException("Receipt not found"));
-        // Update status based on elapsed time before returning
         orderStateService.updateOrderStatus(receiptId);
-        // Force load items within transaction
+        // updateOrderStatus runs in its own transaction; refresh to see the new state.
+        entityManager.refresh(receipt);
         receipt.getItems().size();
         return toResponse(receipt);
     }

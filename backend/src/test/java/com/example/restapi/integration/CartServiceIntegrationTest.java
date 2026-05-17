@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 
 import com.example.restapi.dto.CartRequest;
 import com.example.restapi.dto.CartResponse;
+import com.example.restapi.dto.PaymentRequest;
 import com.example.restapi.model.Category;
 import com.example.restapi.model.Item;
 import com.example.restapi.model.Profile;
@@ -23,6 +24,8 @@ import com.example.restapi.repository.CartRepository;
 import com.example.restapi.repository.CategoryRepository;
 import com.example.restapi.repository.ItemRepository;
 import com.example.restapi.repository.ProfileRepository;
+import com.example.restapi.repository.ReceiptRepository;
+import com.example.restapi.repository.SaleRepository;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,17 +44,15 @@ class CartServiceIntegrationTest {
     @Autowired private CartItemRepository cartItemRepository;
     @Autowired private CartRepository cartRepository;
     @Autowired private CategoryRepository categoryRepository;
-    @Autowired private com.example.restapi.repository.ReceiptRepository receiptRepository;
-    @Autowired private com.example.restapi.repository.SaleRepository saleRepository;
-
-    private static final Logger log = LoggerFactory.getLogger(CartServiceIntegrationTest.class);
+    @Autowired private ReceiptRepository receiptRepository;
+    @Autowired private SaleRepository saleRepository;
 
     private UUID buyerId;
     private Long itemId;
 
     @BeforeEach
     void setUp() {
-        // Clean up in safe order: sales → receipts → cart_items → carts → items → profiles → categories
+        // Clean up FK-dependents first: sales/receipts → cart_items → carts → items → profiles → categories
         saleRepository.deleteAll();
         receiptRepository.deleteAll();
         cartItemRepository.deleteAll();
@@ -110,23 +111,28 @@ class CartServiceIntegrationTest {
         assertEquals(200, getResponse.getStatusCode().value());
         assertNotNull(getResponse.getBody());
 
-        // Step 3: Checkout
-        com.example.restapi.dto.PaymentRequest paymentRequest = new com.example.restapi.dto.PaymentRequest();
-        paymentRequest.setCardNumber("1234-5678-9012-3456");
-        paymentRequest.setExpiryDate("12/25");
-        paymentRequest.setCvv("123");
-        paymentRequest.setCardHolder("John Doe");
-
-        ResponseEntity<com.example.restapi.dto.ReceiptResponse> checkoutResponse = restTemplate.postForEntity(
-            "/api/carts/" + buyerId + "/checkout",
-            paymentRequest,
-            com.example.restapi.dto.ReceiptResponse.class
-        );
+        // Step 3: Checkout. PaymentService rejects ~10% of payments at random, so retry
+        // a few times to keep the test deterministic (failure rate becomes negligible).
+        PaymentRequest payment = new PaymentRequest("4111111111111111", "Test Buyer", "12/30", "123");
+        ResponseEntity<CartResponse> checkoutResponse = null;
+        for (int attempt = 0; attempt < 5; attempt++) {
+            checkoutResponse = restTemplate.postForEntity(
+                "/api/carts/" + buyerId + "/checkout",
+                payment,
+                CartResponse.class
+            );
+            if (checkoutResponse.getStatusCode().value() == 200) {
+                break;
+            }
+        }
 
         assertEquals(200, checkoutResponse.getStatusCode().value());
-        assertNotNull(checkoutResponse.getBody());
-        assertEquals(1, checkoutResponse.getBody().getItems().size());
-        log.info("testAddItemAndCheckout passed: checkout completed for buyerId={}", buyerId);
+
+        // The cart should be empty after a successful checkout.
+        ResponseEntity<CartResponse> afterCheckout = restTemplate.getForEntity(
+            "/api/carts/" + buyerId, CartResponse.class);
+        assertNotNull(afterCheckout.getBody());
+        assertTrue(afterCheckout.getBody().getItems().isEmpty());
     }
 
     @Test
