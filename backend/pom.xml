@@ -135,13 +135,15 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 
-			<!-- Allows jtwig/parboiled reflection needed by JUnitPerf HTML reports on Java 21.
+			<!-- Allows jtwig/parboiled reflection needed by JUnitPerf HTML reports on Java 21+.
+			     -Dnet.bytebuddy.experimental=true lets Mockito spy classes on JDKs that ship
+			     ahead of Byte Buddy's officially supported list (e.g. Java 24/25).
 			     Acceptance tests (*AcceptanceTest.java) are excluded by default; run them with -Pacceptance. -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
-					<argLine>@{argLine} --add-opens java.base/java.lang=ALL-UNNAMED</argLine>
+					<argLine>@{argLine} --add-opens java.base/java.lang=ALL-UNNAMED -Dnet.bytebuddy.experimental=true</argLine>
 					<excludes>
 						<exclude>**/*AcceptanceTest.java</exclude>
 					</excludes>
@@ -152,7 +154,7 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.11</version>
+				<version>0.8.13</version>
 				<executions>
 					<execution>
 						<id>prepare-agent</id>
@@ -216,7 +218,7 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.11</version>
+				<version>0.8.13</version>
 				<reportSets>
 					<reportSet>
 						<reports>
