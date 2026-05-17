@@ -3,7 +3,7 @@ import { useI18n } from "./i18n/I18nContext";
 
 const BUCKET_NAME = "plants";
 
-export default function CreatePost({ userId, onClose, onPostCreated }) {
+export default function CreateItem({ userId, onClose, onItemCreated }) {
   const { t, translateCategory, translateError } = useI18n();
   const [formData, setFormData] = useState({
     title: "",
@@ -152,8 +152,8 @@ export default function CreatePost({ userId, onClose, onPostCreated }) {
       }
 
       setSuccess(true);
-      if (onPostCreated) {
-        onPostCreated();
+      if (onItemCreated) {
+        onItemCreated();
       }
 
       setTimeout(() => {
@@ -170,29 +170,29 @@ export default function CreatePost({ userId, onClose, onPostCreated }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div
-        className="modal-content create-post-modal"
+        className="modal-content create-item-modal"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           className="modal-close-button"
           onClick={onClose}
-          aria-label={t("createPost.closeAria")}
+          aria-label={t("createItem.closeAria")}
         >
           X
         </button>
 
         <div className="modal-header">
-          <h2>{t("createPost.title")}</h2>
-          <p className="form-subtitle">{t("createPost.subtitle")}</p>
+          <h2>{t("createItem.title")}</h2>
+          <p className="form-subtitle">{t("createItem.subtitle")}</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="create-post-form">
+        <form onSubmit={handleSubmit} className="create-item-form">
           <div className="form-section">
-            <h3>{t("createPost.imageSection")}</h3>
+            <h3>{t("createItem.imageSection")}</h3>
             <div className="image-upload-area">
               {imagePreview ? (
                 <div className="image-preview-container">
-                  <img src={imagePreview} alt={t("createPost.imagePreviewAlt")} />
+                  <img src={imagePreview} alt={t("createItem.imagePreviewAlt")} />
                   <button
                     type="button"
                     className="change-image-button"
@@ -209,7 +209,7 @@ export default function CreatePost({ userId, onClose, onPostCreated }) {
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5.04-6.71l-2.75-3.54-4.04 5.25h12l-3.21-4.21z" />
                   </svg>
-                  <p>{t("createPost.uploadPrompt")}</p>
+                  <p>{t("createItem.uploadPrompt")}</p>
                   <input
                     type="file"
                     accept="image/*"
@@ -222,10 +222,10 @@ export default function CreatePost({ userId, onClose, onPostCreated }) {
           </div>
 
           <div className="form-section">
-            <h3>{t("createPost.detailsSection")}</h3>
+            <h3>{t("createItem.detailsSection")}</h3>
 
             <div className="form-group">
-              <label htmlFor="title">{t("createPost.titleLabel")}</label>
+              <label htmlFor="title">{t("createItem.titleLabel")}</label>
               <input
                 id="title"
                 type="text"
@@ -233,20 +233,20 @@ export default function CreatePost({ userId, onClose, onPostCreated }) {
                 className="auth-input"
                 value={formData.title}
                 onChange={handleInputChange}
-                placeholder={t("createPost.titlePlaceholder")}
+                placeholder={t("createItem.titlePlaceholder")}
                 disabled={loading}
               />
             </div>
 
             <div className="form-group">
-              <label htmlFor="description">{t("createPost.descriptionLabel")}</label>
+              <label htmlFor="description">{t("createItem.descriptionLabel")}</label>
               <textarea
                 id="description"
                 name="description"
                 className="auth-input form-textarea"
                 value={formData.description}
                 onChange={handleInputChange}
-                placeholder={t("createPost.descriptionPlaceholder")}
+                placeholder={t("createItem.descriptionPlaceholder")}
                 rows="3"
                 disabled={loading}
               />
@@ -254,7 +254,7 @@ export default function CreatePost({ userId, onClose, onPostCreated }) {
 
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="amount">{t("createPost.priceLabel")}</label>
+                <label htmlFor="amount">{t("createItem.priceLabel")}</label>
                 <input
                   id="amount"
                   type="number"
@@ -262,7 +262,7 @@ export default function CreatePost({ userId, onClose, onPostCreated }) {
                   className="auth-input"
                   value={formData.amount}
                   onChange={handleInputChange}
-                  placeholder={t("createPost.amountPlaceholder")}
+                  placeholder={t("createItem.amountPlaceholder")}
                   step="0.01"
                   min="0"
                   disabled={loading}
@@ -270,7 +270,7 @@ export default function CreatePost({ userId, onClose, onPostCreated }) {
               </div>
 
               <div className="form-group">
-                <label htmlFor="quantity">{t("createPost.quantityLabel")}</label>
+                <label htmlFor="quantity">{t("createItem.quantityLabel")}</label>
                 <input
                   id="quantity"
                   type="number"
@@ -278,7 +278,7 @@ export default function CreatePost({ userId, onClose, onPostCreated }) {
                   className="auth-input"
                   value={formData.quantity}
                   onChange={handleInputChange}
-                  placeholder={t("createPost.quantityPlaceholder")}
+                  placeholder={t("createItem.quantityPlaceholder")}
                   min="1"
                   disabled={loading}
                 />
@@ -287,7 +287,7 @@ export default function CreatePost({ userId, onClose, onPostCreated }) {
 
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="category">{t("createPost.categoryLabel")}</label>
+                <label htmlFor="category">{t("createItem.categoryLabel")}</label>
                 <select
                   id="category"
                   name="category"
@@ -313,7 +313,7 @@ export default function CreatePost({ userId, onClose, onPostCreated }) {
                     onChange={handleInputChange}
                     disabled={loading}
                   />
-                  {t("createPost.statusLabel")}
+                  {t("createItem.statusLabel")}
                 </label>
               </div>
             </div>
@@ -322,7 +322,7 @@ export default function CreatePost({ userId, onClose, onPostCreated }) {
           {error && <div className="auth-error">{error}</div>}
           {success && (
             <div className="auth-notice">
-              {t("createPost.success")}
+              {t("createItem.success")}
             </div>
           )}
         </form>
@@ -346,7 +346,7 @@ export default function CreatePost({ userId, onClose, onPostCreated }) {
               ? t("common.actions.creating")
               : uploadingImage
                 ? t("common.actions.uploadImage")
-                : t("common.actions.createPost")}
+                : t("common.actions.createItem")}
           </button>
         </div>
       </div>
