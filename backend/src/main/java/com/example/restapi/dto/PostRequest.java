@@ -1,26 +1,25 @@
 package com.example.restapi.dto;
 
-import com.example.restapi.model.Category;
-import lombok.Getter;
-import lombok.Setter;
-
-import java.util.List;
 import java.util.UUID;
 
-@Getter
-@Setter
 public class PostRequest {
 
     private UUID authorId;
     private String title;
     private String content;
-    private List<Category> categories;
+    private Long categoryId;
 
-    public PostRequest (UUID authorId, String title, String content, List<Category> categories) {
-        this.authorId = authorId;
-        this.title = title;
-        this.content = content;
-        this.categories = categories;
-    }
+    public PostRequest() {}
 
+    public UUID getAuthorId() { return authorId; }
+    public void setAuthorId(UUID authorId) { this.authorId = authorId; }
+
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+
+    public String getContent() { return content; }
+    public void setContent(String content) { this.content = content; }
+
+    public Long getCategoryId() { return categoryId; }
+    public void setCategoryId(Long categoryId) { this.categoryId = categoryId; }
 }

@@ -16,12 +16,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import com.example.restapi.dto.PostResponse;
 import com.example.restapi.model.Post;
 import com.example.restapi.repository.PostRepository;
-import com.example.restapi.repository.ProfileRepository;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import jakarta.persistence.EntityManager;
 
 @DisplayName("PostService Tests")
 class PostServiceTest {
@@ -32,7 +34,7 @@ class PostServiceTest {
     private PostRepository postRepository;
 
     @Mock
-    private ProfileRepository profileRepository;
+    private EntityManager entityManager;
 
     @InjectMocks
     private PostService postService;
@@ -46,7 +48,6 @@ class PostServiceTest {
         testPost.setId(1L);
         testPost.setTitle("Test Title");
         testPost.setContent("Test Content");
-        testPost.setIsPublic(true);
     }
 
     @Nested
@@ -56,25 +57,25 @@ class PostServiceTest {
         @Test
         @DisplayName("should return all posts")
         void testGetAllPosts() {
-            when(postRepository.findAll()).thenReturn(List.of(testPost));
+            when(postRepository.findAllByOrderByCreatedAtDescIdDesc()).thenReturn(List.of(testPost));
 
-            List<Post> result = postService.getAllPosts();
+            List<PostResponse> result = postService.getAllPosts();
 
             assertEquals(1, result.size());
             assertEquals("Test Title", result.get(0).getTitle());
-            verify(postRepository).findAll();
+            verify(postRepository).findAllByOrderByCreatedAtDescIdDesc();
             log.info("testGetAllPosts passed: returned {} post(s)", result.size());
         }
 
         @Test
         @DisplayName("should return empty list when no posts exist")
         void testGetAllPostsEmpty() {
-            when(postRepository.findAll()).thenReturn(List.of());
+            when(postRepository.findAllByOrderByCreatedAtDescIdDesc()).thenReturn(List.of());
 
-            List<Post> result = postService.getAllPosts();
+            List<PostResponse> result = postService.getAllPosts();
 
             assertTrue(result.isEmpty());
-            verify(postRepository).findAll();
+            verify(postRepository).findAllByOrderByCreatedAtDescIdDesc();
         }
     }
 
@@ -87,7 +88,7 @@ class PostServiceTest {
         void testGetPostByIdFound() {
             when(postRepository.findById(1L)).thenReturn(Optional.of(testPost));
 
-            Post result = postService.getPostById(1L);
+            PostResponse result = postService.getPostById(1L);
 
             assertNotNull(result);
             assertEquals("Test Title", result.getTitle());
@@ -114,12 +115,22 @@ class PostServiceTest {
         void testCreatePost() {
             when(postRepository.save(any(Post.class))).thenReturn(testPost);
 
-            Post result = postService.createPost(testPost);
+            PostResponse result = postService.createPost(testPost);
 
             assertNotNull(result);
             assertEquals("Test Title", result.getTitle());
             verify(postRepository).save(testPost);
             log.info("testCreatePost passed: created post id={}", result.getId());
+        }
+
+        @Test
+        @DisplayName("should reject blank title")
+        void testCreatePostBlankTitle() {
+            Post empty = new Post();
+            empty.setTitle("  ");
+
+            assertThrows(IllegalArgumentException.class, () -> postService.createPost(empty));
+            verify(postRepository, never()).save(any());
         }
     }
 
@@ -157,7 +168,7 @@ class PostServiceTest {
             when(postRepository.findById(1L)).thenReturn(Optional.of(testPost));
             when(postRepository.save(any(Post.class))).thenReturn(testPost);
 
-            Post result = postService.updatePost(1L, Map.of("title", "New Title"));
+            PostResponse result = postService.updatePost(1L, Map.of("title", "New Title"));
 
             assertNotNull(result);
             verify(postRepository).findById(1L);
@@ -171,19 +182,19 @@ class PostServiceTest {
             when(postRepository.findById(1L)).thenReturn(Optional.of(testPost));
             when(postRepository.save(any(Post.class))).thenReturn(testPost);
 
-            Post result = postService.updatePost(1L, Map.of("content", "New Content"));
+            PostResponse result = postService.updatePost(1L, Map.of("content", "New Content"));
 
             assertNotNull(result);
             verify(postRepository, atLeastOnce()).save(any(Post.class));
         }
 
         @Test
-        @DisplayName("should update isPublic")
-        void testUpdatePostIsPublic() {
+        @DisplayName("should update category")
+        void testUpdatePostCategory() {
             when(postRepository.findById(1L)).thenReturn(Optional.of(testPost));
             when(postRepository.save(any(Post.class))).thenReturn(testPost);
 
-            Post result = postService.updatePost(1L, Map.of("isPublic", false));
+            PostResponse result = postService.updatePost(1L, Map.of("categoryId", 2));
 
             assertNotNull(result);
             verify(postRepository, atLeastOnce()).save(any(Post.class));

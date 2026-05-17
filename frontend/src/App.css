@@ -579,7 +579,7 @@
 
 /* ============ CREATE POST MODAL ============ */
 
-.create-post-modal {
+.create-item-modal {
   padding: 0;
 }
 
@@ -610,7 +610,7 @@
 }
 
 /* Form - Scrollable */
-.create-post-form {
+.create-item-form {
   flex: 1;
   overflow-y: auto;
   padding: 0 24px;
@@ -618,20 +618,20 @@
   gap: 18px;
 }
 
-.create-post-form::-webkit-scrollbar {
+.create-item-form::-webkit-scrollbar {
   width: 6px;
 }
 
-.create-post-form::-webkit-scrollbar-track {
+.create-item-form::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.create-post-form::-webkit-scrollbar-thumb {
+.create-item-form::-webkit-scrollbar-thumb {
   background: rgba(47, 106, 59, 0.2);
   border-radius: 3px;
 }
 
-.create-post-form::-webkit-scrollbar-thumb:hover {
+.create-item-form::-webkit-scrollbar-thumb:hover {
   background: rgba(47, 106, 59, 0.4);
 }
 
@@ -815,7 +815,7 @@
 }
 
 /* Create Post Button in Header */
-.create-post-button {
+.create-item-button {
   display: grid;
   place-items: center;
   width: 58px;
@@ -832,12 +832,12 @@
   line-height: 1;
 }
 
-.create-post-button:hover {
+.create-item-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 18px 36px rgba(47, 106, 59, 0.32);
 }
 
-.create-post-button:active {
+.create-item-button:active {
   transform: translateY(0);
 }
 
@@ -1240,4 +1240,77 @@
     padding: 8px 12px;
     font-size: 0.85rem;
   }
+}
+
+/* Forum / community */
+.forum-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 16px 0;
+}
+
+.forum-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.forum-feed {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.forum-post-card {
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.forum-post-card:hover,
+.forum-post-card:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  outline: none;
+}
+
+.forum-post-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: #6b7a64;
+  margin-bottom: 6px;
+}
+
+.forum-post-author {
+  font-weight: 600;
+}
+
+.forum-post-snippet {
+  margin: 8px 0 0 0;
+  color: #4d5a48;
+}
+
+.post-details header {
+  margin-bottom: 16px;
+}
+
+.post-meta {
+  font-size: 0.9rem;
+  color: #6b7a64;
+  margin: 6px 0 0 0;
+}
+
+.post-body {
+  white-space: pre-wrap;
+  line-height: 1.55;
+}
+
+.post-comments {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8db;
 }
