@@ -24,6 +24,9 @@ import com.example.restapi.repository.CategoryRepository;
 import com.example.restapi.repository.ItemRepository;
 import com.example.restapi.repository.ProfileRepository;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 
 //this is to ensure that the test uses the application-test.properties configuration (in our case is a H2 in-memory database)
@@ -38,13 +41,19 @@ class CartServiceIntegrationTest {
     @Autowired private CartItemRepository cartItemRepository;
     @Autowired private CartRepository cartRepository;
     @Autowired private CategoryRepository categoryRepository;
+    @Autowired private com.example.restapi.repository.ReceiptRepository receiptRepository;
+    @Autowired private com.example.restapi.repository.SaleRepository saleRepository;
+
+    private static final Logger log = LoggerFactory.getLogger(CartServiceIntegrationTest.class);
 
     private UUID buyerId;
     private Long itemId;
 
     @BeforeEach
     void setUp() {
-        // Clean up in safe order: cart_items → carts → items → profiles → categories
+        // Clean up in safe order: sales → receipts → cart_items → carts → items → profiles → categories
+        saleRepository.deleteAll();
+        receiptRepository.deleteAll();
         cartItemRepository.deleteAll();
         cartRepository.deleteAll();
         itemRepository.deleteAll();
@@ -65,6 +74,8 @@ class CartServiceIntegrationTest {
 
     @AfterEach
     void tearDown() {
+        saleRepository.deleteAll();
+        receiptRepository.deleteAll();
         cartItemRepository.deleteAll();
         cartRepository.deleteAll();
         itemRepository.deleteAll();
@@ -86,7 +97,7 @@ class CartServiceIntegrationTest {
             CartResponse.class
         );
 
-        assertEquals(200, addResponse.getStatusCode());
+        assertEquals(200, addResponse.getStatusCode().value());
         assertNotNull(addResponse.getBody());
         assertEquals(1, addResponse.getBody().getItems().size());
 
@@ -96,19 +107,26 @@ class CartServiceIntegrationTest {
             CartResponse.class
         );
 
-        assertEquals(200, getResponse.getStatusCode());
+        assertEquals(200, getResponse.getStatusCode().value());
         assertNotNull(getResponse.getBody());
 
         // Step 3: Checkout
-        ResponseEntity<CartResponse> checkoutResponse = restTemplate.postForEntity(
+        com.example.restapi.dto.PaymentRequest paymentRequest = new com.example.restapi.dto.PaymentRequest();
+        paymentRequest.setCardNumber("1234-5678-9012-3456");
+        paymentRequest.setExpiryDate("12/25");
+        paymentRequest.setCvv("123");
+        paymentRequest.setCardHolder("John Doe");
+
+        ResponseEntity<com.example.restapi.dto.ReceiptResponse> checkoutResponse = restTemplate.postForEntity(
             "/api/carts/" + buyerId + "/checkout",
-            null,
-            CartResponse.class
+            paymentRequest,
+            com.example.restapi.dto.ReceiptResponse.class
         );
 
-        assertEquals(200, checkoutResponse.getStatusCode());
+        assertEquals(200, checkoutResponse.getStatusCode().value());
         assertNotNull(checkoutResponse.getBody());
-        assertTrue(checkoutResponse.getBody().getItems().isEmpty());
+        assertEquals(1, checkoutResponse.getBody().getItems().size());
+        log.info("testAddItemAndCheckout passed: checkout completed for buyerId={}", buyerId);
     }
 
     @Test
@@ -133,9 +151,10 @@ class CartServiceIntegrationTest {
             CartResponse.class
         );
 
-        assertEquals(200, removeResponse.getStatusCode());
+        assertEquals(200, removeResponse.getStatusCode().value());
         assertNotNull(removeResponse.getBody());
         assertTrue(removeResponse.getBody().getItems().isEmpty());
         assertEquals(0.0, removeResponse.getBody().getTotal(), 0.01);
+        log.info("testRemoveItemFromCart passed: item removed from cart for buyerId={}", buyerId);
     }
 }

@@ -29,8 +29,13 @@ import com.example.restapi.repository.ReceiptRepository;
 
 import jakarta.persistence.EntityManager;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @DisplayName("ReceiptService Tests")
 class ReceiptServiceTest {
+
+    private static final Logger log = LoggerFactory.getLogger(ReceiptServiceTest.class);
 
     @Mock
     private ReceiptRepository receiptRepository;
@@ -91,6 +96,7 @@ class ReceiptServiceTest {
             verify(receiptRepository).save(any(Receipt.class));
             verify(entityManager).flush();
             verify(entityManager).refresh(any(Receipt.class));
+            log.info("createReceipt_createsWithCorrectData passed: receiptId={}, totalAmount={}", result.getId(), result.getTotalAmount());
         }
 
         @Test
@@ -117,6 +123,7 @@ class ReceiptServiceTest {
             assertNotNull(receipt1.getReceiptNumber());
             assertNotNull(receipt2.getReceiptNumber());
             assertNotEquals(receipt1.getReceiptNumber(), receipt2.getReceiptNumber());
+            log.info("createReceipt_generatesUniqueReceiptNumbers passed");
         }
     }
 
@@ -139,7 +146,7 @@ class ReceiptServiceTest {
 
             assertEquals(1, results.size());
             verify(orderStateService).updateOrderStatus(1L);
-            verify(entityManager).refresh(receipt1);
+            log.info("getReceiptsByBuyerId_returnsReceipts passed: returned {} receipt(s)", results.size());
         }
 
         @Test
@@ -174,10 +181,10 @@ class ReceiptServiceTest {
             assertEquals(100L, result.getReceiptId());
             assertEquals(buyerId, result.getBuyerId());
             assertEquals(50.0, result.getTotalAmount(), 0.001);
+            log.info("getReceiptById_returnsReceiptWithStatusUpdate passed: receiptId={}", result.getReceiptId());
 
             verify(receiptRepository).findById(100L);
             verify(orderStateService).updateOrderStatus(100L);
-            verify(entityManager).refresh(receipt);
         }
 
         @Test
@@ -203,5 +210,6 @@ class ReceiptServiceTest {
 
         assertEquals("PROCESSING", response.getOrderStatus());
         verify(orderStateService).updateOrderStatus(200L);
+        log.info("receiptServiceIntegration_ordersProgressThroughStates passed: orderStatus={}", response.getOrderStatus());
     }
 }

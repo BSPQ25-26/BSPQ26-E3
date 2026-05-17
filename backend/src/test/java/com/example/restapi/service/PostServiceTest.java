@@ -20,8 +20,13 @@ import com.example.restapi.model.Post;
 import com.example.restapi.repository.PostRepository;
 import com.example.restapi.repository.ProfileRepository;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @DisplayName("PostService Tests")
 class PostServiceTest {
+
+    private static final Logger log = LoggerFactory.getLogger(PostServiceTest.class);
 
     @Mock
     private PostRepository postRepository;
@@ -58,6 +63,7 @@ class PostServiceTest {
             assertEquals(1, result.size());
             assertEquals("Test Title", result.get(0).getTitle());
             verify(postRepository).findAll();
+            log.info("testGetAllPosts passed: returned {} post(s)", result.size());
         }
 
         @Test
@@ -86,6 +92,7 @@ class PostServiceTest {
             assertNotNull(result);
             assertEquals("Test Title", result.getTitle());
             verify(postRepository).findById(1L);
+            log.info("testGetPostByIdFound passed: title='{}'", result.getTitle());
         }
 
         @Test
@@ -112,6 +119,7 @@ class PostServiceTest {
             assertNotNull(result);
             assertEquals("Test Title", result.getTitle());
             verify(postRepository).save(testPost);
+            log.info("testCreatePost passed: created post id={}", result.getId());
         }
     }
 
@@ -126,6 +134,7 @@ class PostServiceTest {
 
             assertDoesNotThrow(() -> postService.deletePost(1L));
             verify(postRepository).deleteById(1L);
+            log.info("testDeletePostSuccess passed");
         }
 
         @Test
@@ -153,6 +162,7 @@ class PostServiceTest {
             assertNotNull(result);
             verify(postRepository).findById(1L);
             verify(postRepository, atLeastOnce()).save(any(Post.class));
+            log.info("testUpdatePostTitle passed");
         }
 
         @Test

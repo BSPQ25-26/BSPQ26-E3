@@ -21,7 +21,12 @@ import com.github.noconnor.junitperf.JUnitPerfTest;
 import com.github.noconnor.junitperf.JUnitPerfTestRequirement;
 import com.github.noconnor.junitperf.reporting.providers.HtmlReportGenerator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class PerformanceTest {
+
+    private static final Logger log = LoggerFactory.getLogger(PerformanceTest.class);
 
     @Rule
     public JUnitPerfRule perfTestRule = new JUnitPerfRule(new HtmlReportGenerator("perf-reports/report.html"));
@@ -67,6 +72,7 @@ public class PerformanceTest {
     @JUnitPerfTestRequirement(maxLatency = 500, meanLatency = 100)
     public void testGetAllItems_invocationsAndThreads() {
         itemService.getAllItems();
+        log.info("testGetAllItems_invocationsAndThreads completed");
     }
 
     // SUCCESS: throughput - how many operations the system can complete per second?
@@ -96,6 +102,7 @@ public class PerformanceTest {
     @JUnitPerfTestRequirement(maxLatency = 500, meanLatency = 100, executionsPerSec = 10)
     public void testGetAllUsers_invocationsAndThreads() {
         appUserService.getAllUsers();
+        log.info("testGetAllUsers_invocationsAndThreads completed");
     }
 
     // SUCCESS: duration test on AppUserService
