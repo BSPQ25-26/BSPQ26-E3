@@ -295,7 +295,9 @@ export default function Dashboard({ user, onLogout }) {
 
       <section className="andoni-catalogue">
         <div className="catalogue-header">
-          <h2 className="catalogue-title">{t("dashboard.catalogueTitle")}</h2>
+          {dashboardTab === "shop" && (
+            <h2 className="catalogue-title">{t("dashboard.catalogueTitle")}</h2>
+          )}
           <div className="dashboard-tabs">
             <button
               className={`tab-button${dashboardTab === "shop" ? " active" : ""}`}

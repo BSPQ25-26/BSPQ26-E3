@@ -1259,8 +1259,8 @@
 
 .forum-feed {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
 }
 
 .forum-post-card {
@@ -1313,4 +1313,50 @@
   margin-top: 24px;
   padding-top: 16px;
   border-top: 1px solid #e2e8db;
+}
+
+/* Post details modal — narrow text-first dialog (default modal width is fine). */
+.post-details-modal {
+  padding: 20px 28px 28px;
+  overflow-y: auto;
+}
+
+.post-details-modal h2 {
+  font-size: 1.6rem;
+  margin: 4px 0 0 0;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.post-details-loading {
+  text-align: center;
+  color: var(--text-soft);
+  padding: 32px 0;
+  margin: 0;
+}
+
+.forum-comments-placeholder {
+  color: var(--text-soft);
+  font-style: italic;
+  margin: 8px 0 0 0;
+}
+
+/* Create-forum-post modal — short form, no image upload, compact sizing. */
+.create-forum-post-modal {
+  padding: 0;
+  overflow-y: auto;
+}
+
+/* Override Checkout.css's global .modal-header which lays out as
+   horizontal flex — for stacked title + subtitle we need vertical. */
+.create-forum-post-modal .modal-header,
+.post-details-modal .modal-header {
+  display: block;
+  border-bottom: none;
+  padding: 16px 24px 8px;
+}
+
+.create-forum-post-form {
+  padding: 0 24px;
+  display: grid;
+  gap: 16px;
 }
