@@ -65,7 +65,7 @@ export default function CreateForumPost({ userId, onClose, onPostCreated }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div
-        className="modal-content create-item-modal"
+        className="modal-content create-forum-post-modal"
         data-testid="create-forum-post-modal"
         onClick={(e) => e.stopPropagation()}
       >
@@ -82,7 +82,7 @@ export default function CreateForumPost({ userId, onClose, onPostCreated }) {
           <p className="form-subtitle">{t("forum.createPost.subtitle")}</p>
         </div>
 
-        <form className="create-item-form" onSubmit={handleSubmit}>
+        <form className="create-forum-post-form" onSubmit={handleSubmit}>
           <div className="form-section">
             <div className="form-group">
               <label htmlFor="forum-post-title">{t("forum.createPost.titleLabel")}</label>

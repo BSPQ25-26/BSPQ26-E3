@@ -32,7 +32,7 @@ export default function PostDetailsModal({ postId, onClose }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div
-        className="modal-content plant-details-modal"
+        className="modal-content post-details-modal"
         data-testid="post-details-modal"
         onClick={(e) => e.stopPropagation()}
       >
@@ -45,7 +45,7 @@ export default function PostDetailsModal({ postId, onClose }) {
         </button>
 
         {loading ? (
-          <p className="auth-error">{t("forum.postDetails.loading")}</p>
+          <p className="post-details-loading">{t("forum.postDetails.loading")}</p>
         ) : error ? (
           <p className="auth-error">{error}</p>
         ) : post ? (
@@ -83,7 +83,7 @@ export default function PostDetailsModal({ postId, onClose }) {
               data-post-id={post.id}
             >
               <h3>{t("forum.postDetails.commentsTitle")}</h3>
-              <p className="auth-error">{t("forum.postDetails.commentsPlaceholder")}</p>
+              <p className="forum-comments-placeholder">{t("forum.postDetails.commentsPlaceholder")}</p>
             </section>
           </article>
         ) : null}
