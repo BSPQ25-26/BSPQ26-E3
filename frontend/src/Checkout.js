@@ -98,7 +98,7 @@ export default function Checkout({ userId, cartTotal, onCheckoutSuccess, onCance
 
   return (
     <div className="checkout-overlay">
-      <div className="checkout-modal">
+      <div className="checkout-modal" data-testid="checkout-modal">
         <div className="checkout-header">
           <h2>{t("checkout.title")}</h2>
           <button
@@ -124,6 +124,7 @@ export default function Checkout({ userId, cartTotal, onCheckoutSuccess, onCance
               type="text"
               id="cardNumber"
               name="cardNumber"
+              data-testid="checkout-card-number"
               placeholder="1234 5678 9012 3456"
               value={formData.cardNumber}
               onChange={handleInputChange}
@@ -139,6 +140,7 @@ export default function Checkout({ userId, cartTotal, onCheckoutSuccess, onCance
               type="text"
               id="cardHolder"
               name="cardHolder"
+              data-testid="checkout-card-holder"
               placeholder="Aretx Oca"
               value={formData.cardHolder}
               onChange={handleInputChange}
@@ -154,6 +156,7 @@ export default function Checkout({ userId, cartTotal, onCheckoutSuccess, onCance
                 type="text"
                 id="expiryDate"
                 name="expiryDate"
+                data-testid="checkout-expiry"
                 placeholder="MM/YY"
                 value={formData.expiryDate}
                 onChange={handleInputChange}
@@ -169,6 +172,7 @@ export default function Checkout({ userId, cartTotal, onCheckoutSuccess, onCance
                 type="text"
                 id="cvv"
                 name="cvv"
+                data-testid="checkout-cvv"
                 placeholder="123"
                 value={formData.cvv}
                 onChange={handleInputChange}
@@ -195,6 +199,7 @@ export default function Checkout({ userId, cartTotal, onCheckoutSuccess, onCance
             <button
               type="submit"
               className="primary-button"
+              data-testid="checkout-submit"
               disabled={loading}
             >
               {loading ? t("common.actions.processing") : t("common.actions.completePayment")}

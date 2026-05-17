@@ -86,7 +86,7 @@ export default function Cart({ userId, onClose, onCartLoad }) {
 
   return (
     <>
-      <aside className="cart-sidebar">
+      <aside className="cart-sidebar" data-testid="cart-sidebar">
         <div className="cart-header">
           <h2>{t("cart.title")}</h2>
           <button
@@ -128,9 +128,9 @@ export default function Cart({ userId, onClose, onCartLoad }) {
             </div>
             <div className="cart-items-container">
               {cartData.items.map((item) => (
-                <div key={item.itemId} className="cart-item">
+                <div key={item.itemId} className="cart-item" data-testid="cart-item">
                   <div className="cart-item-info">
-                    <h4>{item.title}</h4>
+                    <h4 data-testid="cart-item-title">{item.title}</h4>
                     <p className="cart-item-price">{formatCurrency(item.amount)}</p>
                   </div>
                   <div className="cart-item-quantity">
@@ -165,6 +165,7 @@ export default function Cart({ userId, onClose, onCartLoad }) {
 
             <button
               className="primary-button cart-checkout-button"
+              data-testid="cart-checkout"
               onClick={() => setShowCheckout(true)}
               disabled={updating}
             >

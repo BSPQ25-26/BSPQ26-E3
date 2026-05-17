@@ -101,6 +101,7 @@ export default function Login({ onLoginSuccess, showRegister, successMsg }) {
         <div className="auth-fields">
           <input
             className="auth-input"
+            data-testid="login-email"
             placeholder={t("common.labels.email")}
             type="email"
             value={email}
@@ -108,6 +109,7 @@ export default function Login({ onLoginSuccess, showRegister, successMsg }) {
           />
           <input
             className="auth-input"
+            data-testid="login-password"
             placeholder={t("common.labels.password")}
             type="password"
             value={password}
@@ -130,8 +132,8 @@ export default function Login({ onLoginSuccess, showRegister, successMsg }) {
           )}
         </div>
         <div className="auth-actions">
-          <button className="primary-button" onClick={handleLogin}>{t("common.actions.login")}</button>
-          <button className="secondary-button" onClick={showRegister}>{t("common.actions.createAccount")}</button>
+          <button className="primary-button" data-testid="login-submit" onClick={handleLogin}>{t("common.actions.login")}</button>
+          <button className="secondary-button" data-testid="login-go-register" onClick={showRegister}>{t("common.actions.createAccount")}</button>
         </div>
 
         {emailNotConfirmed && (
@@ -155,7 +157,7 @@ export default function Login({ onLoginSuccess, showRegister, successMsg }) {
           </div>
         )}
 
-        {error && <p className="auth-error">{error}</p>}
+        {error && <p className="auth-error" data-testid="login-error">{error}</p>}
       </section>
     </main>
   );

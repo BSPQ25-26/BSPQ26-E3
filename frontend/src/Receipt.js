@@ -6,7 +6,7 @@ export default function Receipt({ receipt, onClose }) {
 
   return (
     <div className="receipt-overlay">
-      <div className="receipt-modal">
+      <div className="receipt-modal" data-testid="receipt-modal">
         <div className="receipt-header">
           <h2>{t("receipt.successTitle")}</h2>
           <button
@@ -21,7 +21,7 @@ export default function Receipt({ receipt, onClose }) {
         <div className="receipt-content">
           <div className="receipt-number">
             <p className="label">{t("common.labels.receiptNumber")}:</p>
-            <p className="value">{receipt.receiptNumber}</p>
+            <p className="value" data-testid="receipt-number">{receipt.receiptNumber}</p>
           </div>
 
           <div className="receipt-date">
@@ -84,6 +84,7 @@ export default function Receipt({ receipt, onClose }) {
 
           <button
             className="primary-button receipt-button"
+            data-testid="receipt-continue"
             onClick={onClose}
           >
             {t("common.actions.continueShopping")}
