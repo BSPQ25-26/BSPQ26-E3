@@ -1,5 +1,6 @@
 package com.example.restapi.service;
 
+import com.example.restapi.model.Category;
 import com.example.restapi.model.Post;
 import com.example.restapi.repository.PostRepository;
 import org.springdoc.api.OpenApiResourceNotFoundException;
@@ -46,17 +47,20 @@ public class PostService {
     }
 
     private void partialUpdate(Post postDetails, Map<String, Object> updates){
-        if(updates.containsKey("title")){
+        if (updates.containsKey("title")) {
             postDetails.setTitle((String) updates.get("title"));
         }
 
-        if(updates.containsKey("content")){
+        if (updates.containsKey("content")) {
             postDetails.setContent((String) updates.get("content"));
         }
 
-        if(updates.containsKey("isPublic")){
-            postDetails.setIsPublic((Boolean) updates.get("isPublic"));
+        if (updates.containsKey("categoryId")) {
+            Object raw = updates.get("categoryId");
+            Long categoryId = raw instanceof Number n ? n.longValue() : Long.valueOf(raw.toString());
+            Category category = new Category();
+            category.setId(categoryId);
+            postDetails.setCategory(category);
         }
-        postRepository.save(postDetails);
     }
 }

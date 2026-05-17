@@ -46,7 +46,6 @@ class PostServiceTest {
         testPost.setId(1L);
         testPost.setTitle("Test Title");
         testPost.setContent("Test Content");
-        testPost.setIsPublic(true);
     }
 
     @Nested
@@ -178,12 +177,12 @@ class PostServiceTest {
         }
 
         @Test
-        @DisplayName("should update isPublic")
-        void testUpdatePostIsPublic() {
+        @DisplayName("should update category")
+        void testUpdatePostCategory() {
             when(postRepository.findById(1L)).thenReturn(Optional.of(testPost));
             when(postRepository.save(any(Post.class))).thenReturn(testPost);
 
-            Post result = postService.updatePost(1L, Map.of("isPublic", false));
+            Post result = postService.updatePost(1L, Map.of("categoryId", 2));
 
             assertNotNull(result);
             verify(postRepository, atLeastOnce()).save(any(Post.class));
