@@ -102,6 +102,14 @@ The frontend will be available at `http://localhost:3000`.
 
 ---
 
+## Testing
+
+- **Backend unit and integration tests:** `cd backend && mvn test`
+- **Selenium acceptance tests (UI end-to-end):** requires the stack running
+  (`docker compose up -d`) and a confirmed Supabase user. See
+  [backend/README.md](backend/README.md#acceptance-tests-selenium) for setup and
+  the `mvn test -Pacceptance` command.
+
 ## Git Workflow
 
 See [GitWorkflow.md](GitWorkflow.md) for the branching and contribution strategy.

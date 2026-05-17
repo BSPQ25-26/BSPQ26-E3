@@ -158,7 +158,7 @@ export default function Dashboard({ user, onLogout }) {
   };
 
   return (
-    <main className="dashboard-shell">
+    <main className="dashboard-shell" data-testid="dashboard-shell">
       <header className="dashboard-topbar">
         <div>
           <p className="dashboard-eyebrow">{t("common.brand")}</p>
@@ -186,6 +186,7 @@ export default function Dashboard({ user, onLogout }) {
           <button
             className="cart-button"
             type="button"
+            data-testid="open-cart"
             aria-label={t("dashboard.openCartAria")}
             onClick={() => setShowCart((current) => !current)}
           >
@@ -211,6 +212,7 @@ export default function Dashboard({ user, onLogout }) {
             <button
               className="profile-button"
               type="button"
+              data-testid="profile-toggle"
               aria-label={t("dashboard.profileAria")}
               onClick={() => setShowProfile((current) => !current)}
             >
@@ -245,7 +247,7 @@ export default function Dashboard({ user, onLogout }) {
                     })}</dd>
                   </div>
                 </dl>
-                <button className="secondary-button profile-logout" type="button" onClick={onLogout}>
+                <button className="secondary-button profile-logout" type="button" data-testid="logout-button" onClick={onLogout}>
                   {t("common.actions.signOut")}
                 </button>
               </aside>
@@ -294,20 +296,23 @@ export default function Dashboard({ user, onLogout }) {
         <div className="catalogue-header">
           <h2 className="catalogue-title">{t("dashboard.catalogueTitle")}</h2>
           <div className="dashboard-tabs">
-            <button 
+            <button
               className={`tab-button${dashboardTab === "shop" ? " active" : ""}`}
+              data-testid="tab-shop"
               onClick={() => setDashboardTab("shop")}
             >
               {t("dashboard.shoppingTab")}
             </button>
-            <button 
+            <button
               className={`tab-button${dashboardTab === "purchases" ? " active" : ""}`}
+              data-testid="tab-purchases"
               onClick={() => setDashboardTab("purchases")}
             >
               {t("dashboard.purchasesTab")}
             </button>
-            <button 
+            <button
               className={`tab-button${dashboardTab === "sales" ? " active" : ""}`}
+              data-testid="tab-sales"
               onClick={() => setDashboardTab("sales")}
             >
               {t("dashboard.salesTab")}
@@ -345,16 +350,17 @@ export default function Dashboard({ user, onLogout }) {
                 <p className="auth-error">Error: {translateError(error)}</p>
               ) : filteredPlants.length > 0 ? (
                 filteredPlants.map(plant => (
-                  <div key={plant.id} className="auth-card plant-card">
+                  <div key={plant.id} className="auth-card plant-card" data-testid="plant-card">
                     <div className="plant-image-container">
                       <img src={plant.image} alt={plant.name} />
                     </div>
                     <div className="plant-content">
                       <span className="auth-kicker">{translateCategory(plant.type)}</span>
-                      <h3>{plant.name}</h3>
+                      <h3 data-testid="plant-card-name">{plant.name}</h3>
                       <p className="price-tag">{formatCurrency(plant.price)}</p>
-                      <button 
+                      <button
                         className="primary-button"
+                        data-testid="plant-view-details"
                         onClick={() => setSelectedPlantId(plant.id)}
                       >
                         {t("common.actions.viewDetails")}

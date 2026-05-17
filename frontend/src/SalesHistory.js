@@ -77,13 +77,13 @@ export default function SalesHistory({ userId }) {
   }
 
   return (
-    <div className="history-container">
+    <div className="history-container" data-testid="sales-history">
       <h2>{t("salesHistory.title")}</h2>
 
       {error && <div className="history-error">{error}</div>}
 
       {sales.length === 0 ? (
-        <div className="history-empty">
+        <div className="history-empty" data-testid="sales-history-empty">
           <p>{t("salesHistory.empty")}</p>
         </div>
       ) : (
@@ -148,7 +148,7 @@ export default function SalesHistory({ userId }) {
           <div className="sales-list">
             <h3>{t("salesHistory.recentSales")}</h3>
             {sales.map((sale, index) => (
-              <div key={index} className="sale-card">
+              <div key={index} className="sale-card" data-testid="sale-card">
                 <div className="sale-card-header">
                   <div className="sale-info">
                     <p className="sale-item">{sale.itemName}</p>
