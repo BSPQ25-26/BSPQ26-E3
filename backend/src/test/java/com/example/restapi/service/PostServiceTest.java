@@ -55,25 +55,25 @@ class PostServiceTest {
         @Test
         @DisplayName("should return all posts")
         void testGetAllPosts() {
-            when(postRepository.findAll()).thenReturn(List.of(testPost));
+            when(postRepository.findAllByOrderByCreatedAtDesc()).thenReturn(List.of(testPost));
 
             List<Post> result = postService.getAllPosts();
 
             assertEquals(1, result.size());
             assertEquals("Test Title", result.get(0).getTitle());
-            verify(postRepository).findAll();
+            verify(postRepository).findAllByOrderByCreatedAtDesc();
             log.info("testGetAllPosts passed: returned {} post(s)", result.size());
         }
 
         @Test
         @DisplayName("should return empty list when no posts exist")
         void testGetAllPostsEmpty() {
-            when(postRepository.findAll()).thenReturn(List.of());
+            when(postRepository.findAllByOrderByCreatedAtDesc()).thenReturn(List.of());
 
             List<Post> result = postService.getAllPosts();
 
             assertTrue(result.isEmpty());
-            verify(postRepository).findAll();
+            verify(postRepository).findAllByOrderByCreatedAtDesc();
         }
     }
 

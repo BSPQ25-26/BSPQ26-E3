@@ -26,10 +26,17 @@ public class PostService {
     }
 
     public List<Post> getAllPosts() {
-        return postRepository.findAll();
+        return postRepository.findAllByOrderByCreatedAtDesc();
+    }
+
+    public List<Post> getPostsByAuthor(java.util.UUID authorId) {
+        return postRepository.findByAuthor_Id(authorId);
     }
 
     public Post createPost(Post post) {
+        if (post.getTitle() == null || post.getTitle().isBlank()) {
+            throw new IllegalArgumentException("Post title is required");
+        }
         return postRepository.save(post);
     }
 
