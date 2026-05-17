@@ -23,6 +23,8 @@ import com.example.restapi.repository.PostRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jakarta.persistence.EntityManager;
+
 @DisplayName("PostService Tests")
 class PostServiceTest {
 
@@ -30,6 +32,9 @@ class PostServiceTest {
 
     @Mock
     private PostRepository postRepository;
+
+    @Mock
+    private EntityManager entityManager;
 
     @InjectMocks
     private PostService postService;
@@ -52,25 +57,25 @@ class PostServiceTest {
         @Test
         @DisplayName("should return all posts")
         void testGetAllPosts() {
-            when(postRepository.findAllByOrderByCreatedAtDesc()).thenReturn(List.of(testPost));
+            when(postRepository.findAllByOrderByCreatedAtDescIdDesc()).thenReturn(List.of(testPost));
 
             List<PostResponse> result = postService.getAllPosts();
 
             assertEquals(1, result.size());
             assertEquals("Test Title", result.get(0).getTitle());
-            verify(postRepository).findAllByOrderByCreatedAtDesc();
+            verify(postRepository).findAllByOrderByCreatedAtDescIdDesc();
             log.info("testGetAllPosts passed: returned {} post(s)", result.size());
         }
 
         @Test
         @DisplayName("should return empty list when no posts exist")
         void testGetAllPostsEmpty() {
-            when(postRepository.findAllByOrderByCreatedAtDesc()).thenReturn(List.of());
+            when(postRepository.findAllByOrderByCreatedAtDescIdDesc()).thenReturn(List.of());
 
             List<PostResponse> result = postService.getAllPosts();
 
             assertTrue(result.isEmpty());
-            verify(postRepository).findAllByOrderByCreatedAtDesc();
+            verify(postRepository).findAllByOrderByCreatedAtDescIdDesc();
         }
     }
 

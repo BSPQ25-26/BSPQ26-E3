@@ -103,7 +103,7 @@ export default function Forum({ userId }) {
                   </span>
                 )}
               </div>
-              <h3 data-testid="forum-post-title">{post.title}</h3>
+              <h3 data-testid="forum-post-card-title">{post.title}</h3>
               <p className="forum-post-snippet">{snippet(post.content)}</p>
             </article>
           ))}
