@@ -122,7 +122,7 @@
 				</configuration>
 			</plugin>
 
-			<!-- JaCoCo code coverage -->
+			<!-- JaCoCo code coverage all -->
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>

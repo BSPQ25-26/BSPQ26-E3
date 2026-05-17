@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import Dashboard from '../Dashboard';
 
 jest.mock('../PlantDetailsModal', () => ({ onClose }) => (
@@ -31,6 +31,7 @@ describe('Dashboard', () => {
   it('renders welcome message with username', () => {
     global.fetch
       .mockResolvedValueOnce({ ok: false })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ items: [], total: 0 }) })
       .mockResolvedValueOnce({ ok: true, json: async () => [] });
 
     render(<Dashboard user={mockUser} onLogout={jest.fn()} />);
@@ -41,27 +42,32 @@ describe('Dashboard', () => {
   it('shows loading state while fetching plants', () => {
     global.fetch
       .mockResolvedValueOnce({ ok: false })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ items: [], total: 0 }) })
       .mockResolvedValueOnce({ ok: true, json: async () => [] });
 
     render(<Dashboard user={mockUser} onLogout={jest.fn()} />);
 
-    expect(screen.getByText(/Cargando plantas/)).toBeInTheDocument();
+    expect(screen.getByText(/Loading plants/)).toBeInTheDocument();
   });
 
   it('renders plant cards after successful fetch', async () => {
     global.fetch
       .mockResolvedValueOnce({ ok: false })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ items: [], total: 0 }) })
       .mockResolvedValueOnce({ ok: true, json: async () => mockPlants });
 
     render(<Dashboard user={mockUser} onLogout={jest.fn()} />);
 
-    expect(await screen.findByText('Fern')).toBeInTheDocument();
-    expect(screen.getByText('Cactus')).toBeInTheDocument();
+    await screen.findAllByText('Fern');
+    const grid = screen.getByTestId('plants-grid');
+    expect(within(grid).getByText('Fern')).toBeInTheDocument();
+    expect(within(grid).getByText('Cactus')).toBeInTheDocument();
   });
 
   it('shows error message when items fetch fails', async () => {
     global.fetch
       .mockResolvedValueOnce({ ok: false })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ items: [], total: 0 }) })
       .mockResolvedValueOnce({ ok: false });
 
     render(<Dashboard user={mockUser} onLogout={jest.fn()} />);
@@ -74,54 +80,61 @@ describe('Dashboard', () => {
   it('filters plants by search term', async () => {
     global.fetch
       .mockResolvedValueOnce({ ok: false })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ items: [], total: 0 }) })
       .mockResolvedValueOnce({ ok: true, json: async () => mockPlants });
 
     render(<Dashboard user={mockUser} onLogout={jest.fn()} />);
 
-    expect(await screen.findByText('Fern')).toBeInTheDocument();
+    await screen.findAllByText('Fern');
 
     fireEvent.change(screen.getByPlaceholderText('Search by name...'), {
       target: { value: 'fern' },
     });
 
-    expect(screen.getByText('Fern')).toBeInTheDocument();
-    expect(screen.queryByText('Cactus')).not.toBeInTheDocument();
+    const grid = screen.getByTestId('plants-grid');
+    expect(within(grid).getByText('Fern')).toBeInTheDocument();
+    expect(within(grid).queryByText('Cactus')).not.toBeInTheDocument();
   });
 
   it('filters plants by category type', async () => {
     global.fetch
       .mockResolvedValueOnce({ ok: false })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ items: [], total: 0 }) })
       .mockResolvedValueOnce({ ok: true, json: async () => mockPlants });
 
     render(<Dashboard user={mockUser} onLogout={jest.fn()} />);
 
-    expect(await screen.findByText('Fern')).toBeInTheDocument();
+    await screen.findAllByText('Fern');
 
     fireEvent.change(screen.getByRole('combobox'), { target: { value: 'Indoor' } });
 
-    expect(screen.getByText('Fern')).toBeInTheDocument();
-    expect(screen.queryByText('Cactus')).not.toBeInTheDocument();
+    const grid = screen.getByTestId('plants-grid');
+    expect(within(grid).getByText('Fern')).toBeInTheDocument();
+    expect(within(grid).queryByText('Cactus')).not.toBeInTheDocument();
   });
 
   it('shows no-results message when search has no matches', async () => {
     global.fetch
       .mockResolvedValueOnce({ ok: false })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ items: [], total: 0 }) })
       .mockResolvedValueOnce({ ok: true, json: async () => mockPlants });
 
     render(<Dashboard user={mockUser} onLogout={jest.fn()} />);
 
-    expect(await screen.findByText('Fern')).toBeInTheDocument();
+    await screen.findAllByText('Fern');
 
     fireEvent.change(screen.getByPlaceholderText('Search by name...'), {
       target: { value: 'zzzzz' },
     });
 
-    expect(screen.getByText(/No plants match/)).toBeInTheDocument();
+    const grid = screen.getByTestId('plants-grid');
+    expect(within(grid).getByText(/No plants match/)).toBeInTheDocument();
   });
 
   it('opens PlantDetailsModal when View Details is clicked', async () => {
     global.fetch
       .mockResolvedValueOnce({ ok: false })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ items: [], total: 0 }) })
       .mockResolvedValueOnce({ ok: true, json: async () => mockPlants });
 
     render(<Dashboard user={mockUser} onLogout={jest.fn()} />);
@@ -138,6 +151,7 @@ describe('Dashboard', () => {
   it('shows cart sidebar when cart button is clicked', async () => {
     global.fetch
       .mockResolvedValueOnce({ ok: false })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ items: [], total: 0 }) })
       .mockResolvedValueOnce({ ok: true, json: async () => [] });
 
     render(<Dashboard user={mockUser} onLogout={jest.fn()} />);
@@ -151,6 +165,7 @@ describe('Dashboard', () => {
     const mockLogout = jest.fn();
     global.fetch
       .mockResolvedValueOnce({ ok: false })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ items: [], total: 0 }) })
       .mockResolvedValueOnce({ ok: true, json: async () => [] });
 
     render(<Dashboard user={mockUser} onLogout={mockLogout} />);
