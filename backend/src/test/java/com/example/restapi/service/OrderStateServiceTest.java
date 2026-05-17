@@ -20,8 +20,13 @@ import com.example.restapi.model.OrderStatus;
 import com.example.restapi.model.Receipt;
 import com.example.restapi.repository.ReceiptRepository;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @DisplayName("OrderStateService Tests")
 class OrderStateServiceTest {
+
+    private static final Logger log = LoggerFactory.getLogger(OrderStateServiceTest.class);
 
     @Mock
     private ReceiptRepository receiptRepository;
@@ -53,6 +58,7 @@ class OrderStateServiceTest {
             assertEquals(OrderStatus.DELIVERY, receipt.getOrderStatus());
             assertNotNull(receipt.getDeliveryStartedAt());
             verify(receiptRepository).save(receipt);
+            log.info("updateOrderStatus_advancesProcessingToDelivery passed: newStatus={}", receipt.getOrderStatus());
         }
 
         @Test
@@ -72,6 +78,7 @@ class OrderStateServiceTest {
             assertEquals(OrderStatus.COMPLETED, receipt.getOrderStatus());
             assertNotNull(receipt.getCompletedAt());
             verify(receiptRepository).save(receipt);
+            log.info("updateOrderStatus_advancesDeliveryToCompleted passed: newStatus={}", receipt.getOrderStatus());
         }
 
         @Test
@@ -108,6 +115,7 @@ class OrderStateServiceTest {
             assertEquals(OrderStatus.CANCELLED, canceled.getOrderStatus());
             assertNotNull(canceled.getCancelledAt());
             verify(receiptRepository).save(canceled);
+            log.info("cancelOrder_cancelsProcessingOrder passed: status={}", canceled.getOrderStatus());
         }
 
         @Test

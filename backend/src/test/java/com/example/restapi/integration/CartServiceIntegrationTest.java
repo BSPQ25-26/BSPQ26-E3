@@ -27,6 +27,9 @@ import com.example.restapi.repository.ProfileRepository;
 import com.example.restapi.repository.ReceiptRepository;
 import com.example.restapi.repository.SaleRepository;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 
 //this is to ensure that the test uses the application-test.properties configuration (in our case is a H2 in-memory database)
@@ -43,6 +46,8 @@ class CartServiceIntegrationTest {
     @Autowired private CategoryRepository categoryRepository;
     @Autowired private ReceiptRepository receiptRepository;
     @Autowired private SaleRepository saleRepository;
+
+    private static final Logger log = LoggerFactory.getLogger(CartServiceIntegrationTest.class);
 
     private UUID buyerId;
     private Long itemId;
@@ -158,5 +163,6 @@ class CartServiceIntegrationTest {
         assertNotNull(removeResponse.getBody());
         assertTrue(removeResponse.getBody().getItems().isEmpty());
         assertEquals(0.0, removeResponse.getBody().getTotal(), 0.01);
+        log.info("testRemoveItemFromCart passed: item removed from cart for buyerId={}", buyerId);
     }
 }
