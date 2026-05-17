@@ -2,6 +2,7 @@ package com.example.restapi.performance;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -107,7 +108,10 @@ public class PerformanceTest {
         appUserService.getAllUsers();
     }
 
-    // FAIL: intentionally fails to demonstrate a failing test
+    // DEMO: intentionally fails (maxLatency=1ms with a 5ms sleep) to illustrate how a
+    // JUnitPerf assertion violation looks in the report. Kept @Ignored so `mvn test`
+    // stays green; un-ignore locally if you want to see a failing JUnitPerf run.
+    @Ignore("Intentionally violates maxLatency — left as a JUnitPerf failure example")
     @Test
     @JUnitPerfTest(durationMs = 500, threads = 2)
     @JUnitPerfTestRequirement(maxLatency = 1)

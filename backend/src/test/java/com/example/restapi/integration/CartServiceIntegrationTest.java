@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 
 import com.example.restapi.dto.CartRequest;
 import com.example.restapi.dto.CartResponse;
+import com.example.restapi.dto.PaymentRequest;
 import com.example.restapi.model.Category;
 import com.example.restapi.model.Item;
 import com.example.restapi.model.Profile;
@@ -23,6 +24,8 @@ import com.example.restapi.repository.CartRepository;
 import com.example.restapi.repository.CategoryRepository;
 import com.example.restapi.repository.ItemRepository;
 import com.example.restapi.repository.ProfileRepository;
+import com.example.restapi.repository.ReceiptRepository;
+import com.example.restapi.repository.SaleRepository;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 
@@ -38,13 +41,17 @@ class CartServiceIntegrationTest {
     @Autowired private CartItemRepository cartItemRepository;
     @Autowired private CartRepository cartRepository;
     @Autowired private CategoryRepository categoryRepository;
+    @Autowired private ReceiptRepository receiptRepository;
+    @Autowired private SaleRepository saleRepository;
 
     private UUID buyerId;
     private Long itemId;
 
     @BeforeEach
     void setUp() {
-        // Clean up in safe order: cart_items → carts → items → profiles → categories
+        // Clean up FK-dependents first: sales/receipts → cart_items → carts → items → profiles → categories
+        saleRepository.deleteAll();
+        receiptRepository.deleteAll();
         cartItemRepository.deleteAll();
         cartRepository.deleteAll();
         itemRepository.deleteAll();
@@ -65,6 +72,8 @@ class CartServiceIntegrationTest {
 
     @AfterEach
     void tearDown() {
+        saleRepository.deleteAll();
+        receiptRepository.deleteAll();
         cartItemRepository.deleteAll();
         cartRepository.deleteAll();
         itemRepository.deleteAll();
@@ -86,7 +95,7 @@ class CartServiceIntegrationTest {
             CartResponse.class
         );
 
-        assertEquals(200, addResponse.getStatusCode());
+        assertEquals(200, addResponse.getStatusCode().value());
         assertNotNull(addResponse.getBody());
         assertEquals(1, addResponse.getBody().getItems().size());
 
@@ -96,19 +105,31 @@ class CartServiceIntegrationTest {
             CartResponse.class
         );
 
-        assertEquals(200, getResponse.getStatusCode());
+        assertEquals(200, getResponse.getStatusCode().value());
         assertNotNull(getResponse.getBody());
 
-        // Step 3: Checkout
-        ResponseEntity<CartResponse> checkoutResponse = restTemplate.postForEntity(
-            "/api/carts/" + buyerId + "/checkout",
-            null,
-            CartResponse.class
-        );
+        // Step 3: Checkout. PaymentService rejects ~10% of payments at random, so retry
+        // a few times to keep the test deterministic (failure rate becomes negligible).
+        PaymentRequest payment = new PaymentRequest("4111111111111111", "Test Buyer", "12/30", "123");
+        ResponseEntity<CartResponse> checkoutResponse = null;
+        for (int attempt = 0; attempt < 5; attempt++) {
+            checkoutResponse = restTemplate.postForEntity(
+                "/api/carts/" + buyerId + "/checkout",
+                payment,
+                CartResponse.class
+            );
+            if (checkoutResponse.getStatusCode().value() == 200) {
+                break;
+            }
+        }
 
-        assertEquals(200, checkoutResponse.getStatusCode());
-        assertNotNull(checkoutResponse.getBody());
-        assertTrue(checkoutResponse.getBody().getItems().isEmpty());
+        assertEquals(200, checkoutResponse.getStatusCode().value());
+
+        // The cart should be empty after a successful checkout.
+        ResponseEntity<CartResponse> afterCheckout = restTemplate.getForEntity(
+            "/api/carts/" + buyerId, CartResponse.class);
+        assertNotNull(afterCheckout.getBody());
+        assertTrue(afterCheckout.getBody().getItems().isEmpty());
     }
 
     @Test
@@ -133,7 +154,7 @@ class CartServiceIntegrationTest {
             CartResponse.class
         );
 
-        assertEquals(200, removeResponse.getStatusCode());
+        assertEquals(200, removeResponse.getStatusCode().value());
         assertNotNull(removeResponse.getBody());
         assertTrue(removeResponse.getBody().getItems().isEmpty());
         assertEquals(0.0, removeResponse.getBody().getTotal(), 0.01);
