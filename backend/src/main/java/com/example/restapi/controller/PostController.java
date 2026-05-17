@@ -2,6 +2,7 @@ package com.example.restapi.controller;
 
 
 import com.example.restapi.dto.PostRequest;
+import com.example.restapi.dto.PostResponse;
 import com.example.restapi.model.Category;
 import com.example.restapi.model.Post;
 import com.example.restapi.model.Profile;
@@ -25,17 +26,17 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Post>> getAllPosts() {
+    public ResponseEntity<List<PostResponse>> getAllPosts() {
         return ResponseEntity.ok(postService.getAllPosts());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Post> getPostById(@PathVariable Long id) {
+    public ResponseEntity<PostResponse> getPostById(@PathVariable Long id) {
         return ResponseEntity.ok(postService.getPostById(id));
     }
 
     @GetMapping("/by-author/{authorId}")
-    public ResponseEntity<List<Post>> getPostsByAuthor(@PathVariable UUID authorId) {
+    public ResponseEntity<List<PostResponse>> getPostsByAuthor(@PathVariable UUID authorId) {
         return ResponseEntity.ok(postService.getPostsByAuthor(authorId));
     }
 
@@ -55,7 +56,7 @@ public class PostController {
                 category.setId(req.getCategoryId());
                 post.setCategory(category);
             }
-            Post created = postService.createPost(post);
+            PostResponse created = postService.createPost(post);
             return new ResponseEntity<>(created, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -63,7 +64,7 @@ public class PostController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Post> updatePost(@RequestBody Map<String, Object> updates, @PathVariable Long id) {
+    public ResponseEntity<PostResponse> updatePost(@RequestBody Map<String, Object> updates, @PathVariable Long id) {
         try {
             return ResponseEntity.ok(postService.updatePost(id, updates));
         } catch (RuntimeException e) {

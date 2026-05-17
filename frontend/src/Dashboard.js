@@ -7,6 +7,7 @@ import CreateItem from "./CreateItem";
 import Cart from "./Cart";
 import PurchaseHistory from "./PurchaseHistory";
 import SalesHistory from "./SalesHistory";
+import Forum from "./Forum";
 import { useI18n } from "./i18n/I18nContext";
 
 export default function Dashboard({ user, onLogout }) {
@@ -32,7 +33,7 @@ export default function Dashboard({ user, onLogout }) {
   const [activeSlide, setActiveSlide] = useState(0);
   const slideTimerRef = useRef(null);
   // Dashboard tab state
-  const [dashboardTab, setDashboardTab] = useState("shop"); // "shop", "purchases", "sales"
+  const [dashboardTab, setDashboardTab] = useState("shop"); // "shop", "community", "purchases", "sales"
 
   // Cargar datos del perfil
   useEffect(() => {
@@ -304,6 +305,13 @@ export default function Dashboard({ user, onLogout }) {
               {t("dashboard.shoppingTab")}
             </button>
             <button
+              className={`tab-button${dashboardTab === "community" ? " active" : ""}`}
+              data-testid="tab-community"
+              onClick={() => setDashboardTab("community")}
+            >
+              {t("dashboard.communityTab")}
+            </button>
+            <button
               className={`tab-button${dashboardTab === "purchases" ? " active" : ""}`}
               data-testid="tab-purchases"
               onClick={() => setDashboardTab("purchases")}
@@ -373,6 +381,10 @@ export default function Dashboard({ user, onLogout }) {
               )}
             </div>
           </>
+        )}
+
+        {dashboardTab === "community" && (
+          <Forum userId={user.id} />
         )}
 
         {dashboardTab === "purchases" && (
