@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { fetchComments, createComment, updateComment, deleteComment } from './api';
 import { useI18n } from './i18n/I18nContext';
+import trashIcon from './assets/thrash_can_png.png';
 
 const CommentSection = ({ targetId, targetType, currentUserId }) => {
     const { t } = useI18n();
@@ -189,7 +190,7 @@ const CommentSection = ({ targetId, targetType, currentUserId }) => {
                                                 onClick={() => handleDelete(comment.id)}
                                                 title={t('comments.deleteTitle')}
                                             >
-                                                🗑️
+                                                <img src={trashIcon} alt={t('comments.deleteTitle')} className="delete-icon" />
                                             </button>
                                         </div>
                                     )}
