@@ -49,6 +49,9 @@ const errorMatchers = [
   { match: /^error creating item$/i, key: "errors.errorCreatingItem" },
   { match: /^failed to fetch purchase history$/i, key: "errors.failedToFetchPurchaseHistory" },
   { match: /^failed to fetch sales history$/i, key: "errors.failedToFetchSalesHistory" },
+  { match: /^failed to fetch reviews$/i, key: "errors.failedToFetchReviews" },
+  { match: /^failed to create review$/i, key: "errors.failedToCreateReview" },
+  { match: /^rating must be between 1 and 5$/i, key: "errors.ratingRange" },
   { match: /^email not confirmed\.?$/i, key: "errors.emailNotConfirmed" },
   { match: /^username already taken/i, key: "errors.usernameTaken" },
   { match: /^password reset email sent\.?$/i, key: "errors.passwordResetSent" },
@@ -58,6 +61,8 @@ const errorMatchers = [
   { match: /^cannot checkout with empty cart$/i, key: "errors.emptyCartCheckout" },
   { match: /^payment failed or invalid payment details$/i, key: "errors.paymentInvalid" },
   { match: /^profile not found/i, key: "errors.profileNotFound" },
+  { match: /^item not found/i, key: "errors.itemNotFound" },
+  { match: /^author not found/i, key: "errors.authorNotFound" },
 ];
 
 function getInitialLanguage() {
