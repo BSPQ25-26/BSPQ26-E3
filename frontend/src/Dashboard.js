@@ -18,6 +18,8 @@ export default function Dashboard({ user, onLogout }) {
   // Estados para el buscador y las plantas
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("All");
+  const [minPrice, setMinPrice] = useState(0);
+  const [maxPrice, setMaxPrice] = useState(200);
   const [plants, setPlants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -133,7 +135,10 @@ export default function Dashboard({ user, onLogout }) {
   const filteredPlants = plants.filter(plant => {
     const matchesSearch = plant.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = filterType === "All" || plant.type === filterType;
-    return matchesSearch && matchesType;
+    const lo = Math.min(minPrice, maxPrice);
+    const hi = Math.max(minPrice, maxPrice);
+    const matchesPrice = plant.price >= lo && plant.price <= hi;
+    return matchesSearch && matchesType && matchesPrice;
   });
 
   const handleItemCreated = () => {
@@ -333,16 +338,16 @@ export default function Dashboard({ user, onLogout }) {
         {dashboardTab === "shop" && (
           <>
             <div className="catalogue-filters">
-              <input 
-                type="text" 
-                className="auth-input search-box" 
+              <input
+                type="text"
+                className="auth-input search-box"
                 placeholder={t("dashboard.searchPlaceholder")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
-              <select 
-                className="auth-input filter-box" 
-                value={filterType} 
+              <select
+                className="auth-input filter-box"
+                value={filterType}
                 onChange={(e) => setFilterType(e.target.value)}
               >
                 <option value="All">{t("common.categories.allTypes")}</option>
@@ -351,6 +356,54 @@ export default function Dashboard({ user, onLogout }) {
                 <option value="Succulent">{t("common.categories.succulent")}</option>
                 <option value="Flowering">{t("common.categories.flowering")}</option>
               </select>
+              <div className="price-filter">
+                <span className="price-filter-label">{t("common.priceRanges.minPrice")}</span>
+                <div className="price-filter-controls">
+                  <input
+                    type="range"
+                    className="price-slider"
+                    min={0}
+                    max={200}
+                    step={0.5}
+                    value={minPrice}
+                    style={{ '--pct': `${(minPrice / 200) * 100}%` }}
+                    onChange={(e) => setMinPrice(parseFloat(e.target.value))}
+                  />
+                  <input
+                    type="number"
+                    className="auth-input price-number-input"
+                    min={0}
+                    max={200}
+                    step={0.5}
+                    value={minPrice}
+                    onChange={(e) => setMinPrice(parseFloat(e.target.value) || 0)}
+                  />
+                </div>
+              </div>
+              <div className="price-filter">
+                <span className="price-filter-label">{t("common.priceRanges.maxPrice")}</span>
+                <div className="price-filter-controls">
+                  <input
+                    type="range"
+                    className="price-slider"
+                    min={0}
+                    max={200}
+                    step={0.5}
+                    value={maxPrice}
+                    style={{ '--pct': `${(maxPrice / 200) * 100}%` }}
+                    onChange={(e) => setMaxPrice(parseFloat(e.target.value))}
+                  />
+                  <input
+                    type="number"
+                    className="auth-input price-number-input"
+                    min={0}
+                    max={200}
+                    step={0.5}
+                    value={maxPrice}
+                    onChange={(e) => setMaxPrice(parseFloat(e.target.value) || 0)}
+                  />
+                </div>
+              </div>
             </div>
 
             <div className="plants-grid" data-testid="plants-grid">

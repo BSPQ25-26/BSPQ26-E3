@@ -72,6 +72,10 @@ export const translations = {
         succulent: "Succulent",
         flowering: "Flowering",
       },
+      priceRanges: {
+        minPrice: "Min Price",
+        maxPrice: "Max Price",
+      },
       orderStatus: {
         PROCESSING: "Processing",
         DELIVERY: "In Delivery",
@@ -352,6 +356,10 @@ export const translations = {
         succulent: "Suculenta",
         flowering: "Con flor",
       },
+      priceRanges: {
+        minPrice: "Precio mínimo",
+        maxPrice: "Precio máximo",
+      },
       orderStatus: {
         PROCESSING: "Procesando",
         DELIVERY: "En reparto",
@@ -631,6 +639,10 @@ export const translations = {
         outdoor: "Extérieur",
         succulent: "Succulente",
         flowering: "Floraison",
+      },
+      priceRanges: {
+        minPrice: "Prix minimum",
+        maxPrice: "Prix maximum",
       },
       orderStatus: {
         PROCESSING: "En traitement",
