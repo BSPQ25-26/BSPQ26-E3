@@ -1,0 +1,77 @@
+name: Documentation & Site
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Build, test and generate Maven site
+        run: mvn -B clean test site
+        env:
+          DB_URL: jdbc:postgresql://localhost:5432/test
+          DB_USERNAME: test
+          DB_PASSWORD: test
+          SUPABASE_URL: https://placeholder.supabase.co
+          SUPABASE_ANON_KEY: placeholder
+          SUPABASE_SERVICE_ROLE_KEY: placeholder
+
+      - name: Install Doxygen and Graphviz
+        run: sudo apt-get update && sudo apt-get install -y doxygen graphviz
+
+      - name: Generate Doxygen documentation
+        run: doxygen Doxyfile
+
+      - name: Install LaTeX for PDF generation
+        run: sudo apt-get install -y texlive-latex-base texlive-fonts-recommended texlive-latex-extra latexmk
+
+      - name: Build Doxygen PDF
+        run: |
+          cd target/doxygen/latex
+          make pdf || make || latexmk -pdf refman.tex
+        continue-on-error: true
+
+      - name: Copy Doxygen HTML into Maven site
+        run: |
+          mkdir -p target/site/doxygen
+          cp -r target/doxygen/html/* target/site/doxygen/
+
+      - name: Upload Doxygen PDF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: doxygen-pdf
+          path: backend/target/doxygen/latex/refman.pdf
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        if: github.ref == 'refs/heads/main'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: backend/target/site
+          publish_branch: gh-pages
