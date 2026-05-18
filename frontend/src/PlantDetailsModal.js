@@ -1,5 +1,6 @@
 import React from "react";
 import { useI18n } from "./i18n/I18nContext";
+import trashIcon from "./assets/thrash_can_png.png";
 
 export default function PlantDetailsModal({ plantId, userId, onClose, onItemAdded }) {
   const { t, formatCurrency, formatDate, translateCategory, translateItemStatus, translateError } = useI18n();
@@ -15,6 +16,7 @@ export default function PlantDetailsModal({ plantId, userId, onClose, onItemAdde
   const [reviewComment, setReviewComment] = React.useState("");
   const [submittingReview, setSubmittingReview] = React.useState(false);
   const [reviewMessage, setReviewMessage] = React.useState(null);
+  const [deletingReviewId, setDeletingReviewId] = React.useState(null);
 
   React.useEffect(() => {
     setLoading(true);
@@ -174,6 +176,31 @@ export default function PlantDetailsModal({ plantId, userId, onClose, onItemAdde
     }
   };
 
+  const handleDeleteReview = async (reviewId) => {
+    if (!userId) return;
+    setDeletingReviewId(reviewId);
+    try {
+      const response = await fetch(
+        `/api/items/${plantId}/reviews/${reviewId}?requesterId=${userId}`,
+        { method: "DELETE" }
+      );
+      if (!response.ok) {
+        let errorMessage = t("errors.failedToDeleteReview");
+        try {
+          const errorData = await response.json();
+          if (errorData.message) errorMessage = errorData.message;
+        } catch (_) {}
+        throw new Error(errorMessage);
+      }
+      setReviews((current) => current.filter((r) => r.id !== reviewId));
+    } catch (err) {
+      console.error("Error deleting review:", err);
+      setReviewMessage({ type: "error", text: translateError(err.message, "errors.failedToDeleteReview") });
+    } finally {
+      setDeletingReviewId(null);
+    }
+  };
+
   const renderReviewRating = (rating) => `${Number(rating ?? 0)}/5`;
 
 return (
@@ -309,16 +336,29 @@ return (
                 ) : (
                   <div className="reviews-list">
                     {reviews.map((review) => (
-                      <article className="review-card" key={review.id}>
+                      <article className="review-card" key={review.id} data-testid="review-card">
                         <div className="review-card-header">
-                          <h4>{review.authorUsername || t("common.userFallback")}</h4>
-                          <p className="review-card-meta">
-                            {renderReviewRating(review.rating)}
-                            {review.createdAt ? ` - ${formatDate(review.createdAt, {
-                              dateStyle: "medium",
-                              timeStyle: "short",
-                            })}` : ""}
-                          </p>
+                          <div>
+                            <h4>{review.authorUsername || t("common.userFallback")}</h4>
+                            <p className="review-card-meta">
+                              {renderReviewRating(review.rating)}
+                              {review.createdAt ? ` - ${formatDate(review.createdAt, {
+                                dateStyle: "medium",
+                                timeStyle: "short",
+                              })}` : ""}
+                            </p>
+                          </div>
+                          {userId && review.authorId === userId && (
+                            <button
+                              className="delete-button"
+                              data-testid="review-delete-button"
+                              onClick={() => handleDeleteReview(review.id)}
+                              disabled={deletingReviewId === review.id}
+                              aria-label={t("plantDetails.reviewDelete")}
+                            >
+                              <img src={trashIcon} alt={t("plantDetails.reviewDelete")} className="delete-icon" />
+                            </button>
+                          )}
                         </div>
                         <p className="review-card-comment">
                           {review.comment || t("plantDetails.reviewNoComment")}
