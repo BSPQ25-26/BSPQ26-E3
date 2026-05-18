@@ -331,17 +331,6 @@ return (
               </section>
             </div>
 
-            <div style={{ padding: "0 32px 32px 32px" }}>
-              <hr style={{ margin: "0 0 2rem 0", borderTop: "1px solid #d1d5db" }} />
-              
-              <div onClick={(e) => e.stopPropagation()}>
-                <CommentSection 
-                  targetId={plantId}  
-                  targetType="item" 
-                  currentUserId={userId}  
-                />
-              </div>
-            </div>
             
           </>
         ) : (

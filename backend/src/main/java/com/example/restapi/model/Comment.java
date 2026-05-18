@@ -26,13 +26,9 @@ public class Comment {
     @JoinColumn(name = "author_id", nullable = false)
     private Profile author;
 
-    // Relación opcional con Item
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "item_id")
-    private Item item;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id")
+    @JoinColumn(name = "post_id", nullable =  false)
     private Post post;
 
     public Comment() {
@@ -69,14 +65,6 @@ public class Comment {
 
     public void setAuthor(Profile author) {
         this.author = author;
-    }
-
-    public Item getItem() {
-        return item;
-    }
-
-    public void setItem(Item item) {
-        this.item = item;
     }
 
     public Post getPost() {
