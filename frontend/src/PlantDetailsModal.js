@@ -1,5 +1,6 @@
 import React from "react";
 import { useI18n } from "./i18n/I18nContext";
+import trashIcon from "./assets/thrash_can_png.png";
 
 export default function PlantDetailsModal({ plantId, userId, onClose, onItemAdded }) {
   const { t, formatCurrency, formatDate, translateCategory, translateItemStatus, translateError } = useI18n();
@@ -348,9 +349,7 @@ export default function PlantDetailsModal({ plantId, userId, onClose, onItemAdde
                               disabled={deletingReviewId === review.id}
                               aria-label={t("plantDetails.reviewDelete")}
                             >
-                              {deletingReviewId === review.id
-                                ? t("plantDetails.reviewDeleting")
-                                : t("plantDetails.reviewDelete")}
+                              <img src={trashIcon} alt={t("plantDetails.reviewDelete")} className="delete-icon" />
                             </button>
                           )}
                         </div>

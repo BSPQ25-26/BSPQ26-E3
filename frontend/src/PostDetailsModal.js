@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useI18n } from "./i18n/I18nContext";
+import trashIcon from "./assets/thrash_can_png.png";
 
 export default function PostDetailsModal({ postId, userId, onClose }) {
   const { t, formatDate, translateError } = useI18n();
@@ -247,9 +248,7 @@ export default function PostDetailsModal({ postId, userId, onClose }) {
                             disabled={deletingCommentId === comment.id}
                             aria-label={t("forum.postDetails.commentDelete")}
                           >
-                            {deletingCommentId === comment.id
-                              ? t("plantDetails.reviewDeleting")
-                              : t("forum.postDetails.commentDelete")}
+                            <img src={trashIcon} alt={t("forum.postDetails.commentDelete")} className="delete-icon" />
                           </button>
                         )}
                       </div>
