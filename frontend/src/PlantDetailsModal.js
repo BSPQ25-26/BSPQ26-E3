@@ -1,6 +1,5 @@
 import React from "react";
 import { useI18n } from "./i18n/I18nContext";
-import CommentSection from './CommentSection';
 
 export default function PlantDetailsModal({ plantId, userId, onClose, onItemAdded }) {
   const { t, formatCurrency, formatDate, translateCategory, translateItemStatus, translateError } = useI18n();
