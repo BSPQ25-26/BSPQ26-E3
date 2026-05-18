@@ -183,4 +183,41 @@ class ReviewServiceTest {
 
         assertNull(response.getComment());
     }
+
+    @Test
+    @DisplayName("should delete review when requester is the author")
+    void deleteReviewSucceedsForAuthor() {
+        when(reviewRepository.findById(1L)).thenReturn(Optional.of(review));
+
+        reviewService.deleteReview(1L, author.getId());
+
+        verify(reviewRepository).deleteById(1L);
+    }
+
+    @Test
+    @DisplayName("should reject deletion by a different user")
+    void deleteReviewRejectsNonAuthor() {
+        when(reviewRepository.findById(1L)).thenReturn(Optional.of(review));
+
+        UUID otherId = UUID.randomUUID();
+        IllegalArgumentException error = assertThrows(
+                IllegalArgumentException.class,
+                () -> reviewService.deleteReview(1L, otherId));
+
+        assertEquals("Not authorized to delete this review", error.getMessage());
+        verify(reviewRepository, never()).deleteById(any());
+    }
+
+    @Test
+    @DisplayName("should reject deletion of non-existent review")
+    void deleteReviewRejectsMissingReview() {
+        when(reviewRepository.findById(999L)).thenReturn(Optional.empty());
+
+        IllegalArgumentException error = assertThrows(
+                IllegalArgumentException.class,
+                () -> reviewService.deleteReview(999L, author.getId()));
+
+        assertEquals("Review not found", error.getMessage());
+        verify(reviewRepository, never()).deleteById(any());
+    }
 }

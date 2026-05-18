@@ -15,6 +15,7 @@ export default function PlantDetailsModal({ plantId, userId, onClose, onItemAdde
   const [reviewComment, setReviewComment] = React.useState("");
   const [submittingReview, setSubmittingReview] = React.useState(false);
   const [reviewMessage, setReviewMessage] = React.useState(null);
+  const [deletingReviewId, setDeletingReviewId] = React.useState(null);
 
   React.useEffect(() => {
     setLoading(true);
@@ -36,12 +37,9 @@ export default function PlantDetailsModal({ plantId, userId, onClose, onItemAdde
       });
   }, [plantId, t]);
 
-  React.useEffect(() => {
-    let isMounted = true;
-
+  const loadReviews = React.useCallback(() => {
     setReviewsLoading(true);
     setReviewsError("");
-    setReviewMessage(null);
 
     fetch(`/api/items/${plantId}/reviews`)
       .then(async (response) => {
@@ -51,25 +49,19 @@ export default function PlantDetailsModal({ plantId, userId, onClose, onItemAdde
         return response.json();
       })
       .then((data) => {
-        if (!isMounted) {
-          return;
-        }
         setReviews(Array.isArray(data) ? data : []);
         setReviewsLoading(false);
       })
       .catch((err) => {
-        if (!isMounted) {
-          return;
-        }
         console.error("Error loading reviews:", err);
         setReviewsError(translateError(err.message, "errors.failedToFetchReviews"));
         setReviewsLoading(false);
       });
-
-    return () => {
-      isMounted = false;
-    };
   }, [plantId, t, translateError]);
+
+  React.useEffect(() => {
+    loadReviews();
+  }, [loadReviews]);
 
   const handleAddToCart = async () => {
     if (!userId) {
@@ -161,16 +153,43 @@ export default function PlantDetailsModal({ plantId, userId, onClose, onItemAdde
         throw new Error(errorMessage);
       }
 
-      const createdReview = await response.json();
-      setReviews((currentReviews) => [createdReview, ...currentReviews]);
       setReviewRating(5);
       setReviewComment("");
       setReviewMessage({ type: "success", text: t("plantDetails.reviewSuccess") });
+      loadReviews();
     } catch (err) {
       console.error("Error creating review:", err);
       setReviewMessage({ type: "error", text: translateError(err.message, "errors.failedToCreateReview") });
     } finally {
       setSubmittingReview(false);
+    }
+  };
+
+  const handleDeleteReview = async (reviewId) => {
+    if (!userId) return;
+
+    setDeletingReviewId(reviewId);
+    try {
+      const response = await fetch(
+        `/api/items/${plantId}/reviews/${reviewId}?requesterId=${userId}`,
+        { method: "DELETE" }
+      );
+
+      if (!response.ok) {
+        let errorMessage = t("errors.failedToDeleteReview");
+        try {
+          const errorData = await response.json();
+          if (errorData.message) errorMessage = errorData.message;
+        } catch (_) {}
+        throw new Error(errorMessage);
+      }
+
+      setReviews((current) => current.filter((r) => r.id !== reviewId));
+    } catch (err) {
+      console.error("Error deleting review:", err);
+      setReviewMessage({ type: "error", text: translateError(err.message, "errors.failedToDeleteReview") });
+    } finally {
+      setDeletingReviewId(null);
     }
   };
 
@@ -309,16 +328,31 @@ export default function PlantDetailsModal({ plantId, userId, onClose, onItemAdde
                 ) : (
                   <div className="reviews-list">
                     {reviews.map((review) => (
-                      <article className="review-card" key={review.id}>
+                      <article className="review-card" key={review.id} data-testid="review-card">
                         <div className="review-card-header">
-                          <h4>{review.authorUsername || t("common.userFallback")}</h4>
-                          <p className="review-card-meta">
-                            {renderReviewRating(review.rating)}
-                            {review.createdAt ? ` - ${formatDate(review.createdAt, {
-                              dateStyle: "medium",
-                              timeStyle: "short",
-                            })}` : ""}
-                          </p>
+                          <div>
+                            <h4>{review.authorUsername || t("common.userFallback")}</h4>
+                            <p className="review-card-meta">
+                              {renderReviewRating(review.rating)}
+                              {review.createdAt ? ` - ${formatDate(review.createdAt, {
+                                dateStyle: "medium",
+                                timeStyle: "short",
+                              })}` : ""}
+                            </p>
+                          </div>
+                          {userId && review.authorId === userId && (
+                            <button
+                              className="delete-button"
+                              data-testid="review-delete-button"
+                              onClick={() => handleDeleteReview(review.id)}
+                              disabled={deletingReviewId === review.id}
+                              aria-label={t("plantDetails.reviewDelete")}
+                            >
+                              {deletingReviewId === review.id
+                                ? t("plantDetails.reviewDeleting")
+                                : t("plantDetails.reviewDelete")}
+                            </button>
+                          )}
                         </div>
                         <p className="review-card-comment">
                           {review.comment || t("plantDetails.reviewNoComment")}

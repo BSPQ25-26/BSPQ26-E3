@@ -1,6 +1,7 @@
 package com.example.restapi.service;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -66,6 +67,16 @@ public class ReviewService {
         entityManager.flush();
         entityManager.refresh(saved);
         return ReviewResponse.fromEntity(saved);
+    }
+
+    @Transactional
+    public void deleteReview(Long reviewId, UUID requesterId) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new IllegalArgumentException("Review not found"));
+        if (!review.getAuthor().getId().equals(requesterId)) {
+            throw new IllegalArgumentException("Not authorized to delete this review");
+        }
+        reviewRepository.deleteById(reviewId);
     }
 
     private void validateItemExists(Long itemId) {

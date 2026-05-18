@@ -63,6 +63,14 @@ const errorMatchers = [
   { match: /^profile not found/i, key: "errors.profileNotFound" },
   { match: /^item not found/i, key: "errors.itemNotFound" },
   { match: /^author not found/i, key: "errors.authorNotFound" },
+  { match: /^failed to delete review$/i, key: "errors.failedToDeleteReview" },
+  { match: /^failed to fetch comments$/i, key: "errors.failedToFetchComments" },
+  { match: /^failed to create comment$/i, key: "errors.failedToCreateComment" },
+  { match: /^failed to delete comment$/i, key: "errors.failedToDeleteComment" },
+  { match: /^not authorized/i, key: "errors.notAuthorized" },
+  { match: /^comment content is required$/i, key: "errors.commentContentRequired" },
+  { match: /^review not found/i, key: "errors.generic" },
+  { match: /^comment not found/i, key: "errors.generic" },
 ];
 
 function getInitialLanguage() {
