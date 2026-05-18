@@ -23,6 +23,13 @@ import com.example.restapi.dto.UserProfileResponse;
 import com.example.restapi.model.Profile;
 import com.example.restapi.repository.ProfileRepository;
 
+/**
+ *
+ * Service layer for user authentication and profile management.
+ *
+ * Acts as a remote facade that delegates identity operations to Supabase Auth
+ * while keeping local profile data in the application database.
+ */
 @Service
 public class AppUserService {
 
@@ -40,11 +47,21 @@ public class AppUserService {
     private final ProfileRepository profileRepository;
     private final RestTemplate restTemplate;
 
+    /**
+     * Constructs AppUserService.
+     * @param profileRepository Repository for local user profiles.
+     */
     public AppUserService(ProfileRepository profileRepository) {
         this.profileRepository = profileRepository;
         this.restTemplate = new RestTemplate();
     }
 
+    /**
+     * Registers a new user in Supabase Auth and creates a local profile.
+     * @param req Registration data (email, password, username, phone).
+     * @return The persisted local Profile.
+     * @throws RuntimeException if Supabase signup fails or the username is already taken.
+     */
     public Profile register(RegisterRequest req) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("apikey", supabaseAnonKey);
@@ -78,6 +95,13 @@ public class AppUserService {
         return profileRepository.save(profile);
     }
 
+    /**
+     * Authenticates a user against Supabase and returns session data.
+     * @param email    User email.
+     * @param password User password.
+     * @return AuthResponse containing the access token and local profile.
+     * @throws RuntimeException if credentials are invalid or the email is not confirmed.
+     */
     public AuthResponse login(String email, String password) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("apikey", supabaseAnonKey);
@@ -126,6 +150,11 @@ public class AppUserService {
         return authResponse;
     }
 
+    /**
+     * Requests Supabase to resend the email-confirmation message.
+     * @param email Target email address.
+     * @throws RuntimeException if the request fails.
+     */
     public void resendConfirmation(String email) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("apikey", supabaseAnonKey);
@@ -144,6 +173,12 @@ public class AppUserService {
         }
     }
 
+    /**
+     * Retrieves a public profile by username.
+     * @param email    Optional email filter (currently unused).
+     * @param username The unique username to look up.
+     * @return Optional containing the public UserProfileResponse.
+     */
     public Optional<UserProfileResponse> getDisplayProfile(String email, String username) {
         Optional<Profile> profileOpt = Optional.empty();
 
@@ -160,18 +195,34 @@ public class AppUserService {
         });
     }
 
+    /**
+     * Returns every registered user profile.
+     * @return List of Profile entities.
+     */
     public List<Profile> getAllUsers() {
         return profileRepository.findAll();
     }
 
+    /**
+     * Retrieves a profile by its primary key.
+     * @param id The profile UUID.
+     * @return Optional containing the Profile, or empty if not found.
+     */
     public Optional<Profile> getUserById(UUID id) {
         return profileRepository.findById(id);
     }
 
+    /**
+     * Applies a partial update to an existing profile.
+     * @param id      UUID of the profile to update.
+     * @param updates Map of field names to new values (supports "username", "phone").
+     * @return The updated Profile entity.
+     * @throws RuntimeException if the profile does not exist.
+     */
     public Profile updatePartOfUser(UUID id, Map<String, Object> updates) {
         Profile profile = profileRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Profile not found with id: " + id));
-        partialUpdate(profile ,updates);
+        partialUpdate(profile, updates);
         return profileRepository.save(profile);
     }
 
@@ -186,6 +237,11 @@ public class AppUserService {
         profileRepository.save(userDetails);
     }
 
+    /**
+     * Triggers a password-reset email via Supabase.
+     * @param email User email.
+     * @throws RuntimeException if the request fails.
+     */
     public void resetPassword(String email) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("apikey", supabaseAnonKey);
@@ -203,8 +259,15 @@ public class AppUserService {
         }
     }
 
+    /**
+     * Changes a user's password after verifying the current one.
+     * @param userId          UUID of the user.
+     * @param email           User email.
+     * @param currentPassword The existing password.
+     * @param newPassword     The desired new password.
+     * @throws RuntimeException if the current password is invalid or the update fails.
+     */
     public void changePassword(UUID userId, String email, String currentPassword, String newPassword) {
-        // Verify current password
         HttpHeaders verifyHeaders = new HttpHeaders();
         verifyHeaders.set("apikey", supabaseAnonKey);
         verifyHeaders.setContentType(MediaType.APPLICATION_JSON);
@@ -221,7 +284,6 @@ public class AppUserService {
             throw new RuntimeException("INVALID_CURRENT_PASSWORD");
         }
 
-        // Update password via admin API
         HttpHeaders adminHeaders = new HttpHeaders();
         adminHeaders.set("apikey", supabaseServiceRoleKey);
         adminHeaders.set("Authorization", "Bearer " + supabaseServiceRoleKey);
@@ -243,6 +305,11 @@ public class AppUserService {
         }
     }
 
+    /**
+     * Deletes a user both from Supabase Auth and the local database.
+     * @param id UUID of the user to remove.
+     * @throws RuntimeException if the local profile is not found.
+     */
     public void deleteUser(UUID id) {
         if (!profileRepository.existsById(id)) {
             throw new RuntimeException("Profile not found with id: " + id);
@@ -263,14 +330,10 @@ public class AppUserService {
 
     @SuppressWarnings("unchecked")
     private String extractUserId(Map<String, Object> response) {
-        // When email confirmation is disabled, user data is nested under "user"
         if (response.containsKey("user") && response.get("user") != null) {
             Map<String, Object> user = (Map<String, Object>) response.get("user");
             return (String) user.get("id");
         }
-        // When email confirmation is enabled, the response IS the user object
         return (String) response.get("id");
     }
-
-
 }
