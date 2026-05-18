@@ -670,6 +670,11 @@
   overflow-y: auto;
 }
 
+.plant-details-layout {
+  display: flex;
+  flex-direction: column;
+}
+
 /* Modal Header - Fixed */
 .modal-header {
   padding: 24px 24px 0;
@@ -1003,6 +1008,114 @@
   margin-top: auto;
 }
 
+.plant-reviews-section {
+  border-top: 1px solid rgba(114, 88, 52, 0.14);
+  padding: 0 32px 32px;
+}
+
+.plant-reviews-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.plant-reviews-header h3 {
+  margin: 0;
+  font-size: 1.35rem;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.review-form {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 24px;
+  padding: 18px;
+  background: rgba(47, 106, 59, 0.04);
+  border: 1px solid rgba(47, 106, 59, 0.1);
+  border-radius: 18px;
+}
+
+.review-form-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 180px) 1fr;
+  gap: 16px;
+}
+
+.review-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.review-form-field span {
+  font-size: 0.9rem;
+}
+
+.review-form-field select,
+.review-form-field textarea {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid rgba(88, 73, 42, 0.14);
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--text-main);
+  font: inherit;
+  padding: 12px 14px;
+}
+
+.review-form-field select:focus,
+.review-form-field textarea:focus {
+  outline: 2px solid rgba(47, 106, 59, 0.18);
+  border-color: rgba(47, 106, 59, 0.42);
+}
+
+.review-form-field textarea {
+  resize: vertical;
+  min-height: 88px;
+}
+
+.review-submit-button {
+  max-width: 220px;
+}
+
+.plant-reviews-state {
+  margin: 0;
+  color: var(--text-soft);
+}
+
+.reviews-list {
+  display: grid;
+  gap: 14px;
+}
+
+.review-card {
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(114, 88, 52, 0.14);
+  background: rgba(255, 252, 244, 0.92);
+}
+
+.review-card-header h4 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.review-card-meta {
+  margin: 6px 0 0;
+  color: var(--text-soft);
+  font-size: 0.9rem;
+}
+
+.review-card-comment {
+  margin: 12px 0 0;
+  color: var(--text-main);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
 .quantity-selector {
   display: flex;
   align-items: center;
@@ -1027,6 +1140,16 @@
 .quantity-selector input:disabled {
   background: rgba(0, 0, 0, 0.05);
   cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .plant-reviews-section {
+    padding: 0 24px 24px;
+  }
+
+  .review-form-row {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ============ SHOPPING CART ============ */
