@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CartItemResponse.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">rest-api</a> &gt; <a href="index.source.html" class="el_package">com.example.restapi.dto</a> &gt; <span class="el_source">CartItemResponse.java</span></div><h1>CartItemResponse.java</h1><pre class="source lang-java linenums">package com.example.restapi.dto;
+
+public class CartItemResponse {
+    private Long itemId;
+    private String title;
+    private Double amount;
+    private Integer quantity;
+
+<span class="fc" id="L9">    public CartItemResponse(Long itemId, String title, Double amount, Integer quantity) {</span>
+<span class="fc" id="L10">        this.itemId = itemId;</span>
+<span class="fc" id="L11">        this.title = title;</span>
+<span class="fc" id="L12">        this.amount = amount;</span>
+<span class="fc" id="L13">        this.quantity = quantity;</span>
+<span class="fc" id="L14">    }</span>
+
+<span class="fc" id="L16">    public Long getItemId() { return itemId; }</span>
+<span class="fc" id="L17">    public String getTitle() { return title; }</span>
+<span class="fc" id="L18">    public Double getAmount() { return amount; }</span>
+<span class="fc" id="L19">    public Integer getQuantity() { return quantity; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

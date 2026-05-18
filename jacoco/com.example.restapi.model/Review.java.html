@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Review.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">rest-api</a> &gt; <a href="index.source.html" class="el_package">com.example.restapi.model</a> &gt; <span class="el_source">Review.java</span></div><h1>Review.java</h1><pre class="source lang-java linenums">package com.example.restapi.model;
+
+import java.time.OffsetDateTime;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = &quot;reviews&quot;)
+public class Review {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;item_id&quot;, nullable = false)
+    private Item item;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;author_id&quot;, nullable = false)
+    private Profile author;
+
+    @Column(nullable = false)
+    private int rating;
+
+    @Column(columnDefinition = &quot;text&quot;)
+    private String comment;
+
+    @Column(name = &quot;created_at&quot;, insertable = false, updatable = false)
+    private OffsetDateTime createdAt;
+
+<span class="fc" id="L40">    public Review() {</span>
+<span class="fc" id="L41">    }</span>
+
+    public Long getId() {
+<span class="fc" id="L44">        return id;</span>
+    }
+
+    public void setId(Long id) {
+<span class="fc" id="L48">        this.id = id;</span>
+<span class="fc" id="L49">    }</span>
+
+    public Item getItem() {
+<span class="fc" id="L52">        return item;</span>
+    }
+
+    public void setItem(Item item) {
+<span class="fc" id="L56">        this.item = item;</span>
+<span class="fc" id="L57">    }</span>
+
+    public Profile getAuthor() {
+<span class="fc" id="L60">        return author;</span>
+    }
+
+    public void setAuthor(Profile author) {
+<span class="fc" id="L64">        this.author = author;</span>
+<span class="fc" id="L65">    }</span>
+
+    public int getRating() {
+<span class="fc" id="L68">        return rating;</span>
+    }
+
+    public void setRating(int rating) {
+<span class="fc" id="L72">        this.rating = rating;</span>
+<span class="fc" id="L73">    }</span>
+
+    public String getComment() {
+<span class="fc" id="L76">        return comment;</span>
+    }
+
+    public void setComment(String comment) {
+<span class="fc" id="L80">        this.comment = comment;</span>
+<span class="fc" id="L81">    }</span>
+
+    public OffsetDateTime getCreatedAt() {
+<span class="fc" id="L84">        return createdAt;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

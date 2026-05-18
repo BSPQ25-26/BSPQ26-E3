@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ItemController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">rest-api</a> &gt; <a href="index.source.html" class="el_package">com.example.restapi.controller</a> &gt; <span class="el_source">ItemController.java</span></div><h1>ItemController.java</h1><pre class="source lang-java linenums">package com.example.restapi.controller;
+
+import java.util.List;
+import java.util.UUID;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import com.example.restapi.dto.ItemResponse;
+import com.example.restapi.model.Item;
+import com.example.restapi.service.ItemService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@RestController
+@RequestMapping(&quot;/api/items&quot;)
+@Tag(name = &quot;Item Controller&quot;, description = &quot;API for managing items/plants&quot;)
+public class ItemController {
+
+    private final ItemService itemService;
+
+<span class="fc" id="L19">    public ItemController(ItemService itemService) {</span>
+<span class="fc" id="L20">        this.itemService = itemService;</span>
+<span class="fc" id="L21">    }</span>
+
+    @GetMapping
+    public ResponseEntity&lt;List&lt;ItemResponse&gt;&gt; getAllItems() {
+<span class="nc" id="L25">        return ResponseEntity.ok(itemService.getAllItems());</span>
+    }
+
+    @GetMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;ItemResponse&gt; getItemById(@PathVariable Long id) {
+        try {
+<span class="nc" id="L31">            return ResponseEntity.ok(itemService.getItemById(id));</span>
+<span class="nc" id="L32">        } catch (RuntimeException e) {</span>
+<span class="nc" id="L33">            return ResponseEntity.notFound().build();</span>
+        }
+    }
+
+    @GetMapping(&quot;/active&quot;)
+    public ResponseEntity&lt;List&lt;ItemResponse&gt;&gt; getActiveItems() {
+<span class="nc" id="L39">        return ResponseEntity.ok(itemService.getActiveItems());</span>
+    }
+
+    @PostMapping
+    public ResponseEntity&lt;Item&gt; createItem(@RequestBody Item item, @RequestHeader(value = &quot;X-User-Id&quot;, required = false) String userId) {
+        try {
+<span class="nc" id="L45">            System.out.println(&quot;DEBUG: Received userId: &quot; + userId);  // ← Agrega</span>
+            UUID sellerId;
+<span class="nc bnc" id="L47" title="All 4 branches missed.">            if (userId != null &amp;&amp; !userId.isEmpty()) {</span>
+<span class="nc" id="L48">                sellerId = UUID.fromString(userId);</span>
+            } else {
+<span class="nc" id="L50">                return ResponseEntity.badRequest().build();</span>
+            }
+<span class="nc" id="L52">            System.out.println(&quot;DEBUG: Creating item with sellerId: &quot; + sellerId);  // ← Agrega</span>
+<span class="nc" id="L53">            return ResponseEntity.ok(itemService.createItem(item, sellerId));</span>
+<span class="nc" id="L54">        } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L55">            System.err.println(&quot;ERROR (BadRequest): &quot; + e.getMessage());  // ← Agrega</span>
+<span class="nc" id="L56">            e.printStackTrace();</span>
+<span class="nc" id="L57">            return ResponseEntity.badRequest().build();</span>
+<span class="nc" id="L58">        } catch (RuntimeException e) {</span>
+<span class="nc" id="L59">            System.err.println(&quot;ERROR (500): &quot; + e.getMessage());  // ← Agrega</span>
+<span class="nc" id="L60">            e.printStackTrace();</span>
+<span class="nc" id="L61">            return ResponseEntity.status(500).build();</span>
+        }
+    }
+
+    @PutMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;Item&gt; updateItem(@PathVariable Long id, @RequestBody Item itemDetails) {
+        try {
+<span class="nc" id="L68">            return ResponseEntity.ok(itemService.updateItem(id, itemDetails));</span>
+<span class="nc" id="L69">        } catch (RuntimeException e) {</span>
+<span class="nc" id="L70">            return ResponseEntity.notFound().build();</span>
+        }
+    }
+
+    @DeleteMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;Void&gt; deleteItem(@PathVariable Long id) {
+        try {
+<span class="nc" id="L77">            itemService.deleteItem(id);</span>
+<span class="nc" id="L78">            return ResponseEntity.noContent().build();</span>
+<span class="nc" id="L79">        } catch (RuntimeException e) {</span>
+<span class="nc" id="L80">            return ResponseEntity.notFound().build();</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

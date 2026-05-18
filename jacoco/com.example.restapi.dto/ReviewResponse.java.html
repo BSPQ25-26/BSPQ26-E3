@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReviewResponse.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">rest-api</a> &gt; <a href="index.source.html" class="el_package">com.example.restapi.dto</a> &gt; <span class="el_source">ReviewResponse.java</span></div><h1>ReviewResponse.java</h1><pre class="source lang-java linenums">package com.example.restapi.dto;
+
+import java.time.OffsetDateTime;
+import java.util.UUID;
+
+import com.example.restapi.model.Review;
+
+public class ReviewResponse {
+
+    private Long id;
+    private Long itemId;
+    private UUID authorId;
+    private String authorUsername;
+    private int rating;
+    private String comment;
+    private OffsetDateTime createdAt;
+
+<span class="fc" id="L18">    public ReviewResponse() {</span>
+<span class="fc" id="L19">    }</span>
+
+    public static ReviewResponse fromEntity(Review review) {
+<span class="fc" id="L22">        ReviewResponse response = new ReviewResponse();</span>
+<span class="fc" id="L23">        response.id = review.getId();</span>
+<span class="fc" id="L24">        response.rating = review.getRating();</span>
+<span class="fc" id="L25">        response.comment = review.getComment();</span>
+<span class="fc" id="L26">        response.createdAt = review.getCreatedAt();</span>
+<span class="pc bpc" id="L27" title="1 of 2 branches missed.">        if (review.getItem() != null) {</span>
+<span class="fc" id="L28">            response.itemId = review.getItem().getId();</span>
+        }
+<span class="pc bpc" id="L30" title="1 of 2 branches missed.">        if (review.getAuthor() != null) {</span>
+<span class="fc" id="L31">            response.authorId = review.getAuthor().getId();</span>
+<span class="fc" id="L32">            response.authorUsername = review.getAuthor().getUsername();</span>
+        }
+<span class="fc" id="L34">        return response;</span>
+    }
+
+    public Long getId() {
+<span class="fc" id="L38">        return id;</span>
+    }
+
+    public Long getItemId() {
+<span class="fc" id="L42">        return itemId;</span>
+    }
+
+    public UUID getAuthorId() {
+<span class="fc" id="L46">        return authorId;</span>
+    }
+
+    public String getAuthorUsername() {
+<span class="fc" id="L50">        return authorUsername;</span>
+    }
+
+    public int getRating() {
+<span class="fc" id="L54">        return rating;</span>
+    }
+
+    public String getComment() {
+<span class="fc" id="L58">        return comment;</span>
+    }
+
+    public OffsetDateTime getCreatedAt() {
+<span class="nc" id="L62">        return createdAt;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

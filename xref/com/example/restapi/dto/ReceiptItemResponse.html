@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>ReceiptItemResponse xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../apidocs/com/example/restapi/dto/ReceiptItemResponse.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <strong class="jxr_keyword">package</strong> com.example.restapi.dto;
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="ReceiptItemResponse" href="../../../../com/example/restapi/dto/ReceiptItemResponse.html#ReceiptItemResponse">ReceiptItemResponse</a> {
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>       <strong class="jxr_keyword">private</strong> Long itemId;
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>       <strong class="jxr_keyword">private</strong> String itemName;
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>       <strong class="jxr_keyword">private</strong> Double unitPrice;
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>       <strong class="jxr_keyword">private</strong> Integer quantity;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>       <strong class="jxr_keyword">private</strong> Double subtotal;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>      <strong class="jxr_keyword">public</strong> <a name="ReceiptItemResponse" href="../../../../com/example/restapi/dto/ReceiptItemResponse.html#ReceiptItemResponse">ReceiptItemResponse</a>(Long itemId, String itemName, Double unitPrice, Integer quantity) {
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>          <strong class="jxr_keyword">this</strong>.itemId = itemId;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>          <strong class="jxr_keyword">this</strong>.itemName = itemName;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>          <strong class="jxr_keyword">this</strong>.unitPrice = unitPrice;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>          <strong class="jxr_keyword">this</strong>.quantity = quantity;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>          <strong class="jxr_keyword">this</strong>.subtotal = unitPrice * quantity;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>      }
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>      <em class="jxr_comment">// Getters</em>
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>      <strong class="jxr_keyword">public</strong> Long getItemId() { <strong class="jxr_keyword">return</strong> itemId; }
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>      <strong class="jxr_keyword">public</strong> String getItemName() { <strong class="jxr_keyword">return</strong> itemName; }
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>      <strong class="jxr_keyword">public</strong> Double getUnitPrice() { <strong class="jxr_keyword">return</strong> unitPrice; }
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>      <strong class="jxr_keyword">public</strong> Integer getQuantity() { <strong class="jxr_keyword">return</strong> quantity; }
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>      <strong class="jxr_keyword">public</strong> Double getSubtotal() { <strong class="jxr_keyword">return</strong> subtotal; }
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2026. All rights reserved.</div>
+</body>
+</html>

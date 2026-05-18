@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PaymentService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">rest-api</a> &gt; <a href="index.source.html" class="el_package">com.example.restapi.service</a> &gt; <span class="el_source">PaymentService.java</span></div><h1>PaymentService.java</h1><pre class="source lang-java linenums">package com.example.restapi.service;
+
+import org.springframework.stereotype.Service;
+
+import com.example.restapi.dto.PaymentRequest;
+
+/**
+ *
+ * Service layer that simulates payment processing.
+ *
+ * Validates card data (number, expiry, CVV, holder name) and returns a
+ * probabilistic success result.  This remote facade allows the checkout
+ * flow to remain agnostic of the real payment provider.
+ */
+@Service
+<span class="fc" id="L16">public class PaymentService {</span>
+
+    /**
+     * Validates payment details and simulates a charge.
+     *
+     * The simulation has a 90 % success rate when all fields are valid.
+     *
+     * @param paymentRequest DTO containing card holder, number, expiry and CVV.
+     * @param amount         Monetary amount to charge (must be &gt; 0).
+     * @return true if the simulated payment succeeds, false otherwise.
+     */
+    public boolean processPayment(PaymentRequest paymentRequest, Double amount) {
+<span class="fc bfc" id="L28" title="All 6 branches covered.">        if (paymentRequest == null || amount == null || amount &lt;= 0) {</span>
+<span class="fc" id="L29">            return false;</span>
+        }
+
+<span class="fc bfc" id="L32" title="All 2 branches covered.">        if (!isValidCardNumber(paymentRequest.getCardNumber())) {</span>
+<span class="fc" id="L33">            return false;</span>
+        }
+<span class="fc bfc" id="L35" title="All 2 branches covered.">        if (!isValidExpiryDate(paymentRequest.getExpiryDate())) {</span>
+<span class="fc" id="L36">            return false;</span>
+        }
+<span class="fc bfc" id="L38" title="All 2 branches covered.">        if (!isValidCVV(paymentRequest.getCvv())) {</span>
+<span class="fc" id="L39">            return false;</span>
+        }
+<span class="pc bpc" id="L41" title="1 of 4 branches missed.">        if (paymentRequest.getCardHolder() == null || paymentRequest.getCardHolder().trim().isEmpty()) {</span>
+<span class="fc" id="L42">            return false;</span>
+        }
+
+        // Simulate successful payment (90% success rate for testing)
+<span class="pc bpc" id="L46" title="1 of 2 branches missed.">        return Math.random() &lt; 0.9;</span>
+    }
+
+    /**
+     * Checks whether a card number looks valid.
+     * @param cardNumber Raw card number (may contain spaces or dashes).
+     * @return true if the cleaned number has 13-19 digits.
+     */
+    private boolean isValidCardNumber(String cardNumber) {
+<span class="pc bpc" id="L55" title="2 of 4 branches missed.">        if (cardNumber == null || cardNumber.isEmpty()) {</span>
+<span class="nc" id="L56">            return false;</span>
+        }
+<span class="fc" id="L58">        String cleaned = cardNumber.replaceAll(&quot;[\\s-]&quot;, &quot;&quot;);</span>
+<span class="fc" id="L59">        return cleaned.matches(&quot;\\d{13,19}&quot;);</span>
+    }
+
+    /**
+     * Validates the expiry date format.
+     * @param expiryDate String expected in MM/YY format.
+     * @return true if the format matches MM/YY.
+     */
+    private boolean isValidExpiryDate(String expiryDate) {
+<span class="pc bpc" id="L68" title="2 of 4 branches missed.">        if (expiryDate == null || expiryDate.isEmpty()) {</span>
+<span class="nc" id="L69">            return false;</span>
+        }
+<span class="fc" id="L71">        return expiryDate.matches(&quot;^(0[1-9]|1[0-2])/\\d{2}$&quot;);</span>
+    }
+
+    /**
+     * Validates the CVV/CVC code.
+     * @param cvv Security code.
+     * @return true if the CVV consists of 3 or 4 digits.
+     */
+    private boolean isValidCVV(String cvv) {
+<span class="pc bpc" id="L80" title="2 of 4 branches missed.">        if (cvv == null || cvv.isEmpty()) {</span>
+<span class="nc" id="L81">            return false;</span>
+        }
+<span class="fc" id="L83">        return cvv.matches(&quot;\\d{3,4}&quot;);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

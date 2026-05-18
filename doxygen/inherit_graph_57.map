@@ -1,0 +1,23 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" title=" " alt="" coords="5,301,117,326"/>
+<area shape="rect" id="Node000001" href="$interfacecom_1_1example_1_1restapi_1_1repository_1_1CartItemRepository.html" title=" " alt="" coords="165,5,397,45"/>
+<area shape="poly" id="edge1_Node000000_Node000001" title=" " alt="" coords="63,287,72,237,90,175,119,111,139,81,164,55,181,43,184,48,167,59,143,85,124,114,95,177,77,239,68,288"/>
+<area shape="rect" id="Node000002" href="$interfacecom_1_1example_1_1restapi_1_1repository_1_1CartRepository.html" title=" " alt="" coords="165,69,397,109"/>
+<area shape="poly" id="edge2_Node000000_Node000002" title=" " alt="" coords="67,287,79,249,99,204,127,158,164,119,182,107,185,112,167,123,131,162,104,207,84,251,72,288"/>
+<area shape="rect" id="Node000003" href="$interfacecom_1_1example_1_1restapi_1_1repository_1_1CategoryRepository.html" title=" " alt="" coords="165,133,397,173"/>
+<area shape="poly" id="edge3_Node000000_Node000003" title=" " alt="" coords="74,287,110,234,135,207,164,183,186,171,189,176,167,188,139,211,114,238,78,290"/>
+<area shape="rect" id="Node000004" href="$interfacecom_1_1example_1_1restapi_1_1repository_1_1CommentRepository.html" title=" " alt="" coords="165,197,397,237"/>
+<area shape="poly" id="edge4_Node000000_Node000004" title=" " alt="" coords="90,290,124,268,164,247,196,235,198,240,166,252,127,272,92,295"/>
+<area shape="rect" id="Node000005" href="$interfacecom_1_1example_1_1restapi_1_1repository_1_1ItemRepository.html" title=" " alt="" coords="165,261,397,301"/>
+<area shape="poly" id="edge5_Node000000_Node000005" title=" " alt="" coords="131,301,165,296,165,301,131,306"/>
+<area shape="rect" id="Node000006" href="$interfacecom_1_1example_1_1restapi_1_1repository_1_1PostRepository.html" title=" " alt="" coords="165,325,397,365"/>
+<area shape="poly" id="edge6_Node000000_Node000006" title=" " alt="" coords="131,321,165,326,165,331,131,326"/>
+<area shape="rect" id="Node000007" href="$interfacecom_1_1example_1_1restapi_1_1repository_1_1ProfileRepository.html" title=" " alt="" coords="165,389,397,429"/>
+<area shape="poly" id="edge7_Node000000_Node000007" title=" " alt="" coords="92,332,127,354,166,375,198,387,196,392,164,380,124,359,90,336"/>
+<area shape="rect" id="Node000008" href="$interfacecom_1_1example_1_1restapi_1_1repository_1_1ReceiptRepository.html" title=" " alt="" coords="165,453,397,493"/>
+<area shape="poly" id="edge8_Node000000_Node000008" title=" " alt="" coords="78,336,114,389,139,416,167,439,189,451,186,456,164,444,135,420,110,392,74,339"/>
+<area shape="rect" id="Node000009" href="$interfacecom_1_1example_1_1restapi_1_1repository_1_1ReviewRepository.html" title=" " alt="" coords="165,517,397,557"/>
+<area shape="poly" id="edge9_Node000000_Node000009" title=" " alt="" coords="72,338,84,376,104,420,131,465,167,503,185,515,182,519,164,507,127,468,99,423,79,377,67,340"/>
+<area shape="rect" id="Node000010" href="$interfacecom_1_1example_1_1restapi_1_1repository_1_1SaleRepository.html" title=" " alt="" coords="165,581,397,621"/>
+<area shape="poly" id="edge10_Node000000_Node000010" title=" " alt="" coords="68,339,77,388,95,450,124,513,143,542,167,567,184,579,181,583,164,571,139,545,119,516,90,451,72,389,63,340"/>
+</map>

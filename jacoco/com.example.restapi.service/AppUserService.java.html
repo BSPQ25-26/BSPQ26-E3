@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AppUserService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">rest-api</a> &gt; <a href="index.source.html" class="el_package">com.example.restapi.service</a> &gt; <span class="el_source">AppUserService.java</span></div><h1>AppUserService.java</h1><pre class="source lang-java linenums">package com.example.restapi.service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
+
+import com.example.restapi.dto.AuthResponse;
+import com.example.restapi.dto.RegisterRequest;
+import com.example.restapi.dto.UserProfileResponse;
+import com.example.restapi.model.Profile;
+import com.example.restapi.repository.ProfileRepository;
+
+/**
+ *
+ * Service layer for user authentication and profile management.
+ *
+ * Acts as a remote facade that delegates identity operations to Supabase Auth
+ * while keeping local profile data in the application database.
+ */
+@Service
+public class AppUserService {
+
+<span class="fc" id="L36">    private static final Logger log = LoggerFactory.getLogger(AppUserService.class);</span>
+
+    @Value(&quot;${supabase.url}&quot;)
+    private String supabaseUrl;
+
+    @Value(&quot;${supabase.anon-key}&quot;)
+    private String supabaseAnonKey;
+
+    @Value(&quot;${supabase.service-role-key}&quot;)
+    private String supabaseServiceRoleKey;
+
+    private final ProfileRepository profileRepository;
+    private final RestTemplate restTemplate;
+
+    /**
+     * Constructs AppUserService.
+     * @param profileRepository Repository for local user profiles.
+     */
+<span class="fc" id="L54">    public AppUserService(ProfileRepository profileRepository) {</span>
+<span class="fc" id="L55">        this.profileRepository = profileRepository;</span>
+<span class="fc" id="L56">        this.restTemplate = new RestTemplate();</span>
+<span class="fc" id="L57">    }</span>
+
+    /**
+     * Registers a new user in Supabase Auth and creates a local profile.
+     * @param req Registration data (email, password, username, phone).
+     * @return The persisted local Profile.
+     * @throws RuntimeException if Supabase signup fails or the username is already taken.
+     */
+    public Profile register(RegisterRequest req) {
+<span class="nc" id="L66">        HttpHeaders headers = new HttpHeaders();</span>
+<span class="nc" id="L67">        headers.set(&quot;apikey&quot;, supabaseAnonKey);</span>
+<span class="nc" id="L68">        headers.setContentType(MediaType.APPLICATION_JSON);</span>
+
+<span class="nc" id="L70">        Map&lt;String, Object&gt; body = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L71">        body.put(&quot;email&quot;, req.getEmail());</span>
+<span class="nc" id="L72">        body.put(&quot;password&quot;, req.getPassword());</span>
+
+<span class="nc" id="L74">        HttpEntity&lt;Map&lt;String, Object&gt;&gt; request = new HttpEntity&lt;&gt;(body, headers);</span>
+
+        Map&lt;String, Object&gt; response;
+        try {
+            @SuppressWarnings(&quot;unchecked&quot;)
+<span class="nc" id="L79">            Map&lt;String, Object&gt; r = restTemplate.postForObject(</span>
+                    supabaseUrl + &quot;/auth/v1/signup&quot;, request, Map.class);
+<span class="nc" id="L81">            response = r;</span>
+<span class="nc" id="L82">        } catch (HttpClientErrorException e) {</span>
+<span class="nc" id="L83">            log.error(&quot;Supabase signup error {} - {}&quot;, e.getStatusCode(), e.getResponseBodyAsString());</span>
+<span class="nc" id="L84">            throw new RuntimeException(&quot;Supabase signup failed: &quot; + e.getResponseBodyAsString());</span>
+<span class="nc" id="L85">        }</span>
+
+<span class="nc" id="L87">        log.info(&quot;Supabase signup response: {}&quot;, response);</span>
+<span class="nc" id="L88">        String userId = extractUserId(response);</span>
+
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        if (profileRepository.findByUsername(req.getUsername()).isPresent()) {</span>
+<span class="nc" id="L91">            throw new RuntimeException(&quot;Username already taken: &quot; + req.getUsername());</span>
+        }
+
+<span class="nc" id="L94">        Profile profile = new Profile(UUID.fromString(userId), req.getUsername(), req.getPhone());</span>
+<span class="nc" id="L95">        return profileRepository.save(profile);</span>
+    }
+
+    /**
+     * Authenticates a user against Supabase and returns session data.
+     * @param email    User email.
+     * @param password User password.
+     * @return AuthResponse containing the access token and local profile.
+     * @throws RuntimeException if credentials are invalid or the email is not confirmed.
+     */
+    public AuthResponse login(String email, String password) {
+<span class="nc" id="L106">        HttpHeaders headers = new HttpHeaders();</span>
+<span class="nc" id="L107">        headers.set(&quot;apikey&quot;, supabaseAnonKey);</span>
+<span class="nc" id="L108">        headers.setContentType(MediaType.APPLICATION_JSON);</span>
+
+<span class="nc" id="L110">        Map&lt;String, String&gt; body = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L111">        body.put(&quot;email&quot;, email);</span>
+<span class="nc" id="L112">        body.put(&quot;password&quot;, password);</span>
+
+<span class="nc" id="L114">        HttpEntity&lt;Map&lt;String, String&gt;&gt; request = new HttpEntity&lt;&gt;(body, headers);</span>
+
+        Map&lt;String, Object&gt; response;
+        try {
+            @SuppressWarnings(&quot;unchecked&quot;)
+<span class="nc" id="L119">            Map&lt;String, Object&gt; r = restTemplate.postForObject(</span>
+                    supabaseUrl + &quot;/auth/v1/token?grant_type=password&quot;, request, Map.class);
+<span class="nc" id="L121">            response = r;</span>
+<span class="nc" id="L122">        } catch (HttpClientErrorException e) {</span>
+<span class="nc" id="L123">            log.error(&quot;Supabase login error {} - {}&quot;, e.getStatusCode(), e.getResponseBodyAsString());</span>
+<span class="nc" id="L124">            String errorBody = e.getResponseBodyAsString();</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">            if (errorBody.contains(&quot;email_not_confirmed&quot;)) {</span>
+<span class="nc" id="L126">                throw new RuntimeException(&quot;EMAIL_NOT_CONFIRMED&quot;);</span>
+            }
+<span class="nc" id="L128">            throw new RuntimeException(&quot;Supabase login failed: &quot; + errorBody);</span>
+<span class="nc" id="L129">        }</span>
+
+<span class="nc" id="L131">        String accessToken = (String) response.get(&quot;access_token&quot;);</span>
+<span class="nc" id="L132">        String tokenType = (String) response.get(&quot;token_type&quot;);</span>
+<span class="nc" id="L133">        Object expiresInRaw = response.get(&quot;expires_in&quot;);</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">        int expiresIn = expiresInRaw instanceof Number ? ((Number) expiresInRaw).intValue() : 3600;</span>
+
+        @SuppressWarnings(&quot;unchecked&quot;)
+<span class="nc" id="L137">        Map&lt;String, Object&gt; userMap = (Map&lt;String, Object&gt;) response.get(&quot;user&quot;);</span>
+<span class="nc" id="L138">        UUID userId = UUID.fromString((String) userMap.get(&quot;id&quot;));</span>
+<span class="nc" id="L139">        String userEmail = (String) userMap.get(&quot;email&quot;);</span>
+
+<span class="nc" id="L141">        Profile profile = profileRepository.findById(userId)</span>
+<span class="nc" id="L142">                .orElseThrow(() -&gt; new RuntimeException(&quot;Profile not found for user: &quot; + userId));</span>
+
+<span class="nc" id="L144">        AuthResponse authResponse = new AuthResponse();</span>
+<span class="nc" id="L145">        authResponse.setAccessToken(accessToken);</span>
+<span class="nc" id="L146">        authResponse.setTokenType(tokenType);</span>
+<span class="nc" id="L147">        authResponse.setExpiresIn(expiresIn);</span>
+<span class="nc" id="L148">        authResponse.setEmail(userEmail);</span>
+<span class="nc" id="L149">        authResponse.setProfile(profile);</span>
+<span class="nc" id="L150">        return authResponse;</span>
+    }
+
+    /**
+     * Requests Supabase to resend the email-confirmation message.
+     * @param email Target email address.
+     * @throws RuntimeException if the request fails.
+     */
+    public void resendConfirmation(String email) {
+<span class="nc" id="L159">        HttpHeaders headers = new HttpHeaders();</span>
+<span class="nc" id="L160">        headers.set(&quot;apikey&quot;, supabaseAnonKey);</span>
+<span class="nc" id="L161">        headers.setContentType(MediaType.APPLICATION_JSON);</span>
+
+<span class="nc" id="L163">        Map&lt;String, String&gt; body = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L164">        body.put(&quot;type&quot;, &quot;signup&quot;);</span>
+<span class="nc" id="L165">        body.put(&quot;email&quot;, email);</span>
+
+<span class="nc" id="L167">        HttpEntity&lt;Map&lt;String, String&gt;&gt; request = new HttpEntity&lt;&gt;(body, headers);</span>
+        try {
+<span class="nc" id="L169">            restTemplate.postForObject(supabaseUrl + &quot;/auth/v1/resend&quot;, request, Map.class);</span>
+<span class="nc" id="L170">        } catch (HttpClientErrorException e) {</span>
+<span class="nc" id="L171">            log.error(&quot;Supabase resend error {} - {}&quot;, e.getStatusCode(), e.getResponseBodyAsString());</span>
+<span class="nc" id="L172">            throw new RuntimeException(&quot;Failed to resend confirmation email: &quot; + e.getResponseBodyAsString());</span>
+<span class="nc" id="L173">        }</span>
+<span class="nc" id="L174">    }</span>
+
+    /**
+     * Retrieves a public profile by username.
+     * @param email    Optional email filter (currently unused).
+     * @param username The unique username to look up.
+     * @return Optional containing the public UserProfileResponse.
+     */
+    public Optional&lt;UserProfileResponse&gt; getDisplayProfile(String email, String username) {
+<span class="fc" id="L183">        Optional&lt;Profile&gt; profileOpt = Optional.empty();</span>
+
+<span class="pc bpc" id="L185" title="1 of 4 branches missed.">        if (username != null &amp;&amp; !username.isBlank()) {</span>
+<span class="fc" id="L186">            profileOpt = profileRepository.findByUsername(username);</span>
+        }
+
+<span class="fc" id="L189">        return profileOpt.map(profile -&gt; {</span>
+<span class="fc" id="L190">            UserProfileResponse dto = new UserProfileResponse();</span>
+<span class="fc" id="L191">            dto.setUsername(profile.getUsername());</span>
+<span class="fc" id="L192">            dto.setPhone(profile.getPhone());</span>
+<span class="fc" id="L193">            dto.setCreatedAt(profile.getCreatedAt());</span>
+<span class="fc" id="L194">            return dto;</span>
+        });
+    }
+
+    /**
+     * Returns every registered user profile.
+     * @return List of Profile entities.
+     */
+    public List&lt;Profile&gt; getAllUsers() {
+<span class="fc" id="L203">        return profileRepository.findAll();</span>
+    }
+
+    /**
+     * Retrieves a profile by its primary key.
+     * @param id The profile UUID.
+     * @return Optional containing the Profile, or empty if not found.
+     */
+    public Optional&lt;Profile&gt; getUserById(UUID id) {
+<span class="fc" id="L212">        return profileRepository.findById(id);</span>
+    }
+
+    /**
+     * Applies a partial update to an existing profile.
+     * @param id      UUID of the profile to update.
+     * @param updates Map of field names to new values (supports &quot;username&quot;, &quot;phone&quot;).
+     * @return The updated Profile entity.
+     * @throws RuntimeException if the profile does not exist.
+     */
+    public Profile updatePartOfUser(UUID id, Map&lt;String, Object&gt; updates) {
+<span class="fc" id="L223">        Profile profile = profileRepository.findById(id)</span>
+<span class="fc" id="L224">                .orElseThrow(() -&gt; new RuntimeException(&quot;Profile not found with id: &quot; + id));</span>
+<span class="fc" id="L225">        partialUpdate(profile, updates);</span>
+<span class="fc" id="L226">        return profileRepository.save(profile);</span>
+    }
+
+    private void partialUpdate(Profile userDetails, Map&lt;String, Object&gt; updates){
+<span class="pc bpc" id="L230" title="1 of 2 branches missed.">        if(updates.containsKey(&quot;username&quot;)){</span>
+<span class="fc" id="L231">            userDetails.setUsername((String) updates.get(&quot;username&quot;));</span>
+        }
+
+<span class="pc bpc" id="L234" title="1 of 2 branches missed.">        if(updates.containsKey(&quot;phone&quot;)){</span>
+<span class="fc" id="L235">            userDetails.setPhone((String) updates.get(&quot;phone&quot;));</span>
+        }
+<span class="fc" id="L237">        profileRepository.save(userDetails);</span>
+<span class="fc" id="L238">    }</span>
+
+    /**
+     * Triggers a password-reset email via Supabase.
+     * @param email User email.
+     * @throws RuntimeException if the request fails.
+     */
+    public void resetPassword(String email) {
+<span class="nc" id="L246">        HttpHeaders headers = new HttpHeaders();</span>
+<span class="nc" id="L247">        headers.set(&quot;apikey&quot;, supabaseAnonKey);</span>
+<span class="nc" id="L248">        headers.setContentType(MediaType.APPLICATION_JSON);</span>
+
+<span class="nc" id="L250">        Map&lt;String, String&gt; body = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L251">        body.put(&quot;email&quot;, email);</span>
+
+<span class="nc" id="L253">        HttpEntity&lt;Map&lt;String, String&gt;&gt; request = new HttpEntity&lt;&gt;(body, headers);</span>
+        try {
+<span class="nc" id="L255">            restTemplate.postForObject(supabaseUrl + &quot;/auth/v1/recover&quot;, request, Map.class);</span>
+<span class="nc" id="L256">        } catch (HttpClientErrorException e) {</span>
+<span class="nc" id="L257">            log.error(&quot;Supabase recover error {} - {}&quot;, e.getStatusCode(), e.getResponseBodyAsString());</span>
+<span class="nc" id="L258">            throw new RuntimeException(&quot;Failed to send reset email: &quot; + e.getResponseBodyAsString());</span>
+<span class="nc" id="L259">        }</span>
+<span class="nc" id="L260">    }</span>
+
+    /**
+     * Changes a user's password after verifying the current one.
+     * @param userId          UUID of the user.
+     * @param email           User email.
+     * @param currentPassword The existing password.
+     * @param newPassword     The desired new password.
+     * @throws RuntimeException if the current password is invalid or the update fails.
+     */
+    public void changePassword(UUID userId, String email, String currentPassword, String newPassword) {
+<span class="nc" id="L271">        HttpHeaders verifyHeaders = new HttpHeaders();</span>
+<span class="nc" id="L272">        verifyHeaders.set(&quot;apikey&quot;, supabaseAnonKey);</span>
+<span class="nc" id="L273">        verifyHeaders.setContentType(MediaType.APPLICATION_JSON);</span>
+
+<span class="nc" id="L275">        Map&lt;String, String&gt; loginBody = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L276">        loginBody.put(&quot;email&quot;, email);</span>
+<span class="nc" id="L277">        loginBody.put(&quot;password&quot;, currentPassword);</span>
+
+<span class="nc" id="L279">        HttpEntity&lt;Map&lt;String, String&gt;&gt; loginRequest = new HttpEntity&lt;&gt;(loginBody, verifyHeaders);</span>
+        try {
+<span class="nc" id="L281">            restTemplate.postForObject(</span>
+                    supabaseUrl + &quot;/auth/v1/token?grant_type=password&quot;, loginRequest, Map.class);
+<span class="nc" id="L283">        } catch (HttpClientErrorException e) {</span>
+<span class="nc" id="L284">            throw new RuntimeException(&quot;INVALID_CURRENT_PASSWORD&quot;);</span>
+<span class="nc" id="L285">        }</span>
+
+<span class="nc" id="L287">        HttpHeaders adminHeaders = new HttpHeaders();</span>
+<span class="nc" id="L288">        adminHeaders.set(&quot;apikey&quot;, supabaseServiceRoleKey);</span>
+<span class="nc" id="L289">        adminHeaders.set(&quot;Authorization&quot;, &quot;Bearer &quot; + supabaseServiceRoleKey);</span>
+<span class="nc" id="L290">        adminHeaders.setContentType(MediaType.APPLICATION_JSON);</span>
+
+<span class="nc" id="L292">        Map&lt;String, String&gt; updateBody = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L293">        updateBody.put(&quot;password&quot;, newPassword);</span>
+
+<span class="nc" id="L295">        HttpEntity&lt;Map&lt;String, String&gt;&gt; updateRequest = new HttpEntity&lt;&gt;(updateBody, adminHeaders);</span>
+        try {
+<span class="nc" id="L297">            restTemplate.exchange(</span>
+                    supabaseUrl + &quot;/auth/v1/admin/users/&quot; + userId,
+                    HttpMethod.PUT,
+                    updateRequest,
+                    Map.class);
+<span class="nc" id="L302">        } catch (HttpClientErrorException e) {</span>
+<span class="nc" id="L303">            log.error(&quot;Supabase password update error {} - {}&quot;, e.getStatusCode(), e.getResponseBodyAsString());</span>
+<span class="nc" id="L304">            throw new RuntimeException(&quot;Failed to update password: &quot; + e.getResponseBodyAsString());</span>
+<span class="nc" id="L305">        }</span>
+<span class="nc" id="L306">    }</span>
+
+    /**
+     * Deletes a user both from Supabase Auth and the local database.
+     * @param id UUID of the user to remove.
+     * @throws RuntimeException if the local profile is not found.
+     */
+    public void deleteUser(UUID id) {
+<span class="fc bfc" id="L314" title="All 2 branches covered.">        if (!profileRepository.existsById(id)) {</span>
+<span class="fc" id="L315">            throw new RuntimeException(&quot;Profile not found with id: &quot; + id);</span>
+        }
+
+<span class="fc" id="L318">        HttpHeaders headers = new HttpHeaders();</span>
+<span class="fc" id="L319">        headers.set(&quot;apikey&quot;, supabaseServiceRoleKey);</span>
+<span class="fc" id="L320">        headers.set(&quot;Authorization&quot;, &quot;Bearer &quot; + supabaseServiceRoleKey);</span>
+
+<span class="fc" id="L322">        HttpEntity&lt;Void&gt; request = new HttpEntity&lt;&gt;(headers);</span>
+<span class="fc" id="L323">        restTemplate.exchange(</span>
+                supabaseUrl + &quot;/auth/v1/admin/users/&quot; + id,
+                HttpMethod.DELETE,
+                request,
+                Void.class);
+        // The profile is deleted automatically by the ON DELETE CASCADE constraint
+<span class="fc" id="L329">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    private String extractUserId(Map&lt;String, Object&gt; response) {
+<span class="nc bnc" id="L333" title="All 4 branches missed.">        if (response.containsKey(&quot;user&quot;) &amp;&amp; response.get(&quot;user&quot;) != null) {</span>
+<span class="nc" id="L334">            Map&lt;String, Object&gt; user = (Map&lt;String, Object&gt;) response.get(&quot;user&quot;);</span>
+<span class="nc" id="L335">            return (String) user.get(&quot;id&quot;);</span>
+        }
+<span class="nc" id="L337">        return (String) response.get(&quot;id&quot;);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

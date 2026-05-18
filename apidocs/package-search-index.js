@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.example.config"},{"l":"com.example.restapi"},{"l":"com.example.restapi.client"},{"l":"com.example.restapi.controller"},{"l":"com.example.restapi.dto"},{"l":"com.example.restapi.model"},{"l":"com.example.restapi.repository"},{"l":"com.example.restapi.service"}];updateSearchResults();

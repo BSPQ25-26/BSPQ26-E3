@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AppUserController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">rest-api</a> &gt; <a href="index.source.html" class="el_package">com.example.restapi.controller</a> &gt; <span class="el_source">AppUserController.java</span></div><h1>AppUserController.java</h1><pre class="source lang-java linenums">package com.example.restapi.controller;
+
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import com.example.restapi.dto.ChangePasswordRequest;
+import com.example.restapi.dto.LoginRequest;
+import com.example.restapi.dto.RegisterRequest;
+import com.example.restapi.dto.UserProfileResponse;
+import com.example.restapi.model.Profile;
+import com.example.restapi.service.AppUserService;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@RestController
+@RequestMapping(&quot;/api/users&quot;)
+@Tag(name = &quot;User Controller&quot;, description = &quot;API for managing users via Supabase Auth&quot;)
+public class AppUserController {
+
+    private final AppUserService appUserService;
+
+<span class="fc" id="L26">    public AppUserController(AppUserService appUserService) {</span>
+<span class="fc" id="L27">        this.appUserService = appUserService;</span>
+<span class="fc" id="L28">    }</span>
+
+    @PostMapping(&quot;/resend-confirmation&quot;)
+    public ResponseEntity&lt;?&gt; resendConfirmation(@RequestBody Map&lt;String, String&gt; body) {
+        try {
+<span class="nc" id="L33">            appUserService.resendConfirmation(body.get(&quot;email&quot;));</span>
+<span class="nc" id="L34">            return ResponseEntity.ok(&quot;Confirmation email resent.&quot;);</span>
+<span class="nc" id="L35">        } catch (RuntimeException e) {</span>
+<span class="nc" id="L36">            return ResponseEntity.badRequest().body(e.getMessage());</span>
+        }
+    }
+
+    @GetMapping
+    public List&lt;Profile&gt; getAllUsers() {
+<span class="fc" id="L42">        return appUserService.getAllUsers();</span>
+    }
+
+
+    @GetMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;Profile&gt; getUserById(@PathVariable UUID id) {
+<span class="nc" id="L48">        return appUserService.getUserById(id)</span>
+<span class="nc" id="L49">                .map(ResponseEntity::ok)</span>
+<span class="nc" id="L50">                .orElseGet(() -&gt; ResponseEntity.notFound().build());</span>
+    }
+
+    @GetMapping(&quot;/profile&quot;)
+    public ResponseEntity&lt;UserProfileResponse&gt; getDisplayProfile(
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String username) {
+<span class="nc" id="L57">        return appUserService.getDisplayProfile(email, username)</span>
+<span class="nc" id="L58">                .map(ResponseEntity::ok)</span>
+<span class="nc" id="L59">                .orElseGet(() -&gt; ResponseEntity.notFound().build());</span>
+    }
+
+    @PostMapping
+    public ResponseEntity&lt;?&gt; register(@RequestBody RegisterRequest req) {
+        try {
+<span class="nc" id="L65">            return ResponseEntity.ok(appUserService.register(req));</span>
+<span class="fc" id="L66">        } catch (RuntimeException e) {</span>
+<span class="fc" id="L67">            return ResponseEntity.badRequest().body(e.getMessage());</span>
+        }
+    }
+
+    @PostMapping(&quot;/login&quot;)
+    public ResponseEntity&lt;?&gt; login(@RequestBody LoginRequest request) {
+        try {
+<span class="nc" id="L74">            return ResponseEntity.ok(appUserService.login(request.getEmail(), request.getPassword()));</span>
+<span class="nc" id="L75">        } catch (RuntimeException e) {</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">            if (&quot;EMAIL_NOT_CONFIRMED&quot;.equals(e.getMessage())) {</span>
+<span class="nc" id="L77">                return ResponseEntity.status(403).body(&quot;Email not confirmed.&quot;);</span>
+            }
+<span class="nc" id="L79">            return ResponseEntity.status(401).body(&quot;Invalid credentials.&quot;);</span>
+        }
+    }
+
+    @PostMapping(&quot;/reset-password&quot;)
+    public ResponseEntity&lt;?&gt; resetPassword(@RequestBody Map&lt;String, String&gt; body) {
+        try {
+<span class="nc" id="L86">            appUserService.resetPassword(body.get(&quot;email&quot;));</span>
+<span class="nc" id="L87">            return ResponseEntity.ok(&quot;Password reset email sent.&quot;);</span>
+<span class="nc" id="L88">        } catch (RuntimeException e) {</span>
+<span class="nc" id="L89">            return ResponseEntity.badRequest().body(e.getMessage());</span>
+        }
+    }
+
+    @PostMapping(&quot;/{id}/change-password&quot;)
+    public ResponseEntity&lt;?&gt; changePassword(@PathVariable UUID id, @RequestBody ChangePasswordRequest req) {
+        try {
+<span class="nc" id="L96">            appUserService.changePassword(id, req.getEmail(), req.getCurrentPassword(), req.getNewPassword());</span>
+<span class="nc" id="L97">            return ResponseEntity.ok(&quot;Password changed successfully.&quot;);</span>
+<span class="nc" id="L98">        } catch (RuntimeException e) {</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">            if (&quot;INVALID_CURRENT_PASSWORD&quot;.equals(e.getMessage())) {</span>
+<span class="nc" id="L100">                return ResponseEntity.status(401).body(&quot;Current password is incorrect.&quot;);</span>
+            }
+<span class="nc" id="L102">            return ResponseEntity.badRequest().body(e.getMessage());</span>
+        }
+    }
+
+    /*@PutMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;Profile&gt; updateUser(@PathVariable UUID id, @RequestBody Profile userDetails) {
+        try {
+            return ResponseEntity.ok(appUserService.updateUser(id, userDetails));
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }*/
+
+    @DeleteMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;Void&gt; deleteUser(@PathVariable UUID id) {
+        try {
+<span class="nc" id="L118">            appUserService.deleteUser(id);</span>
+<span class="nc" id="L119">            return ResponseEntity.noContent().build();</span>
+<span class="fc" id="L120">        } catch (RuntimeException e) {</span>
+<span class="fc" id="L121">            return ResponseEntity.notFound().build();</span>
+        }
+    }
+
+    @PatchMapping(value =&quot;/{id}&quot;)
+    public ResponseEntity&lt;Profile&gt; updatePartOfUser(@RequestBody Map&lt;String, Object&gt; updates, @PathVariable UUID id){
+        try {
+<span class="nc" id="L128">            return ResponseEntity.ok(appUserService.updatePartOfUser(id, updates));</span>
+<span class="nc" id="L129">        } catch (RuntimeException e) {</span>
+<span class="nc" id="L130">            return ResponseEntity.notFound().build();</span>
+        }
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrderStateService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">rest-api</a> &gt; <a href="index.source.html" class="el_package">com.example.restapi.service</a> &gt; <span class="el_source">OrderStateService.java</span></div><h1>OrderStateService.java</h1><pre class="source lang-java linenums">package com.example.restapi.service;
+
+import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Random;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.example.restapi.model.OrderStatus;
+import com.example.restapi.model.Receipt;
+import com.example.restapi.repository.ReceiptRepository;
+
+/**
+ *
+ * Service layer that simulates the order lifecycle.
+ *
+ * Manages state transitions for receipts (PROCESSING → DELIVERY → COMPLETED)
+ * and supports cancellation while the order is still in PROCESSING.
+ * Durations are deliberately short (seconds) so that the workflow can be
+ * observed during a demo.
+ */
+@Service
+public class OrderStateService {
+
+    private final ReceiptRepository receiptRepository;
+<span class="fc" id="L27">    private final Random random = new Random();</span>
+
+    /**
+     * Constructs OrderStateService.
+     * @param receiptRepository Repository for Receipt aggregates.
+     */
+<span class="fc" id="L33">    public OrderStateService(ReceiptRepository receiptRepository) {</span>
+<span class="fc" id="L34">        this.receiptRepository = receiptRepository;</span>
+<span class="fc" id="L35">    }</span>
+
+    /**
+     * Computes how many seconds a state should last.
+     * @param fromStatus The current OrderStatus.
+     * @return Simulated duration in seconds.
+     */
+    private long getStateDurationSeconds(OrderStatus fromStatus) {
+<span class="fc bfc" id="L43" title="All 2 branches covered.">        if (fromStatus == OrderStatus.PROCESSING) {</span>
+<span class="fc" id="L44">            return 5 + random.nextLong(11); // 5-15 seconds</span>
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">        } else if (fromStatus == OrderStatus.DELIVERY) {</span>
+<span class="fc" id="L46">            return 8 + random.nextLong(13); // 8-20 seconds</span>
+        }
+<span class="nc" id="L48">        return 0;</span>
+    }
+
+    /**
+     * Advances the order to the next state if enough time has elapsed.
+     *
+     * When the required duration for PROCESSING or DELIVERY is exceeded the
+     * receipt is promoted to DELIVERY or COMPLETED respectively.
+     *
+     * @param receiptId Receipt primary key.
+     * @return true if the status actually changed, false otherwise.
+     * @throws RuntimeException if the receipt does not exist.
+     */
+    @Transactional
+    public boolean updateOrderStatus(Long receiptId) {
+<span class="fc" id="L63">        Receipt receipt = receiptRepository.findById(receiptId)</span>
+<span class="pc" id="L64">                .orElseThrow(() -&gt; new RuntimeException(&quot;Receipt not found&quot;));</span>
+
+<span class="fc" id="L66">        OrderStatus currentStatus = receipt.getOrderStatus();</span>
+
+<span class="fc bfc" id="L68" title="All 2 branches covered.">        if (currentStatus == OrderStatus.PROCESSING) {</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">            if (receipt.getProcessingStartedAt() == null) {</span>
+<span class="nc" id="L70">                receipt.setProcessingStartedAt(OffsetDateTime.now());</span>
+            }
+<span class="fc" id="L72">            long secondsElapsed = ChronoUnit.SECONDS.between(</span>
+<span class="fc" id="L73">                    receipt.getProcessingStartedAt(), OffsetDateTime.now());</span>
+<span class="fc" id="L74">            long requiredDuration = getStateDurationSeconds(OrderStatus.PROCESSING);</span>
+
+<span class="fc bfc" id="L76" title="All 2 branches covered.">            if (secondsElapsed &gt;= requiredDuration) {</span>
+<span class="fc" id="L77">                receipt.setOrderStatus(OrderStatus.DELIVERY);</span>
+<span class="fc" id="L78">                receipt.setDeliveryStartedAt(OffsetDateTime.now());</span>
+<span class="fc" id="L79">                receiptRepository.save(receipt);</span>
+<span class="fc" id="L80">                return true;</span>
+            }
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">        } else if (currentStatus == OrderStatus.DELIVERY) {</span>
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">            if (receipt.getDeliveryStartedAt() == null) {</span>
+<span class="nc" id="L84">                receipt.setDeliveryStartedAt(OffsetDateTime.now());</span>
+            }
+<span class="fc" id="L86">            long secondsElapsed = ChronoUnit.SECONDS.between(</span>
+<span class="fc" id="L87">                    receipt.getDeliveryStartedAt(), OffsetDateTime.now());</span>
+<span class="fc" id="L88">            long requiredDuration = getStateDurationSeconds(OrderStatus.DELIVERY);</span>
+
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">            if (secondsElapsed &gt;= requiredDuration) {</span>
+<span class="fc" id="L91">                receipt.setOrderStatus(OrderStatus.COMPLETED);</span>
+<span class="fc" id="L92">                receipt.setCompletedAt(OffsetDateTime.now());</span>
+<span class="fc" id="L93">                receiptRepository.save(receipt);</span>
+<span class="fc" id="L94">                return true;</span>
+            }
+        }
+
+<span class="fc" id="L98">        return false;</span>
+    }
+
+    /**
+     * Cancels an order.
+     *
+     * Cancellation is only permitted while the order is in PROCESSING.
+     *
+     * @param receiptId Receipt primary key.
+     * @return The updated Receipt entity.
+     * @throws RuntimeException if the receipt is not found or is not in
+     *                          PROCESSING state.
+     */
+    @Transactional
+    public Receipt cancelOrder(Long receiptId) {
+<span class="fc" id="L113">        Receipt receipt = receiptRepository.findById(receiptId)</span>
+<span class="pc" id="L114">                .orElseThrow(() -&gt; new RuntimeException(&quot;Receipt not found&quot;));</span>
+
+<span class="fc bfc" id="L116" title="All 2 branches covered.">        if (receipt.getOrderStatus() != OrderStatus.PROCESSING) {</span>
+<span class="fc" id="L117">            throw new RuntimeException(&quot;Cannot cancel order in &quot; + receipt.getOrderStatus() + &quot; state. Only PROCESSING orders can be cancelled.&quot;);</span>
+        }
+
+<span class="fc" id="L120">        receipt.setOrderStatus(OrderStatus.CANCELLED);</span>
+<span class="fc" id="L121">        receipt.setCancelledAt(OffsetDateTime.now());</span>
+<span class="fc" id="L122">        receiptRepository.save(receipt);</span>
+        
+<span class="fc" id="L124">        return receipt;</span>
+    }
+
+    /**
+     * Calculates the remaining seconds for the current simulated state.
+     * @param receipt The receipt whose remaining time is requested.
+     * @return Remaining seconds (0 if no timer applies).
+     */
+    public long getRemainingTimeForCurrentState(Receipt receipt) {
+<span class="fc" id="L133">        OrderStatus status = receipt.getOrderStatus();</span>
+
+<span class="pc bpc" id="L135" title="2 of 4 branches missed.">        if (status == OrderStatus.PROCESSING &amp;&amp; receipt.getProcessingStartedAt() != null) {</span>
+<span class="fc" id="L136">            long elapsed = ChronoUnit.SECONDS.between(</span>
+<span class="fc" id="L137">                    receipt.getProcessingStartedAt(), OffsetDateTime.now());</span>
+<span class="fc" id="L138">            long required = getStateDurationSeconds(OrderStatus.PROCESSING);</span>
+<span class="fc" id="L139">            return Math.max(0, required - elapsed);</span>
+<span class="nc bnc" id="L140" title="All 4 branches missed.">        } else if (status == OrderStatus.DELIVERY &amp;&amp; receipt.getDeliveryStartedAt() != null) {</span>
+<span class="nc" id="L141">            long elapsed = ChronoUnit.SECONDS.between(</span>
+<span class="nc" id="L142">                    receipt.getDeliveryStartedAt(), OffsetDateTime.now());</span>
+<span class="nc" id="L143">            long required = getStateDurationSeconds(OrderStatus.DELIVERY);</span>
+<span class="nc" id="L144">            return Math.max(0, required - elapsed);</span>
+        }
+
+<span class="nc" id="L147">        return 0;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Cart.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">rest-api</a> &gt; <a href="index.source.html" class="el_package">com.example.restapi.model</a> &gt; <span class="el_source">Cart.java</span></div><h1>Cart.java</h1><pre class="source lang-java linenums">package com.example.restapi.model;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = &quot;carts&quot;)
+public class Cart {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = &quot;owner&quot;, nullable = false)
+    private UUID ownerId;
+
+<span class="fc" id="L20">    @OneToMany(mappedBy = &quot;cart&quot;, cascade = CascadeType.ALL, orphanRemoval = true)</span>
+    private List&lt;CartItem&gt; items = new ArrayList&lt;&gt;();
+
+<span class="fc" id="L23">    public Cart() {}</span>
+
+<span class="fc" id="L25">    public Cart(UUID ownerId) {</span>
+<span class="fc" id="L26">        this.ownerId = ownerId;</span>
+<span class="fc" id="L27">    }</span>
+
+    public Long getId() {
+<span class="fc" id="L30">        return id;</span>
+    }
+
+    public UUID getOwnerId() {
+<span class="nc" id="L34">        return ownerId;</span>
+    }
+
+    public void setOwnerId(UUID ownerId) {
+<span class="nc" id="L38">        this.ownerId = ownerId;</span>
+<span class="nc" id="L39">    }</span>
+
+    public List&lt;CartItem&gt; getItems() {
+<span class="fc" id="L42">        return items;</span>
+    }
+
+    public void setItems(List&lt;CartItem&gt; items) {
+<span class="nc" id="L46">        this.items = items;</span>
+<span class="nc" id="L47">    }</span>
+
+    public void addItem(CartItem item) {
+<span class="fc" id="L50">        items.add(item);</span>
+<span class="fc" id="L51">        item.setCart(this);</span>
+<span class="fc" id="L52">    }</span>
+
+    public void removeItem(CartItem item) {
+<span class="fc" id="L55">        items.remove(item);</span>
+<span class="fc" id="L56">        item.setCart(null);</span>
+<span class="fc" id="L57">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

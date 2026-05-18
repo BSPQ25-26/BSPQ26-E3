@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Sale.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">rest-api</a> &gt; <a href="index.source.html" class="el_package">com.example.restapi.model</a> &gt; <span class="el_source">Sale.java</span></div><h1>Sale.java</h1><pre class="source lang-java linenums">package com.example.restapi.model;
+
+import java.time.OffsetDateTime;
+import java.util.UUID;
+
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = &quot;sales&quot;)
+public class Sale {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = &quot;seller_id&quot;, nullable = false)
+    private UUID sellerId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;receipt_id&quot;, nullable = false)
+    private Receipt receipt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;item_id&quot;, nullable = false)
+    private Item item;
+
+    @Column(name = &quot;quantity&quot;, nullable = false)
+    private Integer quantity;
+
+    @Column(name = &quot;unit_price&quot;, nullable = false)
+    private Double unitPrice;
+
+    @Column(name = &quot;total_price&quot;, nullable = false)
+    private Double totalPrice;
+
+    @Column(name = &quot;created_at&quot;, insertable = false, updatable = false)
+    private OffsetDateTime createdAt;
+
+<span class="fc" id="L39">    public Sale() {}</span>
+
+<span class="fc" id="L41">    public Sale(UUID sellerId, Receipt receipt, Item item, Integer quantity, Double unitPrice) {</span>
+<span class="fc" id="L42">        this.sellerId = sellerId;</span>
+<span class="fc" id="L43">        this.receipt = receipt;</span>
+<span class="fc" id="L44">        this.item = item;</span>
+<span class="fc" id="L45">        this.quantity = quantity;</span>
+<span class="fc" id="L46">        this.unitPrice = unitPrice;</span>
+<span class="fc" id="L47">        this.totalPrice = quantity * unitPrice;</span>
+<span class="fc" id="L48">    }</span>
+
+    // Getters and Setters
+    public Long getId() {
+<span class="nc" id="L52">        return id;</span>
+    }
+
+    public void setId(Long id) {
+<span class="nc" id="L56">        this.id = id;</span>
+<span class="nc" id="L57">    }</span>
+
+    public UUID getSellerId() {
+<span class="nc" id="L60">        return sellerId;</span>
+    }
+
+    public void setSellerId(UUID sellerId) {
+<span class="nc" id="L64">        this.sellerId = sellerId;</span>
+<span class="nc" id="L65">    }</span>
+
+    public Receipt getReceipt() {
+<span class="nc" id="L68">        return receipt;</span>
+    }
+
+    public void setReceipt(Receipt receipt) {
+<span class="nc" id="L72">        this.receipt = receipt;</span>
+<span class="nc" id="L73">    }</span>
+
+    public Item getItem() {
+<span class="nc" id="L76">        return item;</span>
+    }
+
+    public void setItem(Item item) {
+<span class="nc" id="L80">        this.item = item;</span>
+<span class="nc" id="L81">    }</span>
+
+    public Integer getQuantity() {
+<span class="nc" id="L84">        return quantity;</span>
+    }
+
+    public void setQuantity(Integer quantity) {
+<span class="nc" id="L88">        this.quantity = quantity;</span>
+<span class="nc" id="L89">    }</span>
+
+    public Double getUnitPrice() {
+<span class="nc" id="L92">        return unitPrice;</span>
+    }
+
+    public void setUnitPrice(Double unitPrice) {
+<span class="nc" id="L96">        this.unitPrice = unitPrice;</span>
+<span class="nc" id="L97">    }</span>
+
+    public Double getTotalPrice() {
+<span class="nc" id="L100">        return totalPrice;</span>
+    }
+
+    public void setTotalPrice(Double totalPrice) {
+<span class="nc" id="L104">        this.totalPrice = totalPrice;</span>
+<span class="nc" id="L105">    }</span>
+
+    public OffsetDateTime getCreatedAt() {
+<span class="nc" id="L108">        return createdAt;</span>
+    }
+
+    public void setCreatedAt(OffsetDateTime createdAt) {
+<span class="nc" id="L112">        this.createdAt = createdAt;</span>
+<span class="nc" id="L113">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

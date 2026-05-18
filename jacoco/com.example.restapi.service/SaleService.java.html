@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SaleService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">rest-api</a> &gt; <a href="index.source.html" class="el_package">com.example.restapi.service</a> &gt; <span class="el_source">SaleService.java</span></div><h1>SaleService.java</h1><pre class="source lang-java linenums">package com.example.restapi.service;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.example.restapi.dto.SaleResponse;
+import com.example.restapi.model.Cart;
+import com.example.restapi.model.CartItem;
+import com.example.restapi.model.Item;
+import com.example.restapi.model.Receipt;
+import com.example.restapi.model.Sale;
+import com.example.restapi.repository.SaleRepository;
+
+/**
+ *
+ * Service layer for recording and querying sales.
+ *
+ * Converts checked-out cart lines into Sale records and provides
+ * seller-centric sales reports.
+ */
+@Service
+public class SaleService {
+
+    private final SaleRepository saleRepository;
+
+    /**
+     * Constructs SaleService.
+     * @param saleRepository Data-access object for Sale entities.
+     */
+<span class="fc" id="L34">    public SaleService(SaleRepository saleRepository) {</span>
+<span class="fc" id="L35">        this.saleRepository = saleRepository;</span>
+<span class="fc" id="L36">    }</span>
+
+    /**
+     * Persists a Sale line for each item in the cart.
+     *
+     * Extracts the seller from every CartItem and links it to the receipt.
+     *
+     * @param receipt The receipt produced during checkout.
+     * @param cart    The cart that was purchased.
+     */
+    @Transactional
+    public void recordSalesFromCheckout(Receipt receipt, Cart cart) {
+<span class="fc bfc" id="L48" title="All 2 branches covered.">        for (CartItem ci : cart.getItems()) {</span>
+<span class="fc" id="L49">            Item item = ci.getItem();</span>
+<span class="fc" id="L50">            UUID sellerId = item.getSeller().getId();</span>
+
+<span class="fc" id="L52">            Sale sale = new Sale(sellerId, receipt, item, ci.getQuantity(), item.getAmount());</span>
+<span class="fc" id="L53">            saleRepository.save(sale);</span>
+<span class="fc" id="L54">        }</span>
+<span class="fc" id="L55">    }</span>
+
+    /**
+     * Returns all sales made by a particular seller.
+     * @param sellerId UUID of the seller.
+     * @return List of SaleResponse DTOs.
+     */
+    public List&lt;SaleResponse&gt; getSalesBySellerId(UUID sellerId) {
+<span class="nc" id="L63">        List&lt;Sale&gt; sales = saleRepository.findBySellerId(sellerId);</span>
+<span class="nc" id="L64">        return sales.stream()</span>
+<span class="nc" id="L65">                .map(sale -&gt; new SaleResponse(</span>
+<span class="nc" id="L66">                        sale.getId(),</span>
+<span class="nc" id="L67">                        sale.getItem().getName(),</span>
+<span class="nc" id="L68">                        sale.getQuantity(),</span>
+<span class="nc" id="L69">                        sale.getUnitPrice(),</span>
+<span class="nc" id="L70">                        sale.getTotalPrice(),</span>
+<span class="nc" id="L71">                        sale.getCreatedAt()</span>
+                ))
+<span class="nc" id="L73">                .collect(Collectors.toList());</span>
+    }
+
+    /**
+     * Calculates the total revenue for a seller.
+     * @param sellerId UUID of the seller.
+     * @return Sum of all sale totals for that seller.
+     */
+    public Double getTotalSalesBySellerId(UUID sellerId) {
+<span class="nc" id="L82">        List&lt;Sale&gt; sales = saleRepository.findBySellerId(sellerId);</span>
+<span class="nc" id="L83">        return sales.stream()</span>
+<span class="nc" id="L84">                .mapToDouble(Sale::getTotalPrice)</span>
+<span class="nc" id="L85">                .sum();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

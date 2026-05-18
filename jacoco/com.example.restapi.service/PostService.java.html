@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PostService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">rest-api</a> &gt; <a href="index.source.html" class="el_package">com.example.restapi.service</a> &gt; <span class="el_source">PostService.java</span></div><h1>PostService.java</h1><pre class="source lang-java linenums">package com.example.restapi.service;
+
+import com.example.restapi.dto.PostResponse;
+import com.example.restapi.model.Category;
+import com.example.restapi.model.Post;
+import com.example.restapi.repository.PostRepository;
+import org.springdoc.api.OpenApiResourceNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.EntityManager;
+
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+/**
+ *
+ * Service layer for blog-post management.
+ *
+ * Provides CRUD operations for posts, author resolution and category
+ * linkage.  This remote facade is consumed by the REST controllers.
+ */
+@Service
+public class PostService {
+
+    private final PostRepository postRepository;
+    private final EntityManager entityManager;
+
+    /**
+     * Constructs PostService.
+     * @param postRepository Data-access object for Post entities.
+     * @param entityManager  JPA EntityManager used for flush/refresh operations.
+     */
+    @Autowired
+<span class="fc" id="L38">    public PostService(PostRepository postRepository, EntityManager entityManager) {</span>
+<span class="fc" id="L39">        this.postRepository = postRepository;</span>
+<span class="fc" id="L40">        this.entityManager = entityManager;</span>
+<span class="fc" id="L41">    }</span>
+
+    /**
+     * Retrieves a single post by id.
+     * @param id Post primary key.
+     * @return PostResponse DTO.
+     * @throws OpenApiResourceNotFoundException if the post does not exist.
+     */
+    @Transactional(readOnly = true)
+    public PostResponse getPostById(Long id) {
+<span class="fc" id="L51">        Post post = postRepository.findById(id)</span>
+<span class="fc" id="L52">                .orElseThrow(() -&gt; new OpenApiResourceNotFoundException(&quot;Post id : &quot; + id));</span>
+<span class="fc" id="L53">        return PostResponse.fromEntity(post);</span>
+    }
+
+    /**
+     * Returns all posts ordered by creation date (newest first).
+     * @return List of PostResponse DTOs.
+     */
+    @Transactional(readOnly = true)
+    public List&lt;PostResponse&gt; getAllPosts() {
+<span class="fc" id="L62">        return postRepository.findAllByOrderByCreatedAtDescIdDesc().stream()</span>
+<span class="fc" id="L63">                .map(PostResponse::fromEntity)</span>
+<span class="fc" id="L64">                .collect(Collectors.toList());</span>
+    }
+
+    /**
+     * Returns every post written by a specific author.
+     * @param authorId UUID of the author.
+     * @return List of PostResponse DTOs.
+     */
+    @Transactional(readOnly = true)
+    public List&lt;PostResponse&gt; getPostsByAuthor(UUID authorId) {
+<span class="fc" id="L74">        return postRepository.findByAuthor_Id(authorId).stream()</span>
+<span class="fc" id="L75">                .map(PostResponse::fromEntity)</span>
+<span class="fc" id="L76">                .collect(Collectors.toList());</span>
+    }
+
+    /**
+     * Persists a new post.
+     *
+     * Flushes and refreshes the entity so that the returned DTO contains
+     * fully loaded author and category names.
+     *
+     * @param post The post to create (title must not be blank).
+     * @return PostResponse DTO of the saved post.
+     * @throws IllegalArgumentException if the title is missing or blank.
+     */
+    @Transactional
+    public PostResponse createPost(Post post) {
+<span class="pc bpc" id="L91" title="1 of 4 branches missed.">        if (post.getTitle() == null || post.getTitle().isBlank()) {</span>
+<span class="fc" id="L92">            throw new IllegalArgumentException(&quot;Post title is required&quot;);</span>
+        }
+<span class="fc" id="L94">        Post saved = postRepository.save(post);</span>
+<span class="fc" id="L95">        entityManager.flush();</span>
+<span class="fc" id="L96">        entityManager.refresh(saved);</span>
+<span class="fc" id="L97">        return PostResponse.fromEntity(saved);</span>
+    }
+
+    /**
+     * Deletes a post.
+     * @param id Post primary key.
+     * @throws OpenApiResourceNotFoundException if the post does not exist.
+     */
+    @Transactional
+    public void deletePost(Long id) {
+<span class="fc" id="L107">        postRepository.findById(id)</span>
+<span class="fc" id="L108">                .orElseThrow(() -&gt; new OpenApiResourceNotFoundException(&quot;Post id : &quot; + id));</span>
+<span class="fc" id="L109">        postRepository.deleteById(id);</span>
+<span class="fc" id="L110">    }</span>
+
+    /**
+     * Applies a partial update to an existing post.
+     * @param id      Post primary key.
+     * @param updates Map of fields to update (supports &quot;title&quot;, &quot;content&quot;, &quot;categoryId&quot;).
+     * @return PostResponse DTO of the updated post.
+     * @throws RuntimeException if the post is not found.
+     */
+    @Transactional
+    public PostResponse updatePost(Long id, Map&lt;String, Object&gt; updates) {
+<span class="fc" id="L121">        Post post = postRepository.findById(id)</span>
+<span class="fc" id="L122">                .orElseThrow(() -&gt; new RuntimeException(&quot;Post not found with id: &quot; + id));</span>
+<span class="fc" id="L123">        partialUpdate(post, updates);</span>
+<span class="fc" id="L124">        Post saved = postRepository.save(post);</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">        if (updates.containsKey(&quot;categoryId&quot;)) {</span>
+<span class="fc" id="L126">            entityManager.flush();</span>
+<span class="fc" id="L127">            entityManager.refresh(saved);</span>
+        }
+<span class="fc" id="L129">        return PostResponse.fromEntity(saved);</span>
+    }
+
+    private void partialUpdate(Post postDetails, Map&lt;String, Object&gt; updates) {
+<span class="fc bfc" id="L133" title="All 2 branches covered.">        if (updates.containsKey(&quot;title&quot;)) {</span>
+<span class="fc" id="L134">            postDetails.setTitle((String) updates.get(&quot;title&quot;));</span>
+        }
+
+<span class="fc bfc" id="L137" title="All 2 branches covered.">        if (updates.containsKey(&quot;content&quot;)) {</span>
+<span class="fc" id="L138">            postDetails.setContent((String) updates.get(&quot;content&quot;));</span>
+        }
+
+<span class="fc bfc" id="L141" title="All 2 branches covered.">        if (updates.containsKey(&quot;categoryId&quot;)) {</span>
+<span class="fc" id="L142">            Object raw = updates.get(&quot;categoryId&quot;);</span>
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">            Long categoryId = raw instanceof Number n ? n.longValue() : Long.valueOf(raw.toString());</span>
+<span class="fc" id="L144">            Category category = new Category();</span>
+<span class="fc" id="L145">            category.setId(categoryId);</span>
+<span class="fc" id="L146">            postDetails.setCategory(category);</span>
+        }
+<span class="fc" id="L148">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

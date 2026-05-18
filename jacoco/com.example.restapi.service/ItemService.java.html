@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ItemService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">rest-api</a> &gt; <a href="index.source.html" class="el_package">com.example.restapi.service</a> &gt; <span class="el_source">ItemService.java</span></div><h1>ItemService.java</h1><pre class="source lang-java linenums">package com.example.restapi.service;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import com.example.restapi.dto.ItemResponse;
+import com.example.restapi.model.Item;
+import com.example.restapi.model.Category;
+import com.example.restapi.model.Profile;
+import com.example.restapi.repository.ItemRepository;
+import com.example.restapi.repository.CategoryRepository;
+import com.example.restapi.repository.ProfileRepository;
+
+/**
+ *
+ * Service layer for catalogue-item management.
+ *
+ * Provides CRUD operations for items, stock handling and category
+ * resolution.  This class acts as the remote business facade exposed
+ * to the REST controllers.
+ */
+@Service
+public class ItemService {
+
+    private final ItemRepository itemRepository;
+    private final CategoryRepository categoryRepository;
+    private final ProfileRepository profileRepository;
+
+    /**
+     * Constructs ItemService with its data-access collaborators.
+     * @param itemRepository      Repository for Item entities.
+     * @param categoryRepository  Repository for Category entities.
+     * @param profileRepository   Repository for user profiles (sellers).
+     */
+<span class="fc" id="L37">    public ItemService(ItemRepository itemRepository, CategoryRepository categoryRepository, ProfileRepository profileRepository) {</span>
+<span class="fc" id="L38">        this.itemRepository = itemRepository;</span>
+<span class="fc" id="L39">        this.categoryRepository = categoryRepository;</span>
+<span class="fc" id="L40">        this.profileRepository = profileRepository;</span>
+<span class="fc" id="L41">    }</span>
+
+    /**
+     * Returns every item in the catalogue.
+     * @return List of ItemResponse DTOs.
+     */
+    @Transactional(readOnly = true)
+    public List&lt;ItemResponse&gt; getAllItems() {
+<span class="fc" id="L49">        return itemRepository.findAll().stream()</span>
+<span class="fc" id="L50">            .map(this::convertToResponse)</span>
+<span class="fc" id="L51">            .collect(Collectors.toList());</span>
+    }
+
+    /**
+     * Returns only items that are currently available for sale.
+     * @return List of active ItemResponse DTOs.
+     */
+    @Transactional(readOnly = true)
+    public List&lt;ItemResponse&gt; getActiveItems() {
+<span class="fc" id="L60">        return itemRepository.findByStatusTrue().stream()</span>
+<span class="fc" id="L61">            .map(this::convertToResponse)</span>
+<span class="fc" id="L62">            .collect(Collectors.toList());</span>
+    }
+
+    /**
+     * Retrieves a single item by its unique identifier.
+     * @param id The item primary key.
+     * @return ItemResponse DTO.
+     * @throws RuntimeException if the item does not exist.
+     */
+    @Transactional(readOnly = true)
+    public ItemResponse getItemById(Long id) {
+<span class="nc" id="L73">        Item item = itemRepository.findById(id)</span>
+<span class="nc" id="L74">            .orElseThrow(() -&gt; new RuntimeException(&quot;Item not found&quot;));</span>
+<span class="nc" id="L75">        return convertToResponse(item);</span>
+    }
+
+    /**
+     * Converts an Item entity into an ItemResponse DTO.
+     * @param item The source entity.
+     * @return A fully populated ItemResponse.
+     */
+    private ItemResponse convertToResponse(Item item) {
+<span class="fc" id="L84">        return new ItemResponse(</span>
+<span class="fc" id="L85">            item.getId(),</span>
+<span class="fc" id="L86">            item.getName(),</span>
+<span class="fc" id="L87">            item.getDescription(),</span>
+<span class="fc" id="L88">            item.getAmount(),</span>
+<span class="fc" id="L89">            item.getImage_URL(),</span>
+<span class="fc" id="L90">            item.getQuantity(),</span>
+<span class="fc" id="L91">            item.getStatus(),</span>
+<span class="fc bfc" id="L92" title="All 2 branches covered.">            item.getCategory() != null ? item.getCategory().getName() : &quot;Uncategorized&quot;,</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">            item.getSeller() != null ? item.getSeller().getId().toString() : null</span>
+        );
+    }
+
+    /**
+     * Creates a new item and associates it with a seller.
+     *
+     * If the supplied category does not yet exist in the database it is
+     * created automatically.
+     *
+     * @param item     The item to persist (may contain a transient Category).
+     * @param sellerId UUID of the seller that owns the item.
+     * @return The persisted Item entity with its generated id.
+     * @throws RuntimeException if the seller profile is not found.
+     */
+    public Item createItem(Item item, UUID sellerId) {
+<span class="fc" id="L109">        Profile seller = profileRepository.findById(sellerId)</span>
+<span class="pc" id="L110">            .orElseThrow(() -&gt; new RuntimeException(&quot;Seller not found&quot;));</span>
+<span class="fc" id="L111">        item.setSeller(seller);</span>
+
+<span class="pc bpc" id="L113" title="2 of 4 branches missed.">        if (item.getCategory() != null &amp;&amp; item.getCategory().getId() == null) {</span>
+<span class="fc" id="L114">            String categoryName = item.getCategory().getName();</span>
+<span class="fc" id="L115">            Category category = categoryRepository.findByName(categoryName)</span>
+<span class="fc" id="L116">                .orElseGet(() -&gt; {</span>
+<span class="nc" id="L117">                    Category newCategory = new Category(categoryName, &quot;&quot;);</span>
+<span class="nc" id="L118">                    return categoryRepository.save(newCategory);</span>
+                });
+<span class="fc" id="L120">            item.setCategory(category);</span>
+        }
+
+<span class="fc" id="L123">        return itemRepository.save(item);</span>
+    }
+
+    /**
+     * Applies a partial update to an existing item.
+     * @param id          Identifier of the item to update.
+     * @param itemDetails Object containing the fields to overwrite.
+     * @return The updated Item entity.
+     * @throws RuntimeException if the item does not exist.
+     */
+    public Item updateItem(Long id, Item itemDetails) {
+<span class="fc" id="L134">        Item item = itemRepository.findById(id)</span>
+<span class="fc" id="L135">                .orElseThrow(() -&gt; new RuntimeException(&quot;Item not found&quot;));</span>
+<span class="pc bpc" id="L136" title="1 of 2 branches missed.">        if (itemDetails.getName() != null) {</span>
+<span class="fc" id="L137">            item.setName(itemDetails.getName());</span>
+        }
+<span class="fc bfc" id="L139" title="All 2 branches covered.">        if (itemDetails.getDescription() != null) {</span>
+<span class="fc" id="L140">            item.setDescription(itemDetails.getDescription());</span>
+        }
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">        if (itemDetails.getAmount() != null) {</span>
+<span class="fc" id="L143">            item.setAmount(itemDetails.getAmount());</span>
+        }
+<span class="fc bfc" id="L145" title="All 2 branches covered.">        if (itemDetails.getImage_URL() != null) {</span>
+<span class="fc" id="L146">            item.setImagen(itemDetails.getImage_URL());</span>
+        }
+<span class="fc bfc" id="L148" title="All 2 branches covered.">        if (itemDetails.getQuantity() != null) {</span>
+<span class="fc" id="L149">            item.setQuantity(itemDetails.getQuantity());</span>
+        }
+<span class="fc bfc" id="L151" title="All 2 branches covered.">        if (itemDetails.getStatus() != null) {</span>
+<span class="fc" id="L152">            item.setStatus(itemDetails.getStatus());</span>
+        }
+<span class="fc bfc" id="L154" title="All 2 branches covered.">        if (itemDetails.getCategory() != null) {</span>
+<span class="fc" id="L155">            item.setCategory(itemDetails.getCategory());</span>
+        }
+<span class="fc" id="L157">        return itemRepository.save(item);</span>
+    }
+
+    /**
+     * Deletes an item from the catalogue.
+     * @param id Identifier of the item to remove.
+     */
+    public void deleteItem(Long id) {
+<span class="fc" id="L165">        itemRepository.deleteById(id);</span>
+<span class="fc" id="L166">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

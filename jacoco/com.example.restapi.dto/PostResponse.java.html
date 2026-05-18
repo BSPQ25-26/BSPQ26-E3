@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PostResponse.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">rest-api</a> &gt; <a href="index.source.html" class="el_package">com.example.restapi.dto</a> &gt; <span class="el_source">PostResponse.java</span></div><h1>PostResponse.java</h1><pre class="source lang-java linenums">package com.example.restapi.dto;
+
+import com.example.restapi.model.Post;
+
+import java.time.OffsetDateTime;
+import java.util.UUID;
+
+public class PostResponse {
+
+    private Long id;
+    private String title;
+    private String content;
+    private OffsetDateTime createdAt;
+    private UUID authorId;
+    private String authorUsername;
+    private Long categoryId;
+    private String categoryName;
+
+<span class="fc" id="L19">    public PostResponse() {}</span>
+
+    public static PostResponse fromEntity(Post post) {
+<span class="fc" id="L22">        PostResponse r = new PostResponse();</span>
+<span class="fc" id="L23">        r.id = post.getId();</span>
+<span class="fc" id="L24">        r.title = post.getTitle();</span>
+<span class="fc" id="L25">        r.content = post.getContent();</span>
+<span class="fc" id="L26">        r.createdAt = post.getCreatedAt();</span>
+<span class="fc bfc" id="L27" title="All 2 branches covered.">        if (post.getAuthor() != null) {</span>
+<span class="fc" id="L28">            r.authorId = post.getAuthor().getId();</span>
+<span class="fc" id="L29">            r.authorUsername = post.getAuthor().getUsername();</span>
+        }
+<span class="fc bfc" id="L31" title="All 2 branches covered.">        if (post.getCategory() != null) {</span>
+<span class="fc" id="L32">            r.categoryId = post.getCategory().getId();</span>
+<span class="fc" id="L33">            r.categoryName = post.getCategory().getName();</span>
+        }
+<span class="fc" id="L35">        return r;</span>
+    }
+
+<span class="fc" id="L38">    public Long getId() { return id; }</span>
+<span class="fc" id="L39">    public String getTitle() { return title; }</span>
+<span class="fc" id="L40">    public String getContent() { return content; }</span>
+<span class="fc" id="L41">    public OffsetDateTime getCreatedAt() { return createdAt; }</span>
+<span class="fc" id="L42">    public UUID getAuthorId() { return authorId; }</span>
+<span class="fc" id="L43">    public String getAuthorUsername() { return authorUsername; }</span>
+<span class="fc" id="L44">    public Long getCategoryId() { return categoryId; }</span>
+<span class="fc" id="L45">    public String getCategoryName() { return categoryName; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

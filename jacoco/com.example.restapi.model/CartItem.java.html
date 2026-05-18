@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CartItem.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">rest-api</a> &gt; <a href="index.source.html" class="el_package">com.example.restapi.model</a> &gt; <span class="el_source">CartItem.java</span></div><h1>CartItem.java</h1><pre class="source lang-java linenums">package com.example.restapi.model;
+
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = &quot;cart_items&quot;)
+public class CartItem {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;cart_id&quot;, nullable = false)
+    private Cart cart;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;item_id&quot;, nullable = false)
+    private Item item;
+
+    @Column(nullable = false)
+    private Integer quantity;
+
+<span class="fc" id="L24">    public CartItem() {}</span>
+
+<span class="fc" id="L26">    public CartItem(Item item, Integer quantity) {</span>
+<span class="fc" id="L27">        this.item = item;</span>
+<span class="fc" id="L28">        this.quantity = quantity;</span>
+<span class="fc" id="L29">    }</span>
+
+    public Long getId() {
+<span class="nc" id="L32">        return id;</span>
+    }
+
+    public Cart getCart() {
+<span class="nc" id="L36">        return cart;</span>
+    }
+
+    public void setCart(Cart cart) {
+<span class="fc" id="L40">        this.cart = cart;</span>
+<span class="fc" id="L41">    }</span>
+
+    public Item getItem() {
+<span class="fc" id="L44">        return item;</span>
+    }
+
+    public void setItem(Item item) {
+<span class="nc" id="L48">        this.item = item;</span>
+<span class="nc" id="L49">    }</span>
+
+    public Integer getQuantity() {
+<span class="fc" id="L52">        return quantity;</span>
+    }
+
+    public void setQuantity(Integer quantity) {
+<span class="fc" id="L56">        this.quantity = quantity;</span>
+<span class="fc" id="L57">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

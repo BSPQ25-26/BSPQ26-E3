@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>PlantBrowsingAcceptanceTest xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../testapidocs/com/example/restapi/acceptance/PlantBrowsingAcceptanceTest.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <strong class="jxr_keyword">package</strong> com.example.restapi.acceptance;
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.jupiter.api.Assertions.assertFalse;
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.jupiter.api.Assertions.assertTrue;
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.DisplayName;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.Test;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> org.openqa.selenium.By;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> org.openqa.selenium.WebElement;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> org.openqa.selenium.support.ui.ExpectedConditions;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_javadoccomment"> * Acceptance test for the plant catalogue: a logged-in user sees the plants grid and</em>
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_javadoccomment"> * can open the details modal of any plant. Assumes at least one item exists in the DB</em>
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment"> * (created via the app or fixtures).</em>
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">class</strong> <a name="PlantBrowsingAcceptanceTest" href="../../../../com/example/restapi/acceptance/PlantBrowsingAcceptanceTest.html#PlantBrowsingAcceptanceTest">PlantBrowsingAcceptanceTest</a> <strong class="jxr_keyword">extends</strong> <a name="BaseAcceptanceTest" href="../../../../com/example/restapi/acceptance/BaseAcceptanceTest.html#BaseAcceptanceTest">BaseAcceptanceTest</a> {
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>      @Test
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>      @DisplayName(<span class="jxr_string">"logged-in user sees plant cards on the shop tab"</span>)
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>      <strong class="jxr_keyword">void</strong> plantsGridShowsCards() {
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>          loginAsTestUser();
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>          <em class="jxr_comment">// Shop tab is the default. Wait for the grid to render and then for at least one card.</em>
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>          wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(<span class="jxr_string">"[data-testid='plants-grid']"</span>)));
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>          wait.until(d -&gt; !d.findElements(By.cssSelector(<span class="jxr_string">"[data-testid='plant-card']"</span>)).isEmpty());
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>          List&lt;WebElement&gt; cards = driver.findElements(By.cssSelector(<span class="jxr_string">"[data-testid='plant-card']"</span>));
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>          assertFalse(cards.isEmpty(),
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>                  <span class="jxr_string">"Expected at least one plant in the catalogue. "</span>
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>                          + <span class="jxr_string">"Seed one via the UI ('+ Create post') or directly in the DB before running this test."</span>);
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>      }
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>      @Test
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>      @DisplayName(<span class="jxr_string">"clicking 'View details' opens the plant details modal"</span>)
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>      <strong class="jxr_keyword">void</strong> clickingViewDetailsOpensModal() {
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>          loginAsTestUser();
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>          wait.until(d -&gt; !d.findElements(By.cssSelector(<span class="jxr_string">"[data-testid='plant-view-details']"</span>)).isEmpty());
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>          driver.findElements(By.cssSelector(<span class="jxr_string">"[data-testid='plant-view-details']"</span>)).get(0).click();
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>          WebElement modal = wait.until(
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>                  ExpectedConditions.visibilityOfElementLocated(By.cssSelector(<span class="jxr_string">"[data-testid='plant-details-modal']"</span>)));
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          assertTrue(modal.isDisplayed(), <span class="jxr_string">"Plant details modal should appear after clicking 'View details'"</span>);
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>          <em class="jxr_comment">// The add-to-cart button is what makes this modal actionable.</em>
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>          wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(<span class="jxr_string">"[data-testid='plant-add-to-cart']"</span>)));
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>      }
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2026. All rights reserved.</div>
+</body>
+</html>

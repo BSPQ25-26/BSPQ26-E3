@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Receipt.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">rest-api</a> &gt; <a href="index.source.html" class="el_package">com.example.restapi.model</a> &gt; <span class="el_source">Receipt.java</span></div><h1>Receipt.java</h1><pre class="source lang-java linenums">package com.example.restapi.model;
+
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = &quot;receipts&quot;)
+public class Receipt {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = &quot;buyer_id&quot;, nullable = false)
+    private UUID buyerId;
+
+    @Column(name = &quot;receipt_number&quot;, unique = true, nullable = false)
+    private String receiptNumber;
+
+    @Column(name = &quot;total_amount&quot;, nullable = false)
+    private Double totalAmount;
+
+    @Column(name = &quot;created_at&quot;, insertable = false, updatable = false)
+    private OffsetDateTime createdAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = &quot;order_status&quot;, nullable = false)
+    private OrderStatus orderStatus; // PROCESSING, DELIVERY, COMPLETED, CANCELLED
+
+    @Column(name = &quot;payment_status&quot;, nullable = false)
+    private String paymentStatus; // COMPLETED, FAILED
+
+    @Column(name = &quot;processing_started_at&quot;)
+    private OffsetDateTime processingStartedAt;
+
+    @Column(name = &quot;delivery_started_at&quot;)
+    private OffsetDateTime deliveryStartedAt;
+
+    @Column(name = &quot;completed_at&quot;)
+    private OffsetDateTime completedAt;
+
+    @Column(name = &quot;cancelled_at&quot;)
+    private OffsetDateTime cancelledAt;
+
+<span class="fc" id="L49">    @OneToMany(mappedBy = &quot;receipt&quot;, cascade = CascadeType.ALL, orphanRemoval = true)</span>
+    private List&lt;ReceiptItem&gt; items = new ArrayList&lt;&gt;();
+
+<span class="fc" id="L52">    public Receipt() {}</span>
+
+<span class="fc" id="L54">    public Receipt(UUID buyerId, String receiptNumber, Double totalAmount, String paymentStatus) {</span>
+<span class="fc" id="L55">        this.buyerId = buyerId;</span>
+<span class="fc" id="L56">        this.receiptNumber = receiptNumber;</span>
+<span class="fc" id="L57">        this.totalAmount = totalAmount;</span>
+<span class="fc" id="L58">        this.paymentStatus = paymentStatus;</span>
+<span class="fc" id="L59">        this.orderStatus = OrderStatus.PROCESSING;</span>
+<span class="fc" id="L60">        this.processingStartedAt = OffsetDateTime.now();</span>
+<span class="fc" id="L61">    }</span>
+
+    // Getters and Setters
+    public Long getId() {
+<span class="fc" id="L65">        return id;</span>
+    }
+
+    public void setId(Long id) {
+<span class="fc" id="L69">        this.id = id;</span>
+<span class="fc" id="L70">    }</span>
+
+    public UUID getBuyerId() {
+<span class="fc" id="L73">        return buyerId;</span>
+    }
+
+    public void setBuyerId(UUID buyerId) {
+<span class="nc" id="L77">        this.buyerId = buyerId;</span>
+<span class="nc" id="L78">    }</span>
+
+    public String getReceiptNumber() {
+<span class="fc" id="L81">        return receiptNumber;</span>
+    }
+
+    public void setReceiptNumber(String receiptNumber) {
+<span class="nc" id="L85">        this.receiptNumber = receiptNumber;</span>
+<span class="nc" id="L86">    }</span>
+
+    public Double getTotalAmount() {
+<span class="fc" id="L89">        return totalAmount;</span>
+    }
+
+    public void setTotalAmount(Double totalAmount) {
+<span class="nc" id="L93">        this.totalAmount = totalAmount;</span>
+<span class="nc" id="L94">    }</span>
+
+    public OffsetDateTime getCreatedAt() {
+<span class="fc" id="L97">        return createdAt;</span>
+    }
+
+    public void setCreatedAt(OffsetDateTime createdAt) {
+<span class="nc" id="L101">        this.createdAt = createdAt;</span>
+<span class="nc" id="L102">    }</span>
+
+    public String getPaymentStatus() {
+<span class="fc" id="L105">        return paymentStatus;</span>
+    }
+
+    public void setPaymentStatus(String paymentStatus) {
+<span class="nc" id="L109">        this.paymentStatus = paymentStatus;</span>
+<span class="nc" id="L110">    }</span>
+
+    public OrderStatus getOrderStatus() {
+<span class="fc" id="L113">        return orderStatus;</span>
+    }
+
+    public void setOrderStatus(OrderStatus orderStatus) {
+<span class="fc" id="L117">        this.orderStatus = orderStatus;</span>
+<span class="fc" id="L118">    }</span>
+
+    public OffsetDateTime getProcessingStartedAt() {
+<span class="fc" id="L121">        return processingStartedAt;</span>
+    }
+
+    public void setProcessingStartedAt(OffsetDateTime processingStartedAt) {
+<span class="fc" id="L125">        this.processingStartedAt = processingStartedAt;</span>
+<span class="fc" id="L126">    }</span>
+
+    public OffsetDateTime getDeliveryStartedAt() {
+<span class="fc" id="L129">        return deliveryStartedAt;</span>
+    }
+
+    public void setDeliveryStartedAt(OffsetDateTime deliveryStartedAt) {
+<span class="fc" id="L133">        this.deliveryStartedAt = deliveryStartedAt;</span>
+<span class="fc" id="L134">    }</span>
+
+    public OffsetDateTime getCompletedAt() {
+<span class="fc" id="L137">        return completedAt;</span>
+    }
+
+    public void setCompletedAt(OffsetDateTime completedAt) {
+<span class="fc" id="L141">        this.completedAt = completedAt;</span>
+<span class="fc" id="L142">    }</span>
+
+    public OffsetDateTime getCancelledAt() {
+<span class="fc" id="L145">        return cancelledAt;</span>
+    }
+
+    public void setCancelledAt(OffsetDateTime cancelledAt) {
+<span class="fc" id="L149">        this.cancelledAt = cancelledAt;</span>
+<span class="fc" id="L150">    }</span>
+
+    public List&lt;ReceiptItem&gt; getItems() {
+<span class="fc" id="L153">        return items;</span>
+    }
+
+    public void setItems(List&lt;ReceiptItem&gt; items) {
+<span class="nc" id="L157">        this.items = items;</span>
+<span class="nc" id="L158">    }</span>
+
+    public void addItem(ReceiptItem item) {
+<span class="fc" id="L161">        items.add(item);</span>
+<span class="fc" id="L162">        item.setReceipt(this);</span>
+<span class="fc" id="L163">    }</span>
+
+    public void removeItem(ReceiptItem item) {
+<span class="nc" id="L166">        items.remove(item);</span>
+<span class="nc" id="L167">        item.setReceipt(null);</span>
+<span class="nc" id="L168">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
