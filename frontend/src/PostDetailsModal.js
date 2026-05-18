@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useI18n } from "./i18n/I18nContext";
+import CommentSection from './CommentSection';
 
-export default function PostDetailsModal({ postId, onClose }) {
+export default function PostDetailsModal({ postId, userId, onClose }) {
   const { t, formatDate, translateError } = useI18n();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -29,12 +30,14 @@ export default function PostDetailsModal({ postId, onClose }) {
       });
   }, [postId, t, translateError]);
 
-  return (
+return (
     <div className="modal-overlay" onClick={onClose}>
+      {/* Le hemos quitado el onClick a este div para que no interfiera 
+        con los clics internos de la caja de comentarios.
+      */}
       <div
         className="modal-content post-details-modal"
         data-testid="post-details-modal"
-        onClick={(e) => e.stopPropagation()}
       >
         <button
           className="modal-close-button"
@@ -76,15 +79,23 @@ export default function PostDetailsModal({ postId, onClose }) {
               {post.content}
             </div>
 
-            {/* Comments section — implemented by another contributor (items + posts). */}
-            <section
-              className="post-comments"
-              data-testid="comments-section"
-              data-post-id={post.id}
+            <hr style={{ margin: "2rem 0", borderTop: "1px solid #e5e7eb" }} />
+            
+            {/* Este div actúa como una barrera. Atrapa cualquier clic dentro 
+               de los comentarios para que no llegue al "modal-overlay" 
+               (que es el que cierra la ventana)
+            */}
+            <div 
+              className="comments-wrapper" 
+              onClick={(e) => e.stopPropagation()}
+              style={{ paddingBottom: '20px' }}
             >
-              <h3>{t("forum.postDetails.commentsTitle")}</h3>
-              <p className="forum-comments-placeholder">{t("forum.postDetails.commentsPlaceholder")}</p>
-            </section>
+              <CommentSection 
+                targetId={post.id} 
+                targetType="post" 
+                currentUserId={userId} 
+              />
+            </div>
           </article>
         ) : null}
       </div>

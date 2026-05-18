@@ -1,5 +1,6 @@
 import React from "react";
 import { useI18n } from "./i18n/I18nContext";
+import CommentSection from './CommentSection';
 
 export default function PlantDetailsModal({ plantId, userId, onClose, onItemAdded }) {
   const { t, formatCurrency, translateCategory, translateItemStatus, translateError } = useI18n();
@@ -80,7 +81,7 @@ export default function PlantDetailsModal({ plantId, userId, onClose, onItemAdde
     }
   };
 
-  return (
+return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content plant-details-modal" data-testid="plant-details-modal" onClick={(e) => e.stopPropagation()}>
         {loading ? (
@@ -153,6 +154,19 @@ export default function PlantDetailsModal({ plantId, userId, onClose, onItemAdde
                 </button>
               </div>
             </div>
+
+            <div style={{ padding: "0 32px 32px 32px" }}>
+              <hr style={{ margin: "0 0 2rem 0", borderTop: "1px solid #d1d5db" }} />
+              
+              <div onClick={(e) => e.stopPropagation()}>
+                <CommentSection 
+                  targetId={plantId}  
+                  targetType="item" 
+                  currentUserId={userId}  
+                />
+              </div>
+            </div>
+            
           </>
         ) : (
           <p className="auth-error">{t("plantDetails.error")}</p>

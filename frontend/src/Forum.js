@@ -121,6 +121,7 @@ export default function Forum({ userId }) {
       {selectedPostId && (
         <PostDetailsModal
           postId={selectedPostId}
+          userId={userId}
           onClose={() => setSelectedPostId(null)}
         />
       )}

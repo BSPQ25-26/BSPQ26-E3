@@ -9,6 +9,7 @@ import PurchaseHistory from "./PurchaseHistory";
 import SalesHistory from "./SalesHistory";
 import Forum from "./Forum";
 import { useI18n } from "./i18n/I18nContext";
+import CommentSection from './CommentSection';
 
 export default function Dashboard({ user, onLogout }) {
   const { t, formatDate, formatCurrency, translateCategory, translateError } = useI18n();
@@ -34,6 +35,7 @@ export default function Dashboard({ user, onLogout }) {
   const slideTimerRef = useRef(null);
   // Dashboard tab state
   const [dashboardTab, setDashboardTab] = useState("shop"); // "shop", "community", "purchases", "sales"
+
 
   // Cargar datos del perfil
   useEffect(() => {
