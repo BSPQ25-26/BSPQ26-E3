@@ -18,8 +18,8 @@ import com.example.restapi.dto.ErrorResponse;
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleRuntimeException(RuntimeException ex) {
-<span class="fc" id="L21">        ErrorResponse error = new ErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST.value());</span>
-<span class="fc" id="L22">        return new ResponseEntity&lt;&gt;(error, HttpStatus.BAD_REQUEST);</span>
+<span class="nc" id="L21">        ErrorResponse error = new ErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST.value());</span>
+<span class="nc" id="L22">        return new ResponseEntity&lt;&gt;(error, HttpStatus.BAD_REQUEST);</span>
     }
 
     @ExceptionHandler(Exception.class)
