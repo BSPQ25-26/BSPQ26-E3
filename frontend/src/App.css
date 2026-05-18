@@ -294,6 +294,102 @@
   margin-top: 18px;
 }
 
+/* ============ AVATAR UPLOAD ============ */
+
+.avatar-upload-wrapper {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.avatar-preview {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+  background: rgba(47, 106, 59, 0.08);
+  border: 3px solid var(--primary);
+  display: grid;
+  place-items: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.avatar-preview:hover {
+  transform: scale(1.03);
+  box-shadow: 0 8px 24px rgba(47, 106, 59, 0.25);
+}
+
+.avatar-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.avatar-preview svg {
+  width: 56px;
+  height: 56px;
+  fill: var(--primary-dark);
+  opacity: 0.5;
+}
+
+.avatar-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(35, 28, 12, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.avatar-preview:hover .avatar-overlay {
+  opacity: 1;
+}
+
+.avatar-overlay span {
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-align: center;
+  padding: 0 8px;
+}
+
+/* Small avatar in dashboard topbar */
+.topbar-avatar {
+  width: 58px;
+  height: 58px;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 2px solid var(--primary);
+  background: rgba(255, 252, 245, 0.95);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: transform 0.18s ease;
+}
+
+.topbar-avatar:hover {
+  transform: translateY(-1px);
+}
+
+.topbar-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.topbar-avatar svg {
+  width: 28px;
+  height: 28px;
+  fill: var(--primary-dark);
+}
+
 .hero-panel {
   display: grid;
   grid-template-columns: minmax(280px, 0.8fr) minmax(320px, 1.2fr);

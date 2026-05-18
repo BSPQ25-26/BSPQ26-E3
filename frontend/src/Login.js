@@ -38,7 +38,27 @@ export default function Login({ onLoginSuccess, showRegister, successMsg }) {
       }
 
       const data = await res.json();
-      onLoginSuccess({ ...data.profile, email: data.email });
+
+      // Fetch user metadata from Supabase Auth to get avatar_url
+      let avatarUrl = null;
+      try {
+        const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
+        const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
+        const userRes = await fetch(`${supabaseUrl}/auth/v1/user`, {
+          headers: {
+            apikey: supabaseAnonKey,
+            Authorization: `Bearer ${data.access_token}`,
+          },
+        });
+        if (userRes.ok) {
+          const userData = await userRes.json();
+          avatarUrl = userData.user_metadata?.avatar_url || null;
+        }
+      } catch {
+        // ignore metadata fetch errors
+      }
+
+      onLoginSuccess({ ...data.profile, email: data.email, accessToken: data.access_token, avatarUrl });
     } catch (err) {
       console.error("Login fetch error:", err);
       setError(t("errors.connection"));

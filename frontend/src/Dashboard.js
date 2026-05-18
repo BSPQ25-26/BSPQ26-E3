@@ -10,7 +10,7 @@ import SalesHistory from "./SalesHistory";
 import Forum from "./Forum";
 import { useI18n } from "./i18n/I18nContext";
 
-export default function Dashboard({ user, onLogout }) {
+export default function Dashboard({ user, onLogout, onEditProfile }) {
   const { t, formatDate, formatCurrency, translateCategory, translateError } = useI18n();
   const [showProfile, setShowProfile] = useState(false);
   const [profile, setProfile] = useState(user);
@@ -217,19 +217,30 @@ export default function Dashboard({ user, onLogout }) {
 
           <div className="profile-area">
             <button
-              className="profile-button"
+              className="topbar-avatar"
               type="button"
               data-testid="profile-toggle"
               aria-label={t("dashboard.profileAria")}
               onClick={() => setShowProfile((current) => !current)}
             >
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M12 12a4.25 4.25 0 1 0-4.25-4.25A4.26 4.26 0 0 0 12 12Zm0 2.25c-3.9 0-7 2.01-7 4.5V20h14v-1.25c0-2.49-3.1-4.5-7-4.5Z" />
-              </svg>
+              {user.avatarUrl ? (
+                <img src={user.avatarUrl} alt={t("dashboard.profileAria")} />
+              ) : (
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 12a4.25 4.25 0 1 0-4.25-4.25A4.26 4.26 0 0 0 12 12Zm0 2.25c-3.9 0-7 2.01-7 4.5V20h14v-1.25c0-2.49-3.1-4.5-7-4.5Z" />
+                </svg>
+              )}
             </button>
             {showProfile && (
               <aside className="profile-card">
                 <p className="profile-card-title">{t("dashboard.profileTitle")}</p>
+                {user.avatarUrl && (
+                  <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}>
+                    <div className="avatar-preview" style={{ width: 80, height: 80, cursor: "default" }}>
+                      <img src={user.avatarUrl} alt={t("dashboard.profileAria")} />
+                    </div>
+                  </div>
+                )}
                 <dl className="profile-details">
                   <div>
                     <dt>{t("common.labels.username")}</dt>
@@ -254,6 +265,14 @@ export default function Dashboard({ user, onLogout }) {
                     })}</dd>
                   </div>
                 </dl>
+                <button
+                  className="primary-button profile-logout"
+                  type="button"
+                  onClick={onEditProfile}
+                  style={{ marginBottom: 10 }}
+                >
+                  {t("common.actions.editProfile")}
+                </button>
                 <button className="secondary-button profile-logout" type="button" data-testid="logout-button" onClick={onLogout}>
                   {t("common.actions.signOut")}
                 </button>
