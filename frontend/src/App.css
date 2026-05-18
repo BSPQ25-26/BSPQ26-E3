@@ -19,7 +19,7 @@
 .language-switcher {
   position: fixed;
   top: 18px;
-  right: 18px;
+  left: 18px;
   z-index: 2000;
   display: inline-flex;
   gap: 6px;
@@ -407,7 +407,7 @@
 @media (max-width: 640px) {
   .language-switcher {
     top: 12px;
-    right: 12px;
+    left: 12px;
   }
 
   .auth-card {
@@ -446,8 +446,8 @@
 .catalogue-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
+  align-items: flex-start;
+  margin-bottom: 20px;
   gap: 20px;
 }
 
@@ -459,13 +459,93 @@
 
 .catalogue-filters {
   display: flex;
-  gap: 12px;
-  flex-grow: 1;
-  justify-content: flex-end;
+  gap: 24px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
 }
 
-.search-box { max-width: 300px; }
-.filter-box { max-width: 150px; }
+.search-box { max-width: 300px; width: 100%; }
+.filter-box { max-width: 180px; width: 100%; }
+
+.price-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 200px;
+}
+
+.price-filter-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+}
+
+.price-filter-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.price-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: 1;
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    var(--primary) 0%,
+    var(--primary) var(--pct, 0%),
+    rgba(88, 73, 42, 0.2) var(--pct, 0%),
+    rgba(88, 73, 42, 0.2) 100%
+  );
+  outline: none;
+  cursor: pointer;
+  border: none;
+}
+
+.price-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(47, 106, 59, 0.4);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.price-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.25);
+  box-shadow: 0 4px 12px rgba(47, 106, 59, 0.5);
+}
+
+.price-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(47, 106, 59, 0.4);
+  cursor: pointer;
+}
+
+.price-slider::-moz-range-track {
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(88, 73, 42, 0.2);
+}
+
+.price-number-input {
+  width: 74px !important;
+  padding: 8px 10px !important;
+  text-align: center;
+  font-size: 0.88rem;
+}
 
 .plants-grid {
   display: grid;
@@ -588,6 +668,11 @@
 .plant-details-modal {
   max-width: 860px;
   overflow-y: auto;
+}
+
+.plant-details-layout {
+  display: flex;
+  flex-direction: column;
 }
 
 /* Modal Header - Fixed */
@@ -923,6 +1008,114 @@
   margin-top: auto;
 }
 
+.plant-reviews-section {
+  border-top: 1px solid rgba(114, 88, 52, 0.14);
+  padding: 0 32px 32px;
+}
+
+.plant-reviews-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.plant-reviews-header h3 {
+  margin: 0;
+  font-size: 1.35rem;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.review-form {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 24px;
+  padding: 18px;
+  background: rgba(47, 106, 59, 0.04);
+  border: 1px solid rgba(47, 106, 59, 0.1);
+  border-radius: 18px;
+}
+
+.review-form-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 180px) 1fr;
+  gap: 16px;
+}
+
+.review-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.review-form-field span {
+  font-size: 0.9rem;
+}
+
+.review-form-field select,
+.review-form-field textarea {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid rgba(88, 73, 42, 0.14);
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--text-main);
+  font: inherit;
+  padding: 12px 14px;
+}
+
+.review-form-field select:focus,
+.review-form-field textarea:focus {
+  outline: 2px solid rgba(47, 106, 59, 0.18);
+  border-color: rgba(47, 106, 59, 0.42);
+}
+
+.review-form-field textarea {
+  resize: vertical;
+  min-height: 88px;
+}
+
+.review-submit-button {
+  max-width: 220px;
+}
+
+.plant-reviews-state {
+  margin: 0;
+  color: var(--text-soft);
+}
+
+.reviews-list {
+  display: grid;
+  gap: 14px;
+}
+
+.review-card {
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(114, 88, 52, 0.14);
+  background: rgba(255, 252, 244, 0.92);
+}
+
+.review-card-header h4 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.review-card-meta {
+  margin: 6px 0 0;
+  color: var(--text-soft);
+  font-size: 0.9rem;
+}
+
+.review-card-comment {
+  margin: 12px 0 0;
+  color: var(--text-main);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
 .quantity-selector {
   display: flex;
   align-items: center;
@@ -947,6 +1140,16 @@
 .quantity-selector input:disabled {
   background: rgba(0, 0, 0, 0.05);
   cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .plant-reviews-section {
+    padding: 0 24px 24px;
+  }
+
+  .review-form-row {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ============ SHOPPING CART ============ */
