@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="PlantMarket REST API">
+    <body>
+        <menu name="Overview">
+            <item name="Introduction" href="index.html"/>
+            <item name="Project Summary" href="summary.html"/>
+            <item name="Team" href="team.html"/>
+            <item name="Issue Tracking" href="issue-management.html"/>
+        </menu>
+        <menu name="Reports">
+            <item name="Javadoc" href="apidocs/index.html"/>
+            <item name="Doxygen Documentation" href="./doxygen/index.html"/>
+            <item name="Test Report" href="surefire-report.html"/>
+            <item name="JaCoCo Coverage" href="jacoco/index.html"/>
+            <item name="Source Xref" href="xref/index.html"/>
+        </menu>
+    </body>
+</project>
