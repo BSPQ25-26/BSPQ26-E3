@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -48,6 +49,38 @@ class PostServiceTest {
         testPost.setId(1L);
         testPost.setTitle("Test Title");
         testPost.setContent("Test Content");
+    }
+
+    @Nested
+    @DisplayName("getPostsByAuthor")
+    class GetPostsByAuthorTests {
+
+        @Test
+        @DisplayName("should return posts for a given author")
+        void testGetPostsByAuthorReturnsMatchingPosts() {
+            UUID authorId = UUID.randomUUID();
+            when(postRepository.findByAuthor_Id(authorId)).thenReturn(List.of(testPost));
+
+            List<PostResponse> result = postService.getPostsByAuthor(authorId);
+
+            assertEquals(1, result.size());
+            assertEquals("Test Title", result.get(0).getTitle());
+            verify(postRepository).findByAuthor_Id(authorId);
+            log.info("testGetPostsByAuthorReturnsMatchingPosts passed");
+        }
+
+        @Test
+        @DisplayName("should return empty list when author has no posts")
+        void testGetPostsByAuthorReturnsEmptyList() {
+            UUID authorId = UUID.randomUUID();
+            when(postRepository.findByAuthor_Id(authorId)).thenReturn(List.of());
+
+            List<PostResponse> result = postService.getPostsByAuthor(authorId);
+
+            assertTrue(result.isEmpty());
+            verify(postRepository).findByAuthor_Id(authorId);
+            log.info("testGetPostsByAuthorReturnsEmptyList passed");
+        }
     }
 
     @Nested

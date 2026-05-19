@@ -59,6 +59,34 @@ public class ItemServiceTest {
     }
 
     @Nested
+    @DisplayName("getItemById")
+    class GetItemByIdTests {
+
+        @Test
+        @DisplayName("should return item response for existing id")
+        void testGetItemByIdSuccess() {
+            when(itemRepository.findById(1L)).thenReturn(Optional.of(testItem));
+
+            ItemResponse result = itemService.getItemById(1L);
+
+            assertEquals("Test Item", result.getTitle());
+            assertEquals(99.99, result.getAmount());
+            verify(itemRepository).findById(1L);
+            log.info("testGetItemByIdSuccess passed: itemId=1");
+        }
+
+        @Test
+        @DisplayName("should throw RuntimeException when item not found")
+        void testGetItemByIdNotFound() {
+            when(itemRepository.findById(999L)).thenReturn(Optional.empty());
+
+            assertThrows(RuntimeException.class, () -> itemService.getItemById(999L));
+            verify(itemRepository).findById(999L);
+            log.info("testGetItemByIdNotFound passed");
+        }
+    }
+
+    @Nested
     @DisplayName("getAllItems")
     class GetAllItemsTests {
 

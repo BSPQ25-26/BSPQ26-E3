@@ -12,20 +12,63 @@
 	<groupId>com.example</groupId>
 	<artifactId>rest-api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>rest-api</name>
-	<description>Demo project for Spring Boot REST API</description>
-	<url />
+	<name>PlantMarket REST API</name>
+	<description>Spring Boot REST API for the PlantMarket platform — BSPQ26-E3</description>
+	<url>https://github.com/BSPQ25-26/BSPQ26-E3</url>
+
 	<licenses>
-		<license />
+		<license>
+			<name>MIT License</name>
+			<url>https://opensource.org/licenses/MIT</url>
+		</license>
 	</licenses>
+
 	<developers>
-		<developer />
+		<developer>
+			<name>Mateo Pérez</name>
+			<roles><role>Developer</role></roles>
+		</developer>
+		<developer>
+			<name>Iñigo Eguiluz</name>
+			<roles><role>Developer</role></roles>
+		</developer>
+		<developer>
+			<name>Ibon Arambarri</name>
+			<roles><role>Developer</role></roles>
+		</developer>
+		<developer>
+			<name>Naia Martin</name>
+			<roles><role>Developer</role></roles>
+		</developer>
+		<developer>
+			<name>Andoni Arrabal</name>
+			<roles><role>Developer</role></roles>
+		</developer>
+		<developer>
+			<name>Lydia Bouaziz</name>
+			<roles><role>Developer</role></roles>
+		</developer>
+		<developer>
+			<name>Alex Jauregui</name>
+			<roles><role>Developer</role></roles>
+		</developer>
 	</developers>
+
+	<organization>
+		<name>Universidad de Deusto — BSPQ26-E3</name>
+		<url>https://github.com/BSPQ25-26/BSPQ26-E3</url>
+	</organization>
+
+	<issueManagement>
+		<system>GitHub Issues</system>
+		<url>https://github.com/BSPQ25-26/BSPQ26-E3/issues</url>
+	</issueManagement>
+
 	<scm>
-		<connection />
-		<developerConnection />
-		<tag />
-		<url />
+		<connection>scm:git:https://github.com/BSPQ25-26/BSPQ26-E3.git</connection>
+		<developerConnection>scm:git:https://github.com/BSPQ25-26/BSPQ26-E3.git</developerConnection>
+		<tag>HEAD</tag>
+		<url>https://github.com/BSPQ25-26/BSPQ26-E3</url>
 	</scm>
 	<properties>
 		<java.version>21</java.version> <server.hostname>127.0.0.1</server.hostname>
@@ -164,6 +207,15 @@
 						<id>report</id>
 						<phase>test</phase>
 						<goals><goal>report</goal></goals>
+						<configuration>
+							<excludes>
+								<exclude>com/example/config/**</exclude>
+								<exclude>com/example/restapi/RestApiApplication.class</exclude>
+								<exclude>com/example/restapi/model/**</exclude>
+								<exclude>com/example/restapi/dto/**</exclude>
+								<exclude>com/example/restapi/repository/**</exclude>
+							</excludes>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
@@ -200,11 +252,25 @@
 
 	<reporting>
 		<plugins>
-			<!-- General project information reports -->
+			<!-- General project information reports (dependency report excluded to avoid
+			     unresolvable transitive POM warnings from test-only artifacts) -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-project-info-reports-plugin</artifactId>
 				<version>3.5.0</version>
+				<reportSets>
+					<reportSet>
+						<reports>
+							<report>index</report>
+							<report>summary</report>
+							<report>licenses</report>
+							<report>team</report>
+							<report>issue-management</report>
+							<report>plugin-management</report>
+							<report>plugins</report>
+						</reports>
+					</reportSet>
+				</reportSets>
 			</plugin>
 
 			<!-- Surefire test results report -->
@@ -219,6 +285,15 @@
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version>0.8.13</version>
+				<configuration>
+					<excludes>
+						<exclude>com/example/config/**</exclude>
+						<exclude>com/example/restapi/RestApiApplication.class</exclude>
+						<exclude>com/example/restapi/model/**</exclude>
+						<exclude>com/example/restapi/dto/**</exclude>
+						<exclude>com/example/restapi/repository/**</exclude>
+					</excludes>
+				</configuration>
 				<reportSets>
 					<reportSet>
 						<reports>
@@ -236,6 +311,7 @@
 				<configuration>
 					<source>21</source>
 					<failOnError>false</failOnError>
+					<doclint>none</doclint>
 				</configuration>
 				<reportSets>
 					<reportSet>
