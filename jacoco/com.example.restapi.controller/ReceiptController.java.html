@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReceiptController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">rest-api</a> &gt; <a href="index.source.html" class="el_package">com.example.restapi.controller</a> &gt; <span class="el_source">ReceiptController.java</span></div><h1>ReceiptController.java</h1><pre class="source lang-java linenums">package com.example.restapi.controller;
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReceiptController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">PlantMarket REST API</a> &gt; <a href="index.source.html" class="el_package">com.example.restapi.controller</a> &gt; <span class="el_source">ReceiptController.java</span></div><h1>ReceiptController.java</h1><pre class="source lang-java linenums">package com.example.restapi.controller;
 
 import java.util.List;
 import java.util.UUID;
@@ -26,31 +26,31 @@ public class ReceiptController {
     @GetMapping(&quot;/buyer/{buyerId}&quot;)
     public ResponseEntity&lt;List&lt;ReceiptResponse&gt;&gt; getReceiptsByBuyerId(@PathVariable String buyerId) {
         try {
-<span class="nc" id="L29">            UUID uuid = UUID.fromString(buyerId);</span>
-<span class="nc" id="L30">            List&lt;ReceiptResponse&gt; receipts = receiptService.getReceiptsByBuyerId(uuid);</span>
-<span class="nc" id="L31">            return ResponseEntity.ok(receipts);</span>
-<span class="nc" id="L32">        } catch (IllegalArgumentException e) {</span>
-<span class="nc" id="L33">            return ResponseEntity.badRequest().build();</span>
+<span class="fc" id="L29">            UUID uuid = UUID.fromString(buyerId);</span>
+<span class="fc" id="L30">            List&lt;ReceiptResponse&gt; receipts = receiptService.getReceiptsByBuyerId(uuid);</span>
+<span class="fc" id="L31">            return ResponseEntity.ok(receipts);</span>
+<span class="fc" id="L32">        } catch (IllegalArgumentException e) {</span>
+<span class="fc" id="L33">            return ResponseEntity.badRequest().build();</span>
         }
     }
 
     @GetMapping(&quot;/{receiptId}&quot;)
     public ResponseEntity&lt;ReceiptResponse&gt; getReceiptById(@PathVariable Long receiptId) {
         try {
-<span class="nc" id="L40">            ReceiptResponse receipt = receiptService.getReceiptById(receiptId);</span>
-<span class="nc" id="L41">            return ResponseEntity.ok(receipt);</span>
-<span class="nc" id="L42">        } catch (RuntimeException e) {</span>
-<span class="nc" id="L43">            return ResponseEntity.notFound().build();</span>
+<span class="fc" id="L40">            ReceiptResponse receipt = receiptService.getReceiptById(receiptId);</span>
+<span class="fc" id="L41">            return ResponseEntity.ok(receipt);</span>
+<span class="fc" id="L42">        } catch (RuntimeException e) {</span>
+<span class="fc" id="L43">            return ResponseEntity.notFound().build();</span>
         }
     }
 
     @PostMapping(&quot;/{receiptId}/cancel&quot;)
     public ResponseEntity&lt;ReceiptResponse&gt; cancelOrder(@PathVariable Long receiptId) {
         try {
-<span class="nc" id="L50">            ReceiptResponse receipt = receiptService.cancelOrder(receiptId);</span>
-<span class="nc" id="L51">            return ResponseEntity.ok(receipt);</span>
-<span class="nc" id="L52">        } catch (RuntimeException e) {</span>
-<span class="nc" id="L53">            return ResponseEntity.badRequest().body(null);</span>
+<span class="fc" id="L50">            ReceiptResponse receipt = receiptService.cancelOrder(receiptId);</span>
+<span class="fc" id="L51">            return ResponseEntity.ok(receipt);</span>
+<span class="fc" id="L52">        } catch (RuntimeException e) {</span>
+<span class="fc" id="L53">            return ResponseEntity.badRequest().body(null);</span>
         }
     }
 }

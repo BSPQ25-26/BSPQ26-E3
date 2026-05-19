@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SaleService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">rest-api</a> &gt; <a href="index.source.html" class="el_package">com.example.restapi.service</a> &gt; <span class="el_source">SaleService.java</span></div><h1>SaleService.java</h1><pre class="source lang-java linenums">package com.example.restapi.service;
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SaleService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">PlantMarket REST API</a> &gt; <a href="index.source.html" class="el_package">com.example.restapi.service</a> &gt; <span class="el_source">SaleService.java</span></div><h1>SaleService.java</h1><pre class="source lang-java linenums">package com.example.restapi.service;
 
 import java.util.List;
 import java.util.UUID;
@@ -60,17 +60,17 @@ public class SaleService {
      * @return List of SaleResponse DTOs.
      */
     public List&lt;SaleResponse&gt; getSalesBySellerId(UUID sellerId) {
-<span class="nc" id="L63">        List&lt;Sale&gt; sales = saleRepository.findBySellerId(sellerId);</span>
-<span class="nc" id="L64">        return sales.stream()</span>
-<span class="nc" id="L65">                .map(sale -&gt; new SaleResponse(</span>
-<span class="nc" id="L66">                        sale.getId(),</span>
-<span class="nc" id="L67">                        sale.getItem().getName(),</span>
-<span class="nc" id="L68">                        sale.getQuantity(),</span>
-<span class="nc" id="L69">                        sale.getUnitPrice(),</span>
-<span class="nc" id="L70">                        sale.getTotalPrice(),</span>
-<span class="nc" id="L71">                        sale.getCreatedAt()</span>
+<span class="fc" id="L63">        List&lt;Sale&gt; sales = saleRepository.findBySellerId(sellerId);</span>
+<span class="fc" id="L64">        return sales.stream()</span>
+<span class="fc" id="L65">                .map(sale -&gt; new SaleResponse(</span>
+<span class="fc" id="L66">                        sale.getId(),</span>
+<span class="fc" id="L67">                        sale.getItem().getName(),</span>
+<span class="fc" id="L68">                        sale.getQuantity(),</span>
+<span class="fc" id="L69">                        sale.getUnitPrice(),</span>
+<span class="fc" id="L70">                        sale.getTotalPrice(),</span>
+<span class="fc" id="L71">                        sale.getCreatedAt()</span>
                 ))
-<span class="nc" id="L73">                .collect(Collectors.toList());</span>
+<span class="fc" id="L73">                .collect(Collectors.toList());</span>
     }
 
     /**
@@ -79,10 +79,10 @@ public class SaleService {
      * @return Sum of all sale totals for that seller.
      */
     public Double getTotalSalesBySellerId(UUID sellerId) {
-<span class="nc" id="L82">        List&lt;Sale&gt; sales = saleRepository.findBySellerId(sellerId);</span>
-<span class="nc" id="L83">        return sales.stream()</span>
-<span class="nc" id="L84">                .mapToDouble(Sale::getTotalPrice)</span>
-<span class="nc" id="L85">                .sum();</span>
+<span class="fc" id="L82">        List&lt;Sale&gt; sales = saleRepository.findBySellerId(sellerId);</span>
+<span class="fc" id="L83">        return sales.stream()</span>
+<span class="fc" id="L84">                .mapToDouble(Sale::getTotalPrice)</span>
+<span class="fc" id="L85">                .sum();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
